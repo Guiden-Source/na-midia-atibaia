@@ -168,10 +168,7 @@ export default function EventosPage() {
                       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
                         <Clock className="h-4 w-4" />
                         <span>
-                          {startDate.toLocaleTimeString('pt-BR', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
+                          {`${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`}
                         </span>
                       </div>
 

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Calendar, Home, User, Ticket } from "lucide-react";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
@@ -39,9 +40,25 @@ const tabs: Tab[] = [
 ];
 
 export function ExpandableTabs() {
-  const [activeTab, setActiveTab] = useState(tabs[0].id);
+  const pathname = usePathname();
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Determinar qual aba está ativa baseado na URL atual
+  const getActiveTab = () => {
+    if (pathname === '/') return 'home';
+    if (pathname.startsWith('/perfil/cupons')) return 'cupons';
+    if (pathname.startsWith('/perfil')) return 'profile';
+    if (pathname.startsWith('/evento')) return 'events';
+    return 'home';
+  };
+
+  const [activeTab, setActiveTab] = useState(getActiveTab());
+
+  useEffect(() => {
+    // Atualizar aba ativa quando a rota mudar
+    setActiveTab(getActiveTab());
+  }, [pathname]);
 
   useEffect(() => {
     const checkAuth = async () => {

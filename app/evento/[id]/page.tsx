@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { fetchEventById, confirmPresenceAction } from '@/app/actions';
 import type { Event } from '@/lib/types';
-import { formatTimeRange, isLive } from '@/lib/utils';
+import { isLive } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import ConfirmPresenceModal from '@/components/ConfirmPresenceModal';
 import { ShareButton } from '@/components/ShareButton';
@@ -190,7 +190,18 @@ export default function EventPage({ params }: Props) {
                 <div className="flex flex-wrap items-center gap-4 text-white/90">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-5 h-5" />
-                    <span className="text-lg">{formatTimeRange(event.start_time, event.end_time).split(' - ')[0]}</span>
+                    <span className="text-lg">
+                      {new Date(event.start_time).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5" />
+                    <span className="text-lg">
+                      {(() => {
+                        const date = new Date(event.start_time);
+                        return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                      })()}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="w-5 h-5" />
@@ -203,129 +214,160 @@ export default function EventPage({ params }: Props) {
         </div>
 
         {/* Conteúdo Principal */}
-        <div className="container mx-auto max-w-6xl px-4 -mt-16 relative z-10 pb-12">
+        <div className="container mx-auto max-w-4xl px-4 py-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-card/95 backdrop-blur-lg rounded-3xl shadow-2xl border border-border/50 overflow-hidden"
+            className="space-y-8"
           >
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6 md:p-8">
-              {/* Coluna Principal - Descrição */}
-              <div className="lg:col-span-2 space-y-6">
-                <div>
-                  <h2 className="font-righteous text-2xl text-foreground mb-4 flex items-center gap-2">
-                    <Sparkles className="w-6 h-6 text-primary" />
-                    Sobre o Evento
-                  </h2>
-                  <p className="text-lg text-muted-foreground whitespace-pre-line leading-relaxed">
-                    {event.description || 'Detalhes do evento em breve...'}
-                  </p>
+            {/* Header: Badge + Título + Data/Hora */}
+            <div className="space-y-4">
+              <div>
+                <span className="inline-block rounded-full bg-primary px-4 py-1.5 text-sm font-bold text-primary-foreground">
+                  {event.event_type}
+                </span>
+              </div>
+              
+              <h1 className="font-righteous text-4xl md:text-5xl text-foreground leading-tight">
+                {event.name}
+              </h1>
+              
+              <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  <span className="text-lg font-medium">
+                    {new Date(event.start_time).toLocaleDateString('pt-BR', { 
+                      day: '2-digit', 
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </span>
                 </div>
-
-                {/* Cards de Informação Rápida */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                  <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 text-center">
-                    <Calendar className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <p className="text-xs text-muted-foreground mb-1">Data</p>
-                    <p className="font-bold text-foreground">
-                      {new Date(event.start_time).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
-                    </p>
-                  </div>
-                  
-                  <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 text-center">
-                    <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <p className="text-xs text-muted-foreground mb-1">Horário</p>
-                    <p className="font-bold text-foreground">
-                      {(() => {
-                        const date = new Date(event.start_time);
-                        const hours = String(date.getHours()).padStart(2, '0');
-                        const minutes = String(date.getMinutes()).padStart(2, '0');
-                        return `${hours}:${minutes}`;
-                      })()}
-                    </p>
-                  </div>
-                  
-                  <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 text-center">
-                    <Users className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <p className="text-xs text-muted-foreground mb-1">Confirmados</p>
-                    <p className="font-bold text-foreground">{event.confirmations_count || 0}</p>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary" />
+                  <span className="text-lg font-medium">
+                    {(() => {
+                      const date = new Date(event.start_time);
+                      return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                    })()}
+                  </span>
                 </div>
               </div>
+            </div>
 
-              {/* Coluna Lateral - CTA */}
-              <div className="space-y-4">
-                <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-pink-500/10 to-purple-500/10 border border-primary/20 p-6">
-                  <h3 className="font-righteous text-xl text-foreground mb-3">Local</h3>
-                  <div className="flex items-start gap-3 mb-4">
-                    <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                    <p className="text-muted-foreground">{event.location}</p>
+            {/* Divisor */}
+            <div className="border-t border-border" />
+
+            {/* Sobre o Evento */}
+            <div>
+              <h2 className="font-righteous text-2xl text-foreground mb-4">
+                ✨ Sobre o Evento
+              </h2>
+              <p className="text-lg text-muted-foreground whitespace-pre-line leading-relaxed">
+                {event.description || 'Detalhes do evento em breve...'}
+              </p>
+            </div>
+
+            {/* Cards de Informação Rápida */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="rounded-xl bg-card border border-border p-4 text-center">
+                <Calendar className="w-8 h-8 text-primary mx-auto mb-2" />
+                <p className="text-xs text-muted-foreground mb-1">Data</p>
+                <p className="font-bold text-foreground">
+                  {new Date(event.start_time).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                </p>
+              </div>
+              
+              <div className="rounded-xl bg-card border border-border p-4 text-center">
+                <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
+                <p className="text-xs text-muted-foreground mb-1">Horário</p>
+                <p className="font-bold text-foreground">
+                  {(() => {
+                    const date = new Date(event.start_time);
+                    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                  })()}
+                </p>
+              </div>
+              
+              <div className="rounded-xl bg-card border border-border p-4 text-center">
+                <Users className="w-8 h-8 text-primary mx-auto mb-2" />
+                <p className="text-xs text-muted-foreground mb-1">Confirmados</p>
+                <p className="font-bold text-foreground">{event.confirmations_count || 0}</p>
+              </div>
+            </div>
+
+            {/* Local */}
+            <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
+              <h3 className="font-righteous text-xl text-foreground flex items-center gap-2">
+                <MapPin className="w-6 h-6 text-primary" />
+                Local
+              </h3>
+              <p className="text-lg text-muted-foreground">{event.location}</p>
+              
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full rounded-xl bg-primary/10 hover:bg-primary/20 px-4 py-3 font-bold text-primary transition-all"
+              >
+                <Navigation className="w-5 h-5" />
+                Ver no Mapa
+              </a>
+            </div>
+
+            {/* Cupom Se Na Mídia Presente */}
+            {event.na_midia_present && (
+              <motion.div 
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="rounded-2xl bg-gradient-to-br from-orange-500/10 via-pink-500/10 to-purple-500/10 border-2 border-primary p-6"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-6 h-6 text-primary-foreground" />
                   </div>
-                  
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full rounded-xl bg-background/50 backdrop-blur px-4 py-2 text-sm font-semibold text-foreground hover:bg-background/80 transition-all border border-border"
-                  >
-                    <Navigation className="w-4 h-4" />
-                    Ver no Mapa
-                  </a>
-                </div>
-
-                {event.na_midia_present && (
-                  <motion.div 
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="rounded-2xl bg-gradient-to-br from-orange-500/20 via-pink-500/20 to-purple-500/20 border-2 border-primary p-6"
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                        <Sparkles className="w-5 h-5 text-primary-foreground" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-foreground">Cupom Incluso!</p>
-                        <p className="text-xs text-muted-foreground">Na Mídia Presente</p>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
+                  <div>
+                    <h3 className="font-bold text-foreground text-lg mb-1">🎁 Cupom Incluso!</h3>
+                    <p className="text-sm text-muted-foreground font-medium mb-2">Na Mídia Presente</p>
+                    <p className="text-muted-foreground">
                       Confirme sua presença e garanta um cupom exclusivo de bebida para usar após o evento! 🍹
                     </p>
-                  </motion.div>
-                )}
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsModalOpen(true)}
-                  disabled={isConfirming || isPast}
-                  className="w-full rounded-2xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 px-6 py-4 font-baloo2 text-lg font-bold text-white shadow-xl transition-all hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
-                >
-                  {isConfirming ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Clock className="w-5 h-5 animate-spin" />
-                      Processando...
-                    </span>
-                  ) : isPast ? (
-                    'Evento Encerrado'
-                  ) : (
-                    <span className="flex items-center justify-center gap-2">
-                      <Heart className="w-5 h-5" />
-                      Confirmar Presença
-                    </span>
-                  )}
-                </motion.button>
-
-                <div className="flex items-center justify-center gap-3 pt-2">
-                  <ShareButton
-                    title={event.name}
-                    text={`Vem comigo nesse evento! ${event.event_type} em ${event.location} 🎉`}
-                    url={typeof window !== 'undefined' ? window.location.href : `https://namidia.com.br/evento/${event.id}`}
-                  />
+                  </div>
                 </div>
-              </div>
+              </motion.div>
+            )}
+
+            {/* Botão CTA Grande */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setIsModalOpen(true)}
+              disabled={isConfirming || isPast}
+              className="w-full rounded-2xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 px-8 py-5 font-baloo2 text-xl font-bold text-white shadow-2xl transition-all hover:shadow-3xl disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isConfirming ? (
+                <span className="flex items-center justify-center gap-3">
+                  <Clock className="w-6 h-6 animate-spin" />
+                  Processando...
+                </span>
+              ) : isPast ? (
+                'Evento Encerrado'
+              ) : (
+                <span className="flex items-center justify-center gap-3">
+                  <Heart className="w-6 h-6" />
+                  Confirmar Presença
+                </span>
+              )}
+            </motion.button>
+
+            {/* Compartilhar Melhorado */}
+            <div className="flex flex-col items-center justify-center gap-4 pt-4">
+              <p className="text-sm text-muted-foreground font-medium">Compartilhe com seus amigos</p>
+              <ShareButton
+                title={event.name}
+                text={`Vem comigo nesse evento! ${event.event_type} em ${event.location} 🎉`}
+                url={typeof window !== 'undefined' ? window.location.href : `https://namidia.com.br/evento/${event.id}`}
+              />
             </div>
           </motion.div>
         </div>

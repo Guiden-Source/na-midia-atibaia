@@ -12,10 +12,17 @@ export default function PerfilPage() {
   const router = useRouter();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [stats, setStats] = useState({
     cupons: 0,
     eventos: 0,
   });
+
+  // Lista de emails autorizados como admin
+  const ADMIN_EMAILS = [
+    'guidjvb@gmail.com',
+    'admin@namidia.com.br',
+  ];
 
   useEffect(() => {
     const checkUser = async () => {
@@ -29,8 +36,13 @@ export default function PerfilPage() {
 
       setUser(user);
 
+      // Verificar se é admin
+      const userIsAdmin = ADMIN_EMAILS.includes(user.email || '');
+      setIsAdmin(userIsAdmin);
+
       console.log('👤 Perfil - Loading stats for user:', user.email);
       console.log('👤 Perfil - User ID:', user.id);
+      console.log('👤 Perfil - Is Admin:', userIsAdmin);
 
       // Buscar estatísticas de cupons DISPONÍVEIS (apenas os não usados)
       const { data: cuponsData, error: cuponsError } = await supabase
@@ -165,6 +177,29 @@ export default function PerfilPage() {
             </div>
           </div>
         </div>
+
+        {/* Admin Panel Link (só para admins) */}
+        {isAdmin && (
+          <div className="mb-6 rounded-3xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 p-1">
+            <Link
+              href="/admin"
+              className="flex items-center gap-4 rounded-[calc(1.5rem-4px)] bg-white dark:bg-gray-800 p-6 transition-all hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center">
+                <Settings className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-baloo2 text-xl font-bold text-gray-900 dark:text-white mb-1">
+                  🛠️ Painel Administrativo
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Gerencie eventos, usuários e cupons
+                </p>
+              </div>
+              <div className="text-2xl">→</div>
+            </Link>
+          </div>
+        )}
 
         {/* Navigation Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

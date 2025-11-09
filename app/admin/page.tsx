@@ -746,6 +746,12 @@ export default function AdminPage() {
         </div>
         <div className="flex gap-3 flex-wrap">
           <Link 
+            href="/validar-cupom" 
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-3 font-baloo2 font-bold text-white shadow-lg transition-transform hover:scale-105"
+          >
+            📱 Validar QR Code
+          </Link>
+          <Link 
             href="/admin/analytics" 
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3 font-baloo2 font-bold text-white shadow-lg transition-transform hover:scale-105"
           >
