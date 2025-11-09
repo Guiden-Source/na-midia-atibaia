@@ -115,7 +115,7 @@ export function FloatingHeader() {
             }}
           />
           
-          <div className="relative flex items-center justify-between px-6 py-3">
+          <div className="relative flex items-center justify-between px-6 py-4">
             <Link 
               href="/" 
               className="flex items-center transition-transform hover:scale-105 active:scale-95 z-10"
@@ -184,10 +184,10 @@ export function FloatingHeader() {
                   )}
                 </div>
               ) : (
-                <div className="flex items-center gap-2 ml-2">
+                <div className="flex items-center gap-3 ml-2">
                   <Link
                     href="/signup"
-                    className="flex items-center gap-2 px-5 py-3 min-h-[44px] rounded-full font-baloo2 text-base font-semibold text-gray-800 dark:text-gray-100 hover:bg-orange-500/10 hover:text-orange-600 dark:hover:text-orange-300 transition-all"
+                    className="flex items-center gap-2 px-6 py-3 min-h-[44px] rounded-full font-baloo2 text-base font-bold border-2 border-orange-500 text-orange-600 dark:text-orange-400 dark:border-orange-400 hover:bg-orange-500 hover:text-white dark:hover:bg-orange-500 dark:hover:text-white hover:scale-105 active:scale-95 transition-all"
                   >
                     <span>Criar Conta</span>
                   </Link>
@@ -225,8 +225,8 @@ export function FloatingHeader() {
               }}
             />
             
-            <div className="relative flex items-center justify-between px-4 py-3">
-              <Link href="/">
+            <div className="relative flex items-center justify-between px-4 py-4">
+              <Link href="/" className="flex items-center">
                 <img 
                   src="/logotiponamidiavetorizado.svg" 
                   alt="Na Mídia" 
@@ -252,7 +252,7 @@ export function FloatingHeader() {
                 <div className="flex items-center gap-2">
                   <Link
                     href="/signup"
-                    className="px-3 py-2 rounded-full font-baloo2 text-xs font-semibold text-gray-800 dark:text-gray-100 hover:bg-orange-500/10 transition-all"
+                    className="flex items-center px-4 py-2 rounded-full font-baloo2 text-sm font-bold border-2 border-orange-500 text-orange-600 dark:text-orange-400 dark:border-orange-400 hover:bg-orange-500 hover:text-white active:scale-95 transition-all"
                   >
                     Criar Conta
                   </Link>
