@@ -1,6 +1,7 @@
 import { Baloo_2, Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { Toaster } from 'react-hot-toast';
+import { Analytics } from '@vercel/analytics/next';
 import { cn } from '@/lib/utils';
 import './globals.css';
 import type { Viewport } from 'next';
@@ -84,7 +85,17 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <head />
+      <head>
+        {/* Meta tags específicas para iOS PWA */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Na Mídia" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="format-detection" content="telephone=no" />
+        
+        {/* Splash screens para iOS */}
+        <link rel="apple-touch-startup-image" href="/apple-touch-icon.png" />
+      </head>
       <body
         className={cn(
           "min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 font-inter antialiased",
@@ -108,6 +119,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             },
           }}
         />
+        
+        <Analytics />
         
         {/* Debug de autenticação (apenas em desenvolvimento) */}
         {process.env.NODE_ENV === 'development' && <AuthDebug />}
