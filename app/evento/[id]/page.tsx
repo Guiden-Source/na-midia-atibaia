@@ -2,31 +2,42 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { fetchEventById, confirmPresenceAction } from '@/app/actions';
 import type { Event } from '@/lib/types';
 import { formatTimeRange, isLive } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import ConfirmPresenceModal from '@/components/ConfirmPresenceModal';
 import { ShareButton } from '@/components/ShareButton';
-import { Calendar, MapPin, Users } from 'lucide-react';
+import { Calendar, MapPin, Users, Clock, Sparkles, ArrowLeft, Heart, Navigation } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { motion } from 'framer-motion';
 
 type Props = { params: { id: string } };
 
-// Skeleton Loader para a página de detalhes
+// Skeleton Loader melhorado
 function EventDetailSkeleton() {
   return (
-    <div className="container mx-auto max-w-4xl py-8 px-4">
-      <div className="relative h-80 w-full animate-pulse rounded-lg bg-muted" />
-      <div className="mt-6">
-        <div className="h-10 w-3/4 animate-pulse rounded bg-muted" />
-        <div className="mt-4 h-6 w-1/2 animate-pulse rounded bg-muted" />
-        <div className="mt-8 space-y-4">
-          <div className="h-4 w-full animate-pulse rounded bg-muted" />
-          <div className="h-4 w-full animate-pulse rounded bg-muted" />
-          <div className="h-4 w-5/6 animate-pulse rounded bg-muted" />
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      {/* Hero Skeleton */}
+      <div className="relative h-[60vh] w-full animate-pulse bg-muted">
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+      </div>
+      
+      {/* Content Skeleton */}
+      <div className="container mx-auto max-w-6xl px-4 -mt-32 relative z-10">
+        <div className="bg-card/95 backdrop-blur-lg rounded-3xl shadow-2xl border border-border/50 p-8">
+          <div className="space-y-6">
+            <div className="h-12 w-3/4 animate-pulse rounded-xl bg-muted" />
+            <div className="h-6 w-1/2 animate-pulse rounded-lg bg-muted" />
+            <div className="grid gap-6 md:grid-cols-3 mt-8">
+              <div className="h-24 animate-pulse rounded-xl bg-muted" />
+              <div className="h-24 animate-pulse rounded-xl bg-muted" />
+              <div className="h-24 animate-pulse rounded-xl bg-muted" />
+            </div>
+            <div className="h-40 animate-pulse rounded-xl bg-muted mt-8" />
+          </div>
         </div>
-        <div className="mt-8 h-12 w-48 animate-pulse rounded-full bg-muted" />
       </div>
     </div>
   );
@@ -100,101 +111,241 @@ export default function EventPage({ params }: Props) {
   if (loading) return <EventDetailSkeleton />;
   if (!event) {
     return (
-      <div className="container py-12 text-center">
-        <h2 className="font-righteous text-3xl text-destructive">Evento não encontrado</h2>
-        <p className="mt-2 text-muted-foreground">O link que você seguiu pode estar quebrado ou o evento foi removido.</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted/20">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center px-4"
+        >
+          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
+            <Calendar className="w-12 h-12 text-destructive" />
+          </div>
+          <h2 className="font-righteous text-3xl text-foreground mb-2">Evento não encontrado</h2>
+          <p className="text-muted-foreground mb-8">O link que você seguiu pode estar quebrado ou o evento foi removido.</p>
+          <Link 
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground hover:scale-105 transition-transform"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar para eventos
+          </Link>
+        </motion.div>
       </div>
     );
   }
 
   const live = isLive(event.start_time, event.end_time);
   const imageUrl = event.image_url || '/placeholder-event.jpg';
+  const eventDate = new Date(event.start_time);
+  const isPast = eventDate < new Date();
 
   return (
     <>
-      <main className="container mx-auto max-w-4xl py-8 px-4">
-        {/* Imagem de Destaque */}
-        <div className="relative mb-6 h-80 w-full overflow-hidden rounded-lg shadow-2xl">
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+        {/* Hero Section com Imagem */}
+        <div className="relative h-[60vh] min-h-[500px] w-full overflow-hidden">
           <Image
             src={imageUrl}
             alt={`Imagem do evento ${event.name}`}
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 100vw, 800px"
+            sizes="100vw"
             priority
             onError={(e) => { e.currentTarget.src = '/placeholder-event.jpg'; }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-          {live && (
-            <span className="absolute top-4 right-4 rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white animate-pulse">
-              AO VIVO
-            </span>
-          )}
+          
+          {/* Overlay gradiente */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />
+          
+          {/* Badges e controles superiores */}
+          <div className="absolute top-0 left-0 right-0 p-4 md:p-6 flex items-start justify-between z-10">
+            <Link
+              href="/"
+              className="flex items-center gap-2 rounded-full bg-black/50 backdrop-blur-md px-4 py-2 text-white hover:bg-black/70 transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Voltar</span>
+            </Link>
+            
+            <div className="flex gap-2">
+              {live && (
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="flex items-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-lg"
+                >
+                  <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  AO VIVO
+                </motion.span>
+              )}
+              {event.na_midia_present && (
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-lg"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  CUPOM
+                </motion.span>
+              )}
+            </div>
+          </div>
+
+          {/* Informações sobre a imagem (底部) */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+            <div className="container mx-auto max-w-6xl">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <div className="inline-block mb-3">
+                  <span className="rounded-full bg-primary/90 backdrop-blur-sm px-4 py-1.5 text-sm font-bold text-primary-foreground">
+                    {event.event_type}
+                  </span>
+                </div>
+                <h1 className="font-righteous text-4xl md:text-6xl text-white drop-shadow-2xl mb-2">
+                  {event.name}
+                </h1>
+                <div className="flex flex-wrap items-center gap-4 text-white/90">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    <span className="text-lg">{formatTimeRange(event.start_time, event.end_time).split(' - ')[0]}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5" />
+                    <span className="text-lg">{event.location}</span>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
         </div>
 
         {/* Conteúdo Principal */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          <div className="md:col-span-2">
-            <h1 className="font-righteous text-4xl text-primary md:text-5xl">{event.name}</h1>
-            <p className="mt-4 whitespace-pre-line text-lg text-muted-foreground">{event.description}</p>
-          </div>
-          
-          <div className="space-y-6 rounded-lg border bg-card p-6 shadow-lg">
-            <h2 className="font-righteous text-2xl text-foreground">Detalhes</h2>
-            
-            <div className="flex items-start gap-4">
-              <Calendar className="mt-1 h-5 w-5 text-primary" />
-              <div>
-                <h3 className="font-semibold text-foreground">Data e Hora</h3>
-                <p className="text-muted-foreground">{formatTimeRange(event.start_time, event.end_time)}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-4">
-              <MapPin className="mt-1 h-5 w-5 text-primary" />
-              <div>
-                <h3 className="font-semibold text-foreground">Localização</h3>
-                <p className="text-muted-foreground">{event.location}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start gap-4">
-              <Users className="mt-1 h-5 w-5 text-primary" />
-              <div>
-                <h3 className="font-semibold text-foreground">Confirmados</h3>
-                <p className="text-muted-foreground">{event.confirmations_count || 0} pessoas</p>
-              </div>
-            </div>
+        <div className="container mx-auto max-w-6xl px-4 -mt-16 relative z-10 pb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-card/95 backdrop-blur-lg rounded-3xl shadow-2xl border border-border/50 overflow-hidden"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6 md:p-8">
+              {/* Coluna Principal - Descrição */}
+              <div className="lg:col-span-2 space-y-6">
+                <div>
+                  <h2 className="font-righteous text-2xl text-foreground mb-4 flex items-center gap-2">
+                    <Sparkles className="w-6 h-6 text-primary" />
+                    Sobre o Evento
+                  </h2>
+                  <p className="text-lg text-muted-foreground whitespace-pre-line leading-relaxed">
+                    {event.description || 'Detalhes do evento em breve...'}
+                  </p>
+                </div>
 
-            {event.na_midia_present && (
-              <div className="rounded-lg border border-primary/30 bg-primary/10 p-4">
-                <p className="text-sm font-medium text-foreground">
-                  🎁 <strong className="text-primary">Cupom de Bebida Incluso!</strong>
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Ao confirmar presença, você garante um cupom exclusivo para bebidas após o evento.
-                </p>
+                {/* Cards de Informação Rápida */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+                  <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 text-center">
+                    <Calendar className="w-8 h-8 text-primary mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Data</p>
+                    <p className="font-bold text-foreground">
+                      {new Date(event.start_time).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                    </p>
+                  </div>
+                  
+                  <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 text-center">
+                    <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Horário</p>
+                    <p className="font-bold text-foreground">
+                      {new Date(event.start_time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  
+                  <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 text-center">
+                    <Users className="w-8 h-8 text-primary mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Confirmados</p>
+                    <p className="font-bold text-foreground">{event.confirmations_count || 0}</p>
+                  </div>
+                </div>
               </div>
-            )}
-            
-            <button
-              onClick={() => setIsModalOpen(true)}
-              disabled={isConfirming}
-              className="w-full rounded-full bg-primary py-3 text-lg font-bold text-primary-foreground shadow-lg transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isConfirming ? 'Processando...' : 'Confirmar Presença'}
-            </button>
 
-            <div className="flex justify-center">
-              <ShareButton
-                title={event.name}
-                text={`Vem comigo nesse evento! ${event.event_type} em ${event.location} 🎉`}
-                url={typeof window !== 'undefined' ? window.location.href : `https://namidia.com.br/evento/${event.id}`}
-              />
+              {/* Coluna Lateral - CTA */}
+              <div className="space-y-4">
+                <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-pink-500/10 to-purple-500/10 border border-primary/20 p-6">
+                  <h3 className="font-righteous text-xl text-foreground mb-3">Local</h3>
+                  <div className="flex items-start gap-3 mb-4">
+                    <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                    <p className="text-muted-foreground">{event.location}</p>
+                  </div>
+                  
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full rounded-xl bg-background/50 backdrop-blur px-4 py-2 text-sm font-semibold text-foreground hover:bg-background/80 transition-all border border-border"
+                  >
+                    <Navigation className="w-4 h-4" />
+                    Ver no Mapa
+                  </a>
+                </div>
+
+                {event.na_midia_present && (
+                  <motion.div 
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="rounded-2xl bg-gradient-to-br from-orange-500/20 via-pink-500/20 to-purple-500/20 border-2 border-primary p-6"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-primary-foreground" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-foreground">Cupom Incluso!</p>
+                        <p className="text-xs text-muted-foreground">Na Mídia Presente</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Confirme sua presença e garanta um cupom exclusivo de bebida para usar após o evento! 🍹
+                    </p>
+                  </motion.div>
+                )}
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsModalOpen(true)}
+                  disabled={isConfirming || isPast}
+                  className="w-full rounded-2xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 px-6 py-4 font-baloo2 text-lg font-bold text-white shadow-xl transition-all hover:shadow-2xl disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+                >
+                  {isConfirming ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Clock className="w-5 h-5 animate-spin" />
+                      Processando...
+                    </span>
+                  ) : isPast ? (
+                    'Evento Encerrado'
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Heart className="w-5 h-5" />
+                      Confirmar Presença
+                    </span>
+                  )}
+                </motion.button>
+
+                <div className="flex items-center justify-center gap-3 pt-2">
+                  <ShareButton
+                    title={event.name}
+                    text={`Vem comigo nesse evento! ${event.event_type} em ${event.location} 🎉`}
+                    url={typeof window !== 'undefined' ? window.location.href : `https://namidia.com.br/evento/${event.id}`}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </main>
+      </div>
 
       {isModalOpen && (
         <ConfirmPresenceModal
