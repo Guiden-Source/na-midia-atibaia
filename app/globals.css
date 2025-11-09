@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    /* Inspirado na Ref 2 (Swipedrinks) - Cores vibrantes e fundo escuro */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 34.9 91.6% 57.1%; /* Laranja vibrante */
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 34.9 91.6% 57.1%;
+ 
+    --radius: 1rem; /* Bordas mais arredondadas, como na Ref 1 e 3 */
+  }
+ 
+  .dark {
+    /* Paleta escura, inspirada na Ref 3 (Invito) */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 34.9 91.6% 57.1%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 34.9 91.6% 57.1%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-inter;
+  }
+  
+  /* Melhor legibilidade em mobile - line-height otimizado */
+  p, li, span {
+    line-height: 1.6;
+  }
+  
+  h1, h2, h3, h4, h5, h6, button {
+    @apply font-baloo2;
+    line-height: 1.2;
+  }
+  
+  /* Touch target mínimo para acessibilidade mobile */
+  button, a[href] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Focus states visíveis para acessibilidade */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 3px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+  
+  /* Garantir contraste mínimo 3:1 em focus indicators */
+  *:focus-visible {
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: hsl(var(--primary));
+  }
+  
+  /* Fontes - Inspirado em todas as referências, que usam fontes bold e pop */
+  :root {
+    --font-righteous: 'Righteous', cursive;
+    --font-poppins: 'Poppins', sans-serif;
+  }
+  
+  /* Respeitar preferência de movimento reduzido */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Liquid Glass Animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

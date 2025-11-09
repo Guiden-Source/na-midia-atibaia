@@ -1,0 +1,82 @@
+{
+  "name": "Na Mídia - Plataforma de Atibaia",
+  "short_name": "Na Mídia",
+  "description": "Plataforma de eventos e cupons de bebidas em Atibaia - SP",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "categories": ["entertainment", "lifestyle", "social"],
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "scope": "/",
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Ver Eventos",
+      "short_name": "Eventos",
+      "description": "Ver todos os eventos disponíveis",
+      "url": "/#eventos",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Meus Cupons",
+      "short_name": "Cupons",
+      "description": "Ver meus cupons de bebida",
+      "url": "/cupons",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Validar Cupom",
+      "short_name": "Validar",
+      "description": "Validar cupom de bebida",
+      "url": "/validar-cupom",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

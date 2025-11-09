@@ -1,0 +1,10 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="1200" height="800" fill="url(#gradient)"/>
+<text x="50%" y="50%" font-family="Righteous, sans-serif" font-size="60" fill="white" text-anchor="middle" dy=".3em">Na Mídia</text>
+<defs>
+<linearGradient id="gradient" x1="0" y1="0" x2="1200" y2="800" gradientUnits="userSpaceOnUse">
+<stop stop-color="#222"/>
+<stop offset="1" stop-color="#111"/>
+</linearGradient>
+</defs>
+</svg>
