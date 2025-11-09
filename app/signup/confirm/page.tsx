@@ -1,11 +1,50 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Mail, CheckCircle2, ArrowRight, RefreshCw, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
 
 export default function ConfirmPage() {
+  const [email, setEmail] = useState('');
+  const [isResending, setIsResending] = useState(false);
+  const [showResendForm, setShowResendForm] = useState(false);
+
+  const handleResendEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error('Por favor, digite seu email');
+      return;
+    }
+
+    setIsResending(true);
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+
+      if (error) {
+        console.error('Erro ao reenviar email:', error);
+        toast.error('Erro ao reenviar email. Verifique se o email está correto.');
+      } else {
+        toast.success('✅ Email reenviado! Verifique sua caixa de entrada e spam.');
+        setShowResendForm(false);
+      }
+    } catch (error) {
+      console.error('Erro ao reenviar email:', error);
+      toast.error('Erro ao reenviar email. Tente novamente.');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 pt-20 md:pt-24">
       {/* Animated CSS Background */}
@@ -72,9 +111,65 @@ export default function ConfirmPage() {
                 </ol>
               </div>
 
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Não recebeu o email? Verifique sua pasta de spam.
-              </p>
+              {/* Card de Ajuda - Email não chegou */}
+              <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4 text-sm text-left border border-blue-200 dark:border-blue-800">
+                <p className="font-semibold mb-2 flex items-center gap-2 text-blue-900 dark:text-blue-300">
+                  <AlertCircle className="w-4 h-4" />
+                  Email não chegou?
+                </p>
+                <ul className="space-y-1 text-xs text-blue-800 dark:text-blue-200 ml-6">
+                  <li>• Verifique sua <strong>pasta de spam/lixo</strong></li>
+                  <li>• Aguarde até 5 minutos</li>
+                  <li>• Alguns provedores (Hotmail, Outlook) podem bloquear</li>
+                </ul>
+              </div>
+
+              {/* Botão Reenviar */}
+              {!showResendForm ? (
+                <button
+                  onClick={() => setShowResendForm(true)}
+                  className="text-sm text-primary hover:text-orange-600 font-semibold transition-colors underline"
+                >
+                  Reenviar email de confirmação
+                </button>
+              ) : (
+                <form onSubmit={handleResendEmail} className="space-y-3 pt-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Digite seu email"
+                    className="w-full px-4 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    required
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={isResending}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-orange-600 px-4 py-2 text-sm font-bold text-white transition-all disabled:opacity-60"
+                    >
+                      {isResending ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="w-4 h-4" />
+                          Reenviar
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowResendForm(false)}
+                      className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              )}
             </motion.div>
           </div>
 

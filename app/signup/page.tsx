@@ -196,6 +196,13 @@ function SignupForm() {
               </p>
             </div>
 
+            {/* Info sobre confirmação de email */}
+            <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 p-4">
+              <p className="text-sm text-blue-900 dark:text-blue-200">
+                📧 <strong>Importante:</strong> Você receberá um email de confirmação. Verifique sua <strong>caixa de spam</strong> se não receber em alguns minutos!
+              </p>
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
