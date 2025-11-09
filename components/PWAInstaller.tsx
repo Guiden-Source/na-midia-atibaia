@@ -103,7 +103,7 @@ export function PWAInstaller() {
   // Render iOS prompt
   if (showIOSPrompt) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-2xl animate-in slide-in-from-bottom">
+      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 pb-24 md:pb-4 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-2xl animate-in slide-in-from-bottom">
         <div className="container mx-auto max-w-2xl">
           <button
             onClick={handleIOSClose}
@@ -139,7 +139,7 @@ export function PWAInstaller() {
   // Render Android/Desktop prompt
   if (showAndroidPrompt && deferredPrompt) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-2xl animate-in slide-in-from-bottom">
+      <div className="fixed bottom-0 left-0 right-0 z-50 p-4 pb-24 md:pb-4 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-2xl animate-in slide-in-from-bottom">
         <div className="container mx-auto max-w-2xl">
           <button
             onClick={handleAndroidClose}

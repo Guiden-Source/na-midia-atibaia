@@ -39,7 +39,12 @@ export function upcomingWithinHours(startIso: string, hours = 6): boolean {
 
 export function formatTimeRange(startIso: string, endIso?: string | null): string {
   try {
-    const start = new Date(startIso);
+    // Se o formato não tem timezone (datetime-local), adiciona 'Z' para tratar como local
+    const startStr = startIso.includes('T') && !startIso.includes('Z') && !startIso.includes('+') 
+      ? startIso 
+      : startIso;
+    
+    const start = new Date(startStr);
     if (isNaN(start.getTime())) return "Data inválida";
 
     const end = endIso ? new Date(endIso) : null;

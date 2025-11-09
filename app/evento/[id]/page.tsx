@@ -157,39 +157,18 @@ export default function EventPage({ params }: Props) {
           {/* Overlay gradiente */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />
           
-          {/* Badges e controles superiores */}
-          <div className="absolute top-0 left-0 right-0 p-4 md:p-6 flex items-start justify-between z-10">
-            <Link
-              href="/"
-              className="flex items-center gap-2 rounded-full bg-black/50 backdrop-blur-md px-4 py-2 text-white hover:bg-black/70 transition-all"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Voltar</span>
-            </Link>
-            
-            <div className="flex gap-2">
-              {live && (
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="flex items-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-lg"
-                >
-                  <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                  AO VIVO
-                </motion.span>
-              )}
-              {event.na_midia_present && (
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-lg"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  CUPOM
-                </motion.span>
-              )}
-            </div>
+          {/* Badges superiores */}
+          <div className="absolute top-0 right-0 p-4 md:p-6 flex gap-2 z-10">
+            {live && (
+              <motion.span 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="flex items-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-lg"
+              >
+                <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                AO VIVO
+              </motion.span>
+            )}
           </div>
 
           {/* Informações sobre a imagem (底部) */}
@@ -258,7 +237,12 @@ export default function EventPage({ params }: Props) {
                     <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
                     <p className="text-xs text-muted-foreground mb-1">Horário</p>
                     <p className="font-bold text-foreground">
-                      {new Date(event.start_time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                      {(() => {
+                        const date = new Date(event.start_time);
+                        const hours = String(date.getHours()).padStart(2, '0');
+                        const minutes = String(date.getMinutes()).padStart(2, '0');
+                        return `${hours}:${minutes}`;
+                      })()}
                     </p>
                   </div>
                   
