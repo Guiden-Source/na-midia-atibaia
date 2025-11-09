@@ -8,8 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate-icons": "node generate-icons.js",
-    "vercel-build": "npm install --legacy-peer-deps && next build"
+    "generate-icons": "node generate-icons.js"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.6",
