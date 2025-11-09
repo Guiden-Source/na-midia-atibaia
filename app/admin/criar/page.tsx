@@ -23,6 +23,37 @@ export default function CreateEventPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validações client-side
+    if (!formData.name.trim()) {
+      toast.error('❌ Nome do evento é obrigatório');
+      return;
+    }
+    
+    if (!formData.location.trim()) {
+      toast.error('❌ Local do evento é obrigatório');
+      return;
+    }
+    
+    if (!formData.start_time) {
+      toast.error('❌ Data de início é obrigatória');
+      return;
+    }
+    
+    if (!formData.end_time) {
+      toast.error('❌ Data de término é obrigatória');
+      return;
+    }
+    
+    // Validar se data de fim é após data de início
+    const startDate = new Date(formData.start_time);
+    const endDate = new Date(formData.end_time);
+    
+    if (endDate <= startDate) {
+      toast.error('❌ A data de término deve ser após a data de início');
+      return;
+    }
+    
     setSaving(true);
 
     try {

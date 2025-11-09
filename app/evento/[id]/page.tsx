@@ -37,6 +37,7 @@ export default function EventPage({ params }: Props) {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   useEffect(() => {
     async function loadEvent() {
@@ -53,6 +54,7 @@ export default function EventPage({ params }: Props) {
 
   const handleConfirmPresence = async (): Promise<{ success: boolean; error?: string | null }> => {
     if (!event) return { success: false, error: 'Evento não carregado.' };
+    if (isConfirming) return { success: false, error: 'Aguarde...' };
 
     // Buscar dados do usuário logado
     const supabase = createClient();
@@ -70,22 +72,28 @@ export default function EventPage({ params }: Props) {
       eventId: event.id
     });
 
-    const result = await confirmPresenceAction(event.id, { 
-      name: userName,
-      email: user.email || ''
-    });
-
-    if (result.success) {
-      toast.success(`🎉 Presença confirmada! Cupom: ${result.data.code}`, {
-        duration: 4000,
-        icon: '🎫',
+    setIsConfirming(true);
+    
+    try {
+      const result = await confirmPresenceAction(event.id, { 
+        name: userName,
+        email: user.email || ''
       });
-      setEvent(prev => prev ? { ...prev, confirmations_count: (prev.confirmations_count || 0) + 1 } : null);
-      return { success: true };
-    } else {
-      const errorMessage = result.error || 'Não foi possível confirmar a presença.';
-      toast.error(errorMessage);
-      return { success: false, error: errorMessage };
+
+      if (result.success) {
+        toast.success(`🎉 Presença confirmada! Cupom: ${result.data.code}`, {
+          duration: 4000,
+          icon: '🎫',
+        });
+        setEvent(prev => prev ? { ...prev, confirmations_count: (prev.confirmations_count || 0) + 1 } : null);
+        return { success: true };
+      } else {
+        const errorMessage = result.error || 'Não foi possível confirmar a presença.';
+        toast.error(errorMessage);
+        return { success: false, error: errorMessage };
+      }
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -171,9 +179,10 @@ export default function EventPage({ params }: Props) {
             
             <button
               onClick={() => setIsModalOpen(true)}
-              className="w-full rounded-full bg-primary py-3 text-lg font-bold text-primary-foreground shadow-lg transition-transform hover:scale-105"
+              disabled={isConfirming}
+              className="w-full rounded-full bg-primary py-3 text-lg font-bold text-primary-foreground shadow-lg transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Confirmar Presença
+              {isConfirming ? 'Processando...' : 'Confirmar Presença'}
             </button>
 
             <div className="flex justify-center">
