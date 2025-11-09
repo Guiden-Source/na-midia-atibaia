@@ -4,11 +4,11 @@ import { signup } from './actions';
 import { motion } from 'framer-motion';
 import { Lock, Mail, ArrowRight, Sparkles, User, Phone } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function SignupPage() {
+function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
@@ -249,5 +249,17 @@ export default function SignupPage() {
         </motion.p>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   );
 }
