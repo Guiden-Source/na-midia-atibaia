@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { buttonClasses } from './Button';
 import { SubscribeNotificationsButton } from './SubscribeNotificationsButton';
+import { CartBadge } from './delivery/CartBadge';
 import { createClient } from '@/lib/supabase/client';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, ShoppingBag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 type HeaderProps = {
@@ -105,6 +106,11 @@ export function Header({ isAdmin = true }: HeaderProps) {
       </Link>
       <nav className="flex gap-3 text-sm font-poppins items-center">
         <Link href="/" className={buttonClasses('outline') + ' hidden sm:inline-block'}>Home</Link>
+        <Link href="/delivery" className={buttonClasses('outline') + ' flex items-center gap-2'}>
+          <ShoppingBag className="h-4 w-4" />
+          <span className="hidden sm:inline">Delivery</span>
+        </Link>
+        <CartBadge />
         <SubscribeNotificationsButton />
         {loading ? (
           <div className={buttonClasses('primary') + ' flex items-center gap-2'}>
