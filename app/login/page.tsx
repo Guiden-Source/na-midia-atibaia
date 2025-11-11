@@ -27,10 +27,15 @@ function LoginForm() {
     }
   }, [searchParams]);
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null);
     try {
+      const formData = new FormData(e.currentTarget);
       await login(formData);
+    } catch (error) {
+      console.error('Login error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +122,7 @@ function LoginForm() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            action={handleSubmit}
+            onSubmit={handleSubmit}
             className="px-8 pb-8 space-y-6"
           >
             {/* Error Message */}

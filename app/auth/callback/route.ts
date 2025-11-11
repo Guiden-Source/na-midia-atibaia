@@ -9,14 +9,19 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = createSupabaseServerClient();
     
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (error) {
       console.error('Error exchanging code for session:', error);
       return NextResponse.redirect(`${origin}/login?error=auth_failed`);
     }
+
+    // Se a sessão foi criada com sucesso, redireciona para o perfil
+    if (data?.session) {
+      return NextResponse.redirect(`${origin}/perfil`);
+    }
   }
 
-  // URL to redirect to after sign in process completes
+  // Se não houver código ou sessão, vai para home
   return NextResponse.redirect(`${origin}/`);
 }

@@ -14,10 +14,14 @@ function SignupForm() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsLoading(true);
     try {
+      const formData = new FormData(e.currentTarget);
       await signup(formData);
+    } catch (error) {
+      console.error('Signup error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +120,7 @@ function SignupForm() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            action={handleSubmit}
+            onSubmit={handleSubmit}
             className="p-8 space-y-5"
           >
             {/* Nome Completo */}
