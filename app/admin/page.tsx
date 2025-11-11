@@ -161,11 +161,17 @@ export default function AdminPage() {
 
   async function loadStats() {
     try {
-      // Buscar total de usuários registrados (auth.users)
-      const supabaseClient = createClient();
-      const { data: { users: authUsers }, error: authError } = await supabaseClient.auth.admin.listUsers();
-      
-      const totalUsers = authUsers?.length || 0;
+      // Buscar total de usuários registrados via API
+      let totalUsers = 0;
+      try {
+        const response = await fetch('/api/admin/users');
+        if (response.ok) {
+          const { users } = await response.json();
+          totalUsers = users?.length || 0;
+        }
+      } catch (e) {
+        console.error('Erro ao buscar usuários para stats:', e);
+      }
       
       // Buscar eventos
       const { data: eventsData } = await supabase
@@ -370,12 +376,18 @@ export default function AdminPage() {
 
   async function loadUsers() {
     try {
-      // Buscar usuários registrados (auth.users)
-      const supabaseClient = createClient();
-      const { data: { users: authUsers }, error: authError } = await supabaseClient.auth.admin.listUsers();
+      // Buscar usuários registrados via API
+      const response = await fetch('/api/admin/users');
       
-      if (authError) {
-        console.error('❌ Erro ao buscar usuários auth:', authError);
+      if (!response.ok) {
+        console.error('❌ Erro ao buscar usuários:', await response.text());
+        return;
+      }
+      
+      const { users: authUsers } = await response.json();
+      
+      if (!authUsers) {
+        console.error('❌ Nenhum usuário retornado da API');
         return;
       }
       
@@ -410,19 +422,19 @@ export default function AdminPage() {
       });
       
       // Mapear usuários com suas atividades
-      const usersList: UserData[] = (authUsers || []).map(user => {
+      const usersList: UserData[] = (authUsers || []).map((user: any) => {
         const email = user.email || '';
         const coupons = couponsMap.get(email) || { total: 0, used: 0 };
         
         return {
           email,
-          name: user.user_metadata?.full_name || user.user_metadata?.name || 'Sem nome',
+          name: user.full_name || 'Sem nome',
           created_at: user.created_at,
           confirmations_count: confirmationsMap.get(email) || 0,
           coupons_count: coupons.total,
           coupons_used: coupons.used,
         };
-      }).sort((a, b) => 
+      }).sort((a: UserData, b: UserData) => 
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       
