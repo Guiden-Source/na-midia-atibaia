@@ -101,29 +101,33 @@ function LoginForm() {
           </div>
 
           {/* Social Login */}
-          <div className="px-8 pt-6">
+          <div className="p-8">
             <SocialButtons mode="signin" />
             
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 font-medium">
-                  Ou continue com email
+            {/* Info sobre Google */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-6 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 p-4"
+            >
+              <p className="text-sm text-green-900 dark:text-green-200">
+                🔒 <strong>Login seguro com Google</strong>
+                <br />
+                <span className="text-xs text-green-700 dark:text-green-300">
+                  Acesse sua conta de forma rápida e segura usando sua conta Google!
                 </span>
-              </div>
-            </div>
+              </p>
+            </motion.div>
           </div>
 
-          {/* Form */}
+          {/* Form removido - apenas Google OAuth */}
           <motion.form
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
             onSubmit={handleSubmit}
-            className="px-8 pb-8 space-y-6"
+            className="px-8 pb-8 space-y-6 hidden"
           >
             {/* Error Message */}
             {errorMessage && (
@@ -213,7 +217,7 @@ function LoginForm() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="p-6 text-center border-t border-gray-200/50 dark:border-gray-800/50 space-y-3"
+            className="p-8 pt-0 text-center space-y-3"
           >
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Ainda não tem uma conta?{' '}
