@@ -161,13 +161,11 @@ export default function AdminPage() {
 
   async function loadStats() {
     try {
-      // Buscar total de usuários únicos (via confirmações)
-      const { data: uniqueUsers } = await supabase
-        .from('confirmations')
-        .select('user_email')
-        .not('user_email', 'is', null);
+      // Buscar total de usuários registrados (auth.users)
+      const supabaseClient = createClient();
+      const { data: { users: authUsers }, error: authError } = await supabaseClient.auth.admin.listUsers();
       
-      const uniqueEmails = new Set(uniqueUsers?.map(u => u.user_email) || []);
+      const totalUsers = authUsers?.length || 0;
       
       // Buscar eventos
       const { data: eventsData } = await supabase
@@ -188,7 +186,7 @@ export default function AdminPage() {
       const usedCoupons = couponsData?.filter(c => c.used_at)?.length || 0;
       
       setStats({
-        totalUsers: uniqueEmails.size,
+        totalUsers,
         totalEvents: eventsData?.length || 0,
         activeEvents: eventsData?.filter(e => e.is_active)?.length || 0,
         totalConfirmations: confirmationsCount || 0,
@@ -199,7 +197,7 @@ export default function AdminPage() {
       });
       
       console.log('📊 Admin - Stats loaded:', {
-        users: uniqueEmails.size,
+        users: totalUsers,
         events: eventsData?.length,
         confirmations: confirmationsCount,
         coupons: totalCoupons,
@@ -372,51 +370,59 @@ export default function AdminPage() {
 
   async function loadUsers() {
     try {
-      // Buscar todas as confirmações com dados de usuário
+      // Buscar usuários registrados (auth.users)
+      const supabaseClient = createClient();
+      const { data: { users: authUsers }, error: authError } = await supabaseClient.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error('❌ Erro ao buscar usuários auth:', authError);
+        return;
+      }
+      
+      // Buscar todas as confirmações
       const { data: confirmations } = await supabase
         .from('confirmations')
-        .select('user_email, user_name, created_at');
+        .select('user_email, created_at');
       
       // Buscar todos os cupons
       const { data: couponsData } = await supabase
         .from('coupons')
         .select('user_email, used_at');
       
-      // Agrupar por email
-      const userMap = new Map<string, UserData>();
+      // Criar mapa de atividades por email
+      const confirmationsMap = new Map<string, number>();
+      const couponsMap = new Map<string, { total: number; used: number }>();
       
       confirmations?.forEach(conf => {
         const email = conf.user_email;
         if (!email) return;
-        
-        if (!userMap.has(email)) {
-          userMap.set(email, {
-            email,
-            name: conf.user_name || 'Sem nome',
-            created_at: conf.created_at,
-            confirmations_count: 0,
-            coupons_count: 0,
-            coupons_used: 0,
-          });
-        }
-        
-        const user = userMap.get(email)!;
-        user.confirmations_count++;
+        confirmationsMap.set(email, (confirmationsMap.get(email) || 0) + 1);
       });
       
-      // Contar cupons por usuário
       couponsData?.forEach(coupon => {
         const email = coupon.user_email;
         if (!email) return;
         
-        if (userMap.has(email)) {
-          const user = userMap.get(email)!;
-          user.coupons_count++;
-          if (coupon.used_at) user.coupons_used++;
-        }
+        const current = couponsMap.get(email) || { total: 0, used: 0 };
+        current.total++;
+        if (coupon.used_at) current.used++;
+        couponsMap.set(email, current);
       });
       
-      const usersList = Array.from(userMap.values()).sort((a, b) => 
+      // Mapear usuários com suas atividades
+      const usersList: UserData[] = (authUsers || []).map(user => {
+        const email = user.email || '';
+        const coupons = couponsMap.get(email) || { total: 0, used: 0 };
+        
+        return {
+          email,
+          name: user.user_metadata?.full_name || user.user_metadata?.name || 'Sem nome',
+          created_at: user.created_at,
+          confirmations_count: confirmationsMap.get(email) || 0,
+          coupons_count: coupons.total,
+          coupons_used: coupons.used,
+        };
+      }).sort((a, b) => 
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       
