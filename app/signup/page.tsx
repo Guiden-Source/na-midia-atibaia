@@ -13,6 +13,7 @@ function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
+  const isRateLimitError = error?.includes('rate limit') || error?.includes('Muitas tentativas');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -94,7 +95,13 @@ function SignupForm() {
               animate={{ opacity: 1, y: 0 }}
               className="mx-6 mt-6 rounded-lg bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800"
             >
-              {error}
+              <p className="font-semibold mb-1">❌ Erro ao criar conta</p>
+              <p>{error}</p>
+              {isRateLimitError && (
+                <p className="mt-2 text-blue-600 dark:text-blue-400 font-medium">
+                  💡 Dica: Use o botão "Continuar com Google" abaixo para criar sua conta instantaneamente!
+                </p>
+              )}
             </motion.div>
           )}
 
