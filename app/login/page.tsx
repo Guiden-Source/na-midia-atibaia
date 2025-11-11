@@ -6,6 +6,7 @@ import { Lock, Mail, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { SocialButtons } from '@/components/auth/SocialButton';
 
 function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -94,13 +95,30 @@ function LoginForm() {
             </motion.p>
           </div>
 
+          {/* Social Login */}
+          <div className="px-8 pt-6">
+            <SocialButtons mode="signin" />
+            
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 font-medium">
+                  Ou continue com email
+                </span>
+              </div>
+            </div>
+          </div>
+
           {/* Form */}
           <motion.form
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
             action={handleSubmit}
-            className="p-8 space-y-6"
+            className="px-8 pb-8 space-y-6"
           >
             {/* Error Message */}
             {errorMessage && (
