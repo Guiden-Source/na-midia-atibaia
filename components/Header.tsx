@@ -142,6 +142,14 @@ export function Header({ isAdmin: isAdminProp }: HeaderProps) {
     }
   };
 
+  // Debug - remover depois
+  console.log('🎨 Header renderizado com novas funcionalidades!', {
+    darkMode,
+    showSearch,
+    unreadCount,
+    isAdmin
+  });
+
   return (
     <>
       <header className={`mb-6 sticky top-0 z-40 flex flex-col gap-3 px-6 py-4 rounded-2xl border-[3px] border-white shadow-retro backdrop-blur-sm transition ${scrolled ? 'bg-gradient-to-r from-[#FF5722] to-[#FF9800]' : 'bg-gradient-to-r from-[#FF9800] to-[#FF5722]'}`}>
@@ -151,7 +159,7 @@ export function Header({ isAdmin: isAdminProp }: HeaderProps) {
             Na <span className="text-accent">Mídia</span>
           </Link>
           
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - VISÍVEL EM TELAS >= 1024px */}
           <nav className="hidden lg:flex gap-2 text-sm font-poppins items-center">
             <Link href="/" className={buttonClasses('outline') + ' flex items-center gap-2'}>
               Home
@@ -178,19 +186,19 @@ export function Header({ isAdmin: isAdminProp }: HeaderProps) {
             </Link>
           </nav>
 
-          {/* Actions */}
+          {/* Actions - SEMPRE VISÍVEIS */}
           <div className="flex gap-2 text-sm font-poppins items-center">
-            {/* Search Button */}
+            {/* Search Button - NOVO! 🔍 */}
             <button
               onClick={() => setShowSearch(!showSearch)}
               className={buttonClasses('outline') + ' flex items-center gap-2'}
               title="Buscar eventos"
             >
               <Search className="h-4 w-4" />
-              <span className="hidden sm:inline">Buscar</span>
+              <span className="hidden md:inline">Buscar</span>
             </button>
 
-            {/* Dark Mode Toggle */}
+            {/* Dark Mode Toggle - NOVO! 🌙 */}
             <button
               onClick={toggleDarkMode}
               className={buttonClasses('outline') + ' flex items-center gap-2'}
