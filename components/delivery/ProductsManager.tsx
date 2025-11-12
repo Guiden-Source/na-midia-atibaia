@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { DeliveryProduct } from '@/lib/delivery/types';
 import { formatPrice } from '@/lib/delivery/cart';
-import { Plus, Edit, Trash2, Check, X, Upload } from 'lucide-react';
+import { Plus, Edit, Trash2, Check, X, Upload, Search, Filter } from 'lucide-react';
 import Image from 'next/image';
 
 type ProductFormData = {
@@ -32,6 +32,12 @@ export function ProductsManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<DeliveryProduct | null>(null);
+  
+  // Filtros e busca
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
@@ -46,6 +52,18 @@ export function ProductsManager() {
   });
 
   const supabase = createClient();
+  
+  // Produtos filtrados
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (product.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
+    const matchesStatus = statusFilter === 'all' || 
+                         (statusFilter === 'active' && product.is_active) ||
+                         (statusFilter === 'inactive' && !product.is_active);
+    
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
 
   useEffect(() => {
     loadData();
@@ -184,8 +202,16 @@ export function ProductsManager() {
 
   return (
     <div className="space-y-6">
-      {/* Botão Adicionar */}
-      <div className="flex justify-end">
+      {/* Header com Botão e Estatísticas */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Produtos
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {filteredProducts.length} de {products.length} produtos
+          </p>
+        </div>
         <button
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
@@ -202,6 +228,81 @@ export function ProductsManager() {
             </>
           )}
         </button>
+      </div>
+
+      {/* Filtros e Busca */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md border border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Busca */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Buscar produtos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Filtro por Categoria */}
+          <div>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Todas as Categorias</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filtro por Status */}
+          <div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Todos os Status</option>
+              <option value="active">Ativos</option>
+              <option value="inactive">Inativos</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Contador de Filtros Ativos */}
+        {(searchTerm || selectedCategory !== 'all' || statusFilter !== 'all') && (
+          <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <Filter size={16} />
+            <span>Filtros ativos:</span>
+            {searchTerm && <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 rounded">Busca: "{searchTerm}"</span>}
+            {selectedCategory !== 'all' && (
+              <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 rounded">
+                {categories.find(c => c.id === selectedCategory)?.name}
+              </span>
+            )}
+            {statusFilter !== 'all' && (
+              <span className="px-2 py-1 bg-green-100 dark:bg-green-900 rounded">
+                {statusFilter === 'active' ? 'Ativos' : 'Inativos'}
+              </span>
+            )}
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('all');
+                setStatusFilter('all');
+              }}
+              className="text-blue-600 dark:text-blue-400 hover:underline ml-2"
+            >
+              Limpar filtros
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Formulário */}
@@ -416,7 +517,7 @@ export function ProductsManager() {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr key={product.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
@@ -502,6 +603,25 @@ export function ProductsManager() {
             <p className="text-gray-500 dark:text-gray-400">
               Nenhum produto cadastrado
             </p>
+          </div>
+        )}
+
+        {products.length > 0 && filteredProducts.length === 0 && (
+          <div className="text-center py-12">
+            <Filter size={48} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-500 dark:text-gray-400 mb-2">
+              Nenhum produto encontrado com os filtros selecionados
+            </p>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('all');
+                setStatusFilter('all');
+              }}
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Limpar filtros
+            </button>
           </div>
         )}
       </div>
