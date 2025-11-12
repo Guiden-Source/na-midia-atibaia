@@ -5,19 +5,21 @@ import { buttonClasses } from './Button';
 import { SubscribeNotificationsButton } from './SubscribeNotificationsButton';
 import { CartBadge } from './delivery/CartBadge';
 import { createClient } from '@/lib/supabase/client';
+import { isUserAdmin } from '@/lib/auth/admins';
 import { User, LogOut, ShoppingBag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 type HeaderProps = {
-  isAdmin?: boolean; // Placeholder para futuro auth
+  isAdmin?: boolean;
 };
 
-export function Header({ isAdmin = true }: HeaderProps) {
+export function Header({ isAdmin: isAdminProp }: HeaderProps) {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);
@@ -46,26 +48,18 @@ export function Header({ isAdmin = true }: HeaderProps) {
     // Verificar usuário inicial
     const checkUser = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log('🔐 Header - Session check:', {
-          hasSession: !!session,
-          error: sessionError,
-          user: session?.user?.email
-        });
+        const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
-          console.log('🔐 Header - User data:', {
-            email: session.user.email,
-            metadata: session.user.user_metadata,
-            id: session.user.id
-          });
           setUser(session.user);
+          setIsAdmin(isUserAdmin(session.user));
         } else {
           setUser(null);
+          setIsAdmin(false);
         }
       } catch (err) {
-        console.error('🔐 Header - Error checking user:', err);
         setUser(null);
+        setIsAdmin(false);
       } finally {
         setLoading(false);
       }
@@ -74,13 +68,8 @@ export function Header({ isAdmin = true }: HeaderProps) {
 
     // Listener para mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log('🔐 Header - Auth state changed:', {
-        event: _event,
-        hasUser: !!session?.user,
-        email: session?.user?.email
-      });
-      
       setUser(session?.user ?? null);
+      setIsAdmin(isUserAdmin(session?.user ?? null));
       setLoading(false);
     });
 
@@ -91,9 +80,9 @@ export function Header({ isAdmin = true }: HeaderProps) {
 
   const handleLogout = async () => {
     const supabase = createClient();
-    console.log('🔐 Header - Logging out...');
     await supabase.auth.signOut();
     setUser(null);
+    setIsAdmin(false);
     setShowDropdown(false);
     router.push('/');
     router.refresh();

@@ -3,11 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Breadcrumbs } from '@/components/admin/Breadcrumbs';
-
-const ADMIN_EMAILS = [
-  'guidjvb@gmail.com',
-  'admin@namidia.com.br',
-];
+import { isAdmin } from '@/lib/auth/admins';
 
 export default async function AdminLayout({
   children,
@@ -36,9 +32,9 @@ export default async function AdminLayout({
   }
 
   // Verificar se é admin
-  const isAdmin = ADMIN_EMAILS.includes(session.user.email || '');
+  const userIsAdmin = isAdmin(session.user.email);
   
-  if (!isAdmin) {
+  if (!userIsAdmin) {
     redirect('/');
   }
 
