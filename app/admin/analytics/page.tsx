@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, TrendingUp, Users, Ticket, BarChart3, Calendar, Target, RefreshCw } from 'lucide-react';
+import { TrendingUp, Users, Ticket, BarChart3, Calendar, Target, RefreshCw } from 'lucide-react';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 import { toast } from 'react-hot-toast';
 import {
   MetricsGrid,
@@ -71,57 +71,44 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="p-2 rounded-full hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-            </Link>
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent">
-                Analytics & Métricas
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Acompanhe o desempenho da plataforma em tempo real
-              </p>
-            </div>
+    <>
+      <AdminHeader 
+        title="Analytics & Métricas"
+        description="Acompanhe o desempenho da plataforma em tempo real"
+      />
+      
+      <div className="p-6">
+        {/* Filtros de Período e Botão Atualizar */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex gap-2 flex-wrap">
+            {[
+              { value: 'today' as Period, label: 'Hoje' },
+              { value: 'week' as Period, label: 'Última Semana' },
+              { value: 'month' as Period, label: 'Último Mês' },
+              { value: 'all' as Period, label: 'Tudo' },
+            ].map((p) => (
+              <button
+                key={p.value}
+                onClick={() => setPeriod(p.value)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  period === p.value
+                    ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-md'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
 
           <button
             onClick={loadAnalytics}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-medium hover:shadow-lg transition-all disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-pink-500 text-white font-medium hover:shadow-lg transition-all disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
           </button>
-        </div>
-
-        {/* Filtros de Período */}
-        <div className="flex gap-2 mb-8 flex-wrap">
-          {[
-            { value: 'today' as Period, label: 'Hoje' },
-            { value: 'week' as Period, label: 'Última Semana' },
-            { value: 'month' as Period, label: 'Último Mês' },
-            { value: 'all' as Period, label: 'Tudo' },
-          ].map((p) => (
-            <button
-              key={p.value}
-              onClick={() => setPeriod(p.value)}
-              className={`px-6 py-2 rounded-full font-medium transition-all ${
-                period === p.value
-                  ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md'
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
         </div>
 
         {/* Métricas Principais */}
@@ -327,6 +314,6 @@ export default function AnalyticsPage() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

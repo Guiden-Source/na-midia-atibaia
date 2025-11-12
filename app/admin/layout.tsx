@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import { Breadcrumbs } from '@/components/admin/Breadcrumbs';
 
 const ADMIN_EMAILS = [
   'guidjvb@gmail.com',
@@ -48,6 +49,9 @@ export default async function AdminLayout({
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Breadcrumbs */}
+        <Breadcrumbs />
+        
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>
