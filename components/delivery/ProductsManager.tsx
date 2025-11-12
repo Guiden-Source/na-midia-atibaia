@@ -6,6 +6,8 @@ import { DeliveryProduct } from '@/lib/delivery/types';
 import { formatPrice } from '@/lib/delivery/cart';
 import { Plus, Edit, Trash2, Check, X, Upload, Search, Filter } from 'lucide-react';
 import Image from 'next/image';
+import { ProductsTableSkeleton } from '@/components/admin/LoadingStates';
+import { EmptyProducts } from '@/components/admin/EmptyStates';
 
 type ProductFormData = {
   name: string;
@@ -193,11 +195,7 @@ export function ProductsManager() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <ProductsTableSkeleton />;
   }
 
   return (
@@ -494,30 +492,39 @@ export function ProductsManager() {
       )}
 
       {/* Lista de Produtos */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Produto
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Preço
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Estoque
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredProducts.map((product) => (
+      {filteredProducts.length === 0 && products.length === 0 ? (
+        <EmptyProducts />
+      ) : filteredProducts.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400 text-lg">
+            Nenhum produto encontrado com os filtros selecionados.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Produto
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Preço
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Estoque
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {filteredProducts.map((product) => (
                 <tr key={product.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
@@ -597,34 +604,8 @@ export function ProductsManager() {
             </tbody>
           </table>
         </div>
-
-        {products.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">
-              Nenhum produto cadastrado
-            </p>
-          </div>
-        )}
-
-        {products.length > 0 && filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <Filter size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-500 dark:text-gray-400 mb-2">
-              Nenhum produto encontrado com os filtros selecionados
-            </p>
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedCategory('all');
-                setStatusFilter('all');
-              }}
-              className="text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Limpar filtros
-            </button>
-          </div>
-        )}
       </div>
+      )}
     </div>
   );
 }

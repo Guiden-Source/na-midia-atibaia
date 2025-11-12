@@ -5,6 +5,7 @@ import { DeliveryOrder, ORDER_STATUS_MAP, OrderStatus } from '@/lib/delivery/typ
 import { formatPrice } from '@/lib/delivery/cart';
 import { updateOrderStatus } from '@/lib/delivery/queries';
 import { WhatsAppButtonCompact } from './WhatsAppButton';
+import { EmptyOrders } from '@/components/admin/EmptyStates';
 import Link from 'next/link';
 import { Eye, Package } from 'lucide-react';
 
@@ -37,14 +38,7 @@ export function OrderList({ orders, onStatusChange }: OrderListProps) {
   };
 
   if (orders.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">📦</div>
-        <p className="text-gray-500 dark:text-gray-400 text-lg">
-          Nenhum pedido encontrado
-        </p>
-      </div>
-    );
+    return <EmptyOrders />;
   }
 
   return (
