@@ -7,9 +7,7 @@ import {
   Package, 
   ShoppingCart, 
   Calendar, 
-  Ticket, 
-  Users, 
-  Settings,
+  BarChart3,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -33,24 +31,14 @@ const menuItems = [
     icon: ShoppingCart,
   },
   {
-    title: 'Eventos',
-    href: '/admin',
+    title: 'Criar Evento',
+    href: '/admin/criar',
     icon: Calendar,
   },
   {
-    title: 'Cupons',
-    href: '/admin',
-    icon: Ticket,
-  },
-  {
-    title: 'Usuários',
-    href: '/admin',
-    icon: Users,
-  },
-  {
-    title: 'Configurações',
-    href: '/admin',
-    icon: Settings,
+    title: 'Analytics',
+    href: '/admin/analytics',
+    icon: BarChart3,
   },
 ];
 

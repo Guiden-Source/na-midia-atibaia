@@ -1,6 +1,7 @@
 import { getAllOrders, getOrderStats } from '@/lib/delivery/queries';
 import { OrderList } from '@/components/delivery/OrderList';
 import { formatPrice } from '@/lib/delivery/cart';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 import Link from 'next/link';
 import { Package, Clock, CheckCircle, TrendingUp, DollarSign } from 'lucide-react';
 
@@ -25,29 +26,13 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
   ]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                📦 Gerenciar Pedidos Delivery
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Gerencie todos os pedidos de delivery em tempo real
-              </p>
-            </div>
-
-            <Link
-              href="/delivery"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-            >
-              Ver Loja
-            </Link>
-          </div>
-        </div>
-
+    <>
+      <AdminHeader 
+        title="Gerenciar Pedidos"
+        description="Gerencie todos os pedidos de delivery em tempo real"
+      />
+      
+      <div className="p-6">
         {/* Estatísticas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
@@ -193,6 +178,6 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
         {/* Lista de Pedidos */}
         <OrderList orders={orders} />
       </div>
-    </div>
+    </>
   );
 }

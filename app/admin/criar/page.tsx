@@ -1,9 +1,9 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, Calendar, MapPin, Clock, FileText } from 'lucide-react';
+import { Calendar, MapPin, Clock, FileText } from 'lucide-react';
 import { MediaUpload } from '@/components/admin/MediaUpload';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 import { supabase } from '@/lib/supabase';
 import toast from 'react-hot-toast';
 
@@ -80,20 +80,14 @@ export default function CreateEventPage() {
   };
 
   return (
-    <main className="container py-8 pt-24 md:pt-28">
-      <div className="mb-8">
-        <Link 
-          href="/admin" 
-          className="inline-flex items-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 font-baloo2 font-semibold text-gray-900 dark:text-white transition-all hover:scale-105 mb-6"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Voltar ao Admin
-        </Link>
-        <h1 className="font-righteous text-4xl text-foreground mb-2">✨ Novo Evento</h1>
-        <p className="text-gray-700 dark:text-gray-300">Preencha os dados para criar um novo evento na plataforma</p>
-      </div>
+    <>
+      <AdminHeader 
+        title="Criar Novo Evento"
+        description="Preencha os dados para criar um novo evento na plataforma"
+      />
       
-      <form onSubmit={handleSubmit} className="rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 shadow-lg">
+      <div className="p-6">
+        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
         <div className="grid gap-6 md:grid-cols-2">
           {/* Upload de Mídia */}
           <div className="md:col-span-2">
@@ -217,13 +211,14 @@ export default function CreateEventPage() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 px-6 py-4 font-baloo2 font-bold text-white shadow-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 px-6 py-4 font-bold text-white shadow-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? '💾 Criando Evento...' : '✨ Criar Evento'}
             </button>
           </div>
         </div>
       </form>
-    </main>
+      </div>
+    </>
   );
 }
