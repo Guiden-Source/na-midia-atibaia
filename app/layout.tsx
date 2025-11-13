@@ -104,7 +104,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         )}
       >
         <PWAInstaller />
-        <FloatingHeader />
+        <Header />
         
         <main className="flex-1">{children}</main>
 
@@ -242,7 +242,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 }
 
 // Import the components
-import { FloatingHeader } from '@/components/FloatingHeader';
+import { Header } from '@/components/Header';
 import { ExpandableTabs } from '@/components/ui/expandable-tabs';
 import { AuthDebug } from '@/components/AuthDebug';
 import { PWAInstaller } from '@/components/PWAInstaller';
