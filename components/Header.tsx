@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { buttonClasses } from './Button';
 import { CartBadge } from './delivery/CartBadge';
-import { Moon, Sun, Search, X } from 'lucide-react';
+import { Moon, Sun, Search, X, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 export default function Header() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function Header() {
   const [darkMode, setDarkMode] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);
@@ -23,6 +25,15 @@ export default function Header() {
     const saved = localStorage.getItem('darkMode') === 'true';
     setDarkMode(saved);
     if (saved) document.documentElement.classList.add('dark');
+  }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    fetchUser();
   }, []);
 
   const toggleDark = () => {
@@ -58,6 +69,12 @@ export default function Header() {
             <button onClick={toggleDark} className={buttonClasses('outline')}>
               {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
+            {user && (
+              <Link href="/perfil" className={buttonClasses('outline')}>
+                <User className="h-4 w-4" />
+                <span className="hidden md:inline">Perfil</span>
+              </Link>
+            )}
             <CartBadge />
           </div>
         </div>

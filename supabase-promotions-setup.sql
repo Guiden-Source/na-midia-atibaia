@@ -1,4 +1,35 @@
 -- ============================================
+-- TABELA DE ROLES (caso não exista)
+-- ============================================
+CREATE TABLE IF NOT EXISTS user_roles (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('admin', 'user')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, role)
+);
+
+-- Habilitar RLS
+ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
+
+-- Policy: usuários podem ver apenas suas próprias roles
+DROP POLICY IF EXISTS "Users can view own roles" ON user_roles;
+CREATE POLICY "Users can view own roles"
+  ON user_roles FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- Policy: apenas admins podem inserir/atualizar roles
+DROP POLICY IF EXISTS "Only admins can manage roles" ON user_roles;
+CREATE POLICY "Only admins can manage roles"
+  ON user_roles FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_roles
+      WHERE user_id = auth.uid() AND role = 'admin'
+    )
+  );
+
+-- ============================================
 -- TABELA DE PROMOÇÕES/CUPONS GERAIS
 -- ============================================
 -- Promoções não vinculadas a eventos específicos
@@ -56,7 +87,7 @@ CREATE TABLE IF NOT EXISTS promotions (
 -- Índices para performance
 CREATE INDEX IF NOT EXISTS idx_promotions_active ON promotions(active) WHERE active = true;
 CREATE INDEX IF NOT EXISTS idx_promotions_featured ON promotions(featured) WHERE featured = true;
-CREATE INDEX IF NOT EXISTS idx_promotions_valid ON promotions(valid_until) WHERE valid_until > NOW();
+CREATE INDEX IF NOT EXISTS idx_promotions_valid_until ON promotions(valid_until); -- Removido NOW() do predicado
 CREATE INDEX IF NOT EXISTS idx_promotions_category ON promotions(category);
 CREATE INDEX IF NOT EXISTS idx_promotions_code ON promotions(code) WHERE code IS NOT NULL;
 

@@ -1,6 +1,6 @@
 "use client";
-import { confirmPresenceAction, fetchEventsAction } from './actions';
-import type { Event } from '@/lib/types';
+import { confirmPresenceAction, fetchEventsAction, fetchFeaturedPromotionsAction } from './actions';
+import type { Event, Promotion } from '@/lib/types';
 import { EventCard } from '@/components/EventCard';
 import ConfirmPresenceModal from '@/components/ConfirmPresenceModal';
 import { isLive } from '@/lib/utils';
@@ -15,6 +15,8 @@ import { ModernHowItWorksSection } from '@/components/ModernHowItWorksSection';
 import { EventListSchema, OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
 import { EventSuggestions } from '@/components/search/EventSuggestions';
 import { createClient } from '@/lib/supabase/client';
+import { QuickCategories } from '@/components/QuickCategories';
+import { PromotionsGrid } from '@/components/PromotionsGrid';
 
 // Componente de Skeleton Loader
 function EventCardSkeleton() {
@@ -42,7 +44,7 @@ function HeroSection({ events }: { events: Event[] }) {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
       <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl" />
       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300/20 rounded-full blur-3xl" />
-      
+
       <div className="container relative mx-auto px-5 sm:px-6 lg:px-8 pt-32 pb-16 sm:pt-40 sm:pb-24 lg:pt-48 lg:pb-32">
         <div className="mx-auto max-w-5xl">
           {/* Logo - Reduzido em 35% */}
@@ -59,13 +61,13 @@ function HeroSection({ events }: { events: Event[] }) {
 
           {/* Heading - Line-height reduzido para 1.15 */}
           <h1 className="mb-6 text-center font-baloo2 text-3xl font-extrabold leading-[1.15] tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-7xl">
-            Descubra Eventos +<br />
-            <span className="bg-gradient-to-r from-primary via-orange-500 to-orange-600 bg-clip-text text-transparent">Ganhe Cupons</span>
+            Seu Guia Completo de <br />
+            <span className="bg-gradient-to-r from-primary via-orange-500 to-orange-600 bg-clip-text text-transparent">Atibaia</span>
           </h1>
-          
+
           {/* Subheading */}
           <p className="mx-auto mb-10 max-w-2xl text-center text-base sm:text-lg text-gray-700 dark:text-gray-200 lg:text-xl">
-            Veja eventos, bebidas disponíveis e confirme presença para ganhar <span className="font-baloo2 font-semibold text-orange-700 bg-orange-100 dark:text-orange-200 dark:bg-orange-900/30 px-2 py-0.5 rounded">cupons de desconto</span> 🎉
+            Eventos • Promoções • Cupons • Delivery — Tudo em um só lugar 🎉
           </p>
 
           {/* Event Suggestions */}
@@ -83,7 +85,7 @@ function HeroSection({ events }: { events: Event[] }) {
               Explorar Eventos
               <Zap className="h-5 w-5 transition-transform group-hover:rotate-12" fill="currentColor" />
             </a>
-            
+
             <a
               href="#como-funciona"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-primary bg-white/80 backdrop-blur-sm px-8 py-4 min-h-[52px] font-baloo2 text-base sm:text-lg font-semibold text-orange-700 transition-all hover:scale-105 hover:bg-white hover:shadow-xl active:scale-95 dark:bg-gray-800/80 dark:text-orange-400 dark:hover:bg-gray-800"
@@ -101,7 +103,9 @@ function HeroSection({ events }: { events: Event[] }) {
 
 export default function HomePage() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingPromotions, setLoadingPromotions] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [, startTransition] = useTransition();
@@ -109,7 +113,7 @@ export default function HomePage() {
   const loadEvents = async () => {
     try {
       const result = await fetchEventsAction();
-      
+
       // Verificar se result é válido
       if (!result) {
         console.error('fetchEventsAction returned undefined');
@@ -131,8 +135,24 @@ export default function HomePage() {
     }
   };
 
+  const loadPromotions = async () => {
+    try {
+      const result = await fetchFeaturedPromotionsAction();
+      if (result.success) {
+        setPromotions(result.data);
+      } else {
+        console.error('Error loading promotions:', result.error);
+      }
+    } catch (error) {
+      console.error('Error loading promotions:', error);
+    } finally {
+      setLoadingPromotions(false);
+    }
+  };
+
   useEffect(() => {
     loadEvents();
+    loadPromotions();
     const id = setInterval(() => startTransition(loadEvents), 60000); // Otimizado: 60s em vez de 30s
     return () => clearInterval(id);
   }, []);
@@ -153,20 +173,20 @@ export default function HomePage() {
     // Buscar dados do usuário logado
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { success: false, error: 'Você precisa estar logado para confirmar presença.' };
     }
 
     const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário';
-    
+
     console.log('🎫 HomePage - Confirming presence:', {
       name: userName,
       email: user.email,
       eventId: selectedEvent.id
     });
 
-    const result = await confirmPresenceAction(selectedEvent.id, { 
+    const result = await confirmPresenceAction(selectedEvent.id, {
       name: userName,
       email: user.email || ''
     });
@@ -194,7 +214,7 @@ export default function HomePage() {
     const live: Event[] = [];
     const today: Event[] = [];
     const upcoming: Event[] = [];
-    
+
     events.forEach(ev => {
       const start = new Date(ev.start_time);
       if (isLive(ev.start_time, ev.end_time)) live.push(ev);
@@ -223,6 +243,49 @@ export default function HomePage() {
       <BlurFade delay={0.2} inView>
         <ModernHowItWorksSection />
       </BlurFade>
+
+      {/* Categorias Rápidas */}
+      <BlurFade delay={0.25} inView>
+        <QuickCategories />
+      </BlurFade>
+
+      {/* Promoções em Destaque */}
+      {!loadingPromotions && promotions.length > 0 && (
+        <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
+          <div className="absolute top-20 right-10 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 left-10 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl" />
+
+          <div className="container relative mx-auto px-5 sm:px-6 lg:px-8">
+            <BlurFade delay={0.3} inView>
+              <div className="mb-10 sm:mb-12 text-center">
+                <h2 className="mb-3 font-baloo2 text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white">
+                  Promoções & Cupons
+                </h2>
+                <p className="text-base sm:text-lg text-gray-700 dark:text-gray-200">
+                  Aproveite as melhores ofertas e descontos de Atibaia 🎁
+                </p>
+              </div>
+
+              <PromotionsGrid
+                promotions={promotions}
+                onPromotionClaim={loadPromotions}
+              />
+
+              {/* Ver Todas as Promoções */}
+              <div className="mt-10 flex justify-center">
+                <a
+                  href="/cupons"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-4 font-baloo2 text-base sm:text-lg font-bold text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl active:scale-95"
+                >
+                  Ver Todas as Promoções
+                  <Gift className="h-5 w-5" />
+                </a>
+              </div>
+            </BlurFade>
+          </div>
+        </section>
+      )}
 
       {/* Eventos */}
       <div id="eventos" className="container px-5 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
@@ -280,15 +343,15 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
         <div className="absolute top-20 right-10 w-96 h-96 bg-orange-400/20 rounded-full blur-3xl" />
         <div className="absolute bottom-20 left-10 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl" />
-        
+
         <div className="container relative mx-auto px-5 sm:px-6 lg:px-8 text-center">
           <BlurFade delay={0.4} inView>
             <div className="max-w-3xl mx-auto space-y-6">
               <h2 className="font-baloo2 text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white">
-                Pronto para descobrir os melhores eventos de 
+                Pronto para descobrir os melhores eventos de
                 <span className="bg-gradient-to-r from-primary via-orange-500 to-pink-600 bg-clip-text text-transparent"> Atibaia</span>?
               </h2>
-              
+
               <p className="text-base sm:text-lg text-gray-700 dark:text-gray-200 max-w-2xl mx-auto">
                 Junte-se a centenas de pessoas que já estão aproveitando eventos incríveis e economizando com cupons de desconto
               </p>
@@ -302,7 +365,7 @@ export default function HomePage() {
                   Ver Todos os Eventos
                   <PartyPopper className="h-6 w-6 transition-transform group-hover:rotate-12" />
                 </a>
-                
+
                 <a
                   href="/login"
                   aria-label="Criar conta gratuita"

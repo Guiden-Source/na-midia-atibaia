@@ -1,5 +1,7 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+"use client";
+
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -17,71 +19,103 @@ import {
 } from 'lucide-react';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 
-export const metadata = {
-  title: 'Dashboard Admin - Na Mídia',
-  description: 'Painel administrativo',
-};
+interface Stats {
+  totalProducts: number;
+  activeProducts: number;
+  totalOrders: number;
+  pendingOrders: number;
+  totalRevenue: number;
+  todayOrders: number;
+  totalCoupons: number;
+  usedCoupons: number;
+  totalEvents: number;
+}
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+interface Order {
+  id: string;
+  total: number;
+  status: string;
+  created_at: string;
+  order_number: string;
+  user_name: string;
+}
 
-export default async function AdminDashboard() {
-  const cookieStore = cookies();
+export default function AdminDashboard() {
+  const [stats, setStats] = useState<Stats>({
+    totalProducts: 0,
+    activeProducts: 0,
+    totalOrders: 0,
+    pendingOrders: 0,
+    totalRevenue: 0,
+    todayOrders: 0,
+    totalCoupons: 0,
+    usedCoupons: 0,
+    totalEvents: 0,
+  });
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    }
-  );
+  useEffect(() => {
+    const fetchData = async () => {
+      const supabase = createClient();
 
-  // Buscar estatísticas
-  const { data: products } = await supabase
-    .from('delivery_products')
-    .select('id, is_active');
+      // Buscar dados
+      const [
+        { data: products },
+        { data: ordersData },
+        { data: events },
+        { data: coupons }
+      ] = await Promise.all([
+        supabase.from('delivery_products').select('id, is_active'),
+        supabase.from('delivery_orders').select('id, total, status, created_at, order_number, user_name'),
+        supabase.from('events').select('id'),
+        supabase.from('coupons').select('id, used_at'),
+      ]);
 
-  const { data: orders } = await supabase
-    .from('delivery_orders')
-    .select('id, total, status, created_at, order_number, user_name');
+      // Calcular stats
+      const totalProducts = products?.length || 0;
+      const activeProducts = products?.filter((p: any) => p.is_active).length || 0;
 
-  const { data: events } = await supabase
-    .from('events')
-    .select('id');
+      const totalOrders = ordersData?.length || 0;
+      const pendingOrders = ordersData?.filter((o: any) => o.status === 'pending').length || 0;
 
-  const { data: coupons } = await supabase
-    .from('coupons')
-    .select('id, used_at');
+      const totalRevenue = ordersData
+        ?.filter((o: any) => o.status === 'completed')
+        .reduce((sum: number, o: any) => sum + parseFloat(o.total.toString()), 0) || 0;
 
-  // Calcular estatísticas
-  const totalProducts = products?.length || 0;
-  const activeProducts = products?.filter(p => p.is_active).length || 0;
+      const todayOrders = ordersData?.filter((o: any) => {
+        const orderDate = new Date(o.created_at);
+        const today = new Date();
+        return orderDate.toDateString() === today.toDateString();
+      }).length || 0;
 
-  const totalOrders = orders?.length || 0;
-  const pendingOrders = orders?.filter(o => o.status === 'pending').length || 0;
+      const totalCoupons = coupons?.length || 0;
+      const usedCoupons = coupons?.filter((c: any) => c.used_at).length || 0;
 
-  const totalRevenue = orders
-    ?.filter(o => o.status === 'completed')
-    .reduce((sum, o) => sum + parseFloat(o.total.toString()), 0) || 0;
+      setStats({
+        totalProducts,
+        activeProducts,
+        totalOrders,
+        pendingOrders,
+        totalRevenue,
+        todayOrders,
+        totalCoupons,
+        usedCoupons,
+        totalEvents: events?.length || 0,
+      });
 
-  const todayOrders = orders?.filter(o => {
-    const orderDate = new Date(o.created_at);
-    const today = new Date();
-    return orderDate.toDateString() === today.toDateString();
-  }).length || 0;
+      setOrders((ordersData as Order[]) || []);
+      setLoading(false);
+    };
 
-  const totalCoupons = coupons?.length || 0;
-  const usedCoupons = coupons?.filter(c => c.used_at).length || 0;
+    fetchData();
+  }, []);
 
-  const stats = [
+  const statsData = [
     {
       title: 'Produtos',
-      value: totalProducts,
-      subtitle: `${activeProducts} ativos`,
+      value: stats.totalProducts,
+      subtitle: `${stats.activeProducts} ativos`,
       icon: Package,
       color: 'from-blue-500 to-blue-600',
       bgColor: 'bg-blue-50 dark:bg-blue-900/20',
@@ -91,18 +125,18 @@ export default async function AdminDashboard() {
     },
     {
       title: 'Pedidos',
-      value: totalOrders,
-      subtitle: `${pendingOrders} pendentes`,
+      value: stats.totalOrders,
+      subtitle: `${stats.pendingOrders} pendentes`,
       icon: ShoppingCart,
       color: 'from-green-500 to-green-600',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
       textColor: 'text-green-600 dark:text-green-400',
-      trend: `${todayOrders} hoje`,
+      trend: `${stats.todayOrders} hoje`,
       trendUp: true,
     },
     {
       title: 'Receita',
-      value: `R$ ${totalRevenue.toFixed(2)}`,
+      value: `R$ ${stats.totalRevenue.toFixed(2)}`,
       subtitle: 'Completados',
       icon: DollarSign,
       color: 'from-purple-500 to-purple-600',
@@ -137,17 +171,25 @@ export default async function AdminDashboard() {
       href: '/admin/pedidos',
       icon: ShoppingCart,
       color: 'green',
-      description: `${pendingOrders} pendentes`,
+      description: `${stats.pendingOrders} pendentes`,
     },
     {
       title: 'Eventos',
       href: '#',
       icon: Calendar,
       color: 'purple',
-      description: `${events?.length || 0} eventos`,
+      description: `${stats.totalEvents} eventos`,
       disabled: true,
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
@@ -158,7 +200,7 @@ export default async function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => {
+        {statsData.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <motion.div
@@ -255,7 +297,7 @@ export default async function AdminDashboard() {
               Últimos Pedidos
             </h3>
             <div className="space-y-2">
-              {orders?.slice(0, 5).map((order) => (
+              {orders.slice(0, 5).map((order) => (
                 <div
                   key={order.id}
                   className="flex items-center justify-between p-3 rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors"
@@ -281,7 +323,7 @@ export default async function AdminDashboard() {
                   </div>
                 </div>
               ))}
-              {(!orders || orders.length === 0) && (
+              {orders.length === 0 && (
                 <p className="text-center text-gray-500 py-8">
                   Nenhum pedido ainda
                 </p>
@@ -310,7 +352,7 @@ export default async function AdminDashboard() {
                   <span className="font-medium text-gray-900 dark:text-white">Eventos</span>
                 </div>
                 <span className="font-baloo2 text-xl font-bold text-gray-900 dark:text-white">
-                  {events?.length || 0}
+                  {stats.totalEvents}
                 </span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
@@ -330,7 +372,7 @@ export default async function AdminDashboard() {
                   <span className="font-medium text-gray-900 dark:text-white">Cupons Usados</span>
                 </div>
                 <span className="font-baloo2 text-xl font-bold text-gray-900 dark:text-white">
-                  {usedCoupons}/{totalCoupons}
+                  {stats.usedCoupons}/{stats.totalCoupons}
                 </span>
               </div>
             </div>
