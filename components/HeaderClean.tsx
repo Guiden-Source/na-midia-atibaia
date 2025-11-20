@@ -6,7 +6,7 @@ import { CartBadge } from './delivery/CartBadge';
 import { Moon, Sun, Search, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function Header() {
+export default function HeaderClean() {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -51,13 +51,8 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowSearch((s) => !s)} className={buttonClasses('outline')}>
-              <Search className="h-4 w-4" />
-              <span className="hidden md:inline">Buscar</span>
-            </button>
-            <button onClick={toggleDark} className={buttonClasses('outline')}>
-              {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
+            <button onClick={() => setShowSearch((s) => !s)} className={buttonClasses('outline')}> <Search className="h-4 w-4" /> <span className="hidden md:inline">Buscar</span></button>
+            <button onClick={toggleDark} className={buttonClasses('outline')}>{darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</button>
             <CartBadge />
           </div>
         </div>
