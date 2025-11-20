@@ -1,9 +1,11 @@
 "use client";
 
-import { X, Moon, Sun, ChevronRight } from 'lucide-react';
+import { X, Moon, Sun, ChevronRight, User as UserIcon, LogOut, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { useUser } from '@/lib/auth/hooks';
+import { createClient } from '@/lib/supabase/client';
 
 interface MobileMenuProps {
     isOpen: boolean;
@@ -13,6 +15,8 @@ interface MobileMenuProps {
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     const pathname = usePathname();
     const [darkMode, setDarkMode] = useState(false);
+    const { user, loading } = useUser();
+    const supabase = createClient();
 
     // Sync dark mode state
     useEffect(() => {
@@ -26,6 +30,12 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         localStorage.setItem('darkMode', String(newMode));
         if (newMode) document.documentElement.classList.add('dark');
         else document.documentElement.classList.remove('dark');
+    };
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        onClose();
+        window.location.reload();
     };
 
     // Close menu on route change
@@ -45,6 +55,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         };
     }, [isOpen]);
 
+    const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Visitante';
+
     return (
         <>
             {/* Backdrop */}
@@ -60,15 +72,29 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     }`}
             >
                 <div className="flex flex-col h-full">
-                    {/* Header */}
-                    <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                        <span className="font-baloo2 font-bold text-xl text-orange-500">Menu</span>
-                        <button
-                            onClick={onClose}
-                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
-                        >
-                            <X className="h-5 w-5 text-gray-500" />
-                        </button>
+                    {/* Header with User Info */}
+                    <div className="p-6 bg-orange-500 text-white">
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="font-baloo2 font-bold text-xl">Menu</span>
+                            <button
+                                onClick={onClose}
+                                className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        {!loading && (
+                            <div className="flex items-center gap-3">
+                                <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                                    <UserIcon className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-orange-100">Olá,</p>
+                                    <p className="font-bold text-lg leading-tight truncate max-w-[160px]">{userName}</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Links */}
@@ -83,7 +109,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     </nav>
 
                     {/* Footer Actions */}
-                    <div className="p-4 border-t border-gray-100 dark:border-gray-800 space-y-4">
+                    <div className="p-4 border-t border-gray-100 dark:border-gray-800 space-y-3">
                         <button
                             onClick={toggleDark}
                             className="w-full flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -96,6 +122,27 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                                 <div className={`absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-transform ${darkMode ? 'translate-x-5' : 'translate-x-0'}`} />
                             </div>
                         </button>
+
+                        {!loading && (
+                            user ? (
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                >
+                                    <LogOut className="h-5 w-5" />
+                                    <span className="font-medium">Sair</span>
+                                </button>
+                            ) : (
+                                <Link
+                                    href="/auth"
+                                    onClick={onClose}
+                                    className="w-full flex items-center gap-3 p-3 rounded-xl text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+                                >
+                                    <LogIn className="h-5 w-5" />
+                                    <span className="font-medium">Entrar / Criar Conta</span>
+                                </Link>
+                            )
+                        )}
                     </div>
                 </div>
             </div>
@@ -110,8 +157,8 @@ function MenuItem({ href, label, active, onClose }: { href: string; label: strin
                 href={href}
                 onClick={onClose}
                 className={`flex items-center justify-between p-3 rounded-xl transition-colors ${active
-                        ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 font-bold'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 font-bold'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
             >
                 <span className="font-baloo2 text-lg">{label}</span>

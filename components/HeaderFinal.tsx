@@ -4,11 +4,17 @@ import { useEffect, useState } from 'react';
 import { CartBadge } from './delivery/CartBadge';
 import { Moon, Sun, Menu } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/lib/auth/hooks';
+import { createClient } from '@/lib/supabase/client';
+import { User, LogOut, LogIn, ChevronDown } from 'lucide-react';
 
 export default function HeaderFinal() {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const { user, loading } = useUser();
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const supabase = createClient();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);
@@ -29,6 +35,14 @@ export default function HeaderFinal() {
     if (nm) document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
   };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsUserMenuOpen(false);
+    window.location.reload();
+  };
+
+  const userName = user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Visitante';
 
   return (
     <header className="fixed left-0 right-0 top-2 md:top-4 z-40 px-3 md:px-4">
@@ -87,6 +101,59 @@ export default function HeaderFinal() {
 
             {/* Cart Badge */}
             <CartBadge />
+
+            {/* User Menu (Desktop) */}
+            <div className="hidden lg:block relative">
+              {!loading && (
+                user ? (
+                  <>
+                    <button
+                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                      className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+                    >
+                      <div className="h-8 w-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                        <User className="h-5 w-5" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-200 max-w-[100px] truncate">
+                        {userName}
+                      </span>
+                      <ChevronDown className="h-4 w-4 text-gray-400" />
+                    </button>
+
+                    {/* Dropdown */}
+                    {isUserMenuOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        />
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 py-1 z-50 animate-in fade-in zoom-in-95 duration-200">
+                          <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Logado como</p>
+                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{user.email}</p>
+                          </div>
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 transition-colors"
+                          >
+                            <LogOut className="h-4 w-4" />
+                            Sair
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    href="/auth"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-500/20"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    Entrar
+                  </Link>
+                )
+              )}
+            </div>
           </div>
         </div>
       </div>
