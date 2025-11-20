@@ -86,7 +86,7 @@ function LoginForm() {
               transition={{ delay: 0.3 }}
               className="mb-2 font-baloo2 text-3xl font-extrabold text-gray-900 dark:text-white"
             >
-              Bem-vindo de volta!
+              Bem-vindo!
             </motion.h1>
 
             <motion.p
@@ -101,9 +101,9 @@ function LoginForm() {
           </div>
 
           {/* Social Login */}
-          <div className="p-8">
+          <div className="p-8 pb-10">
             <SocialButtons mode="signin" />
-            
+
             {/* Info sobre Google */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -111,130 +111,30 @@ function LoginForm() {
               transition={{ delay: 0.5 }}
               className="mt-6 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 p-4"
             >
-              <p className="text-sm text-green-900 dark:text-green-200">
-                🔒 <strong>Login seguro com Google</strong>
+              <p className="text-sm text-green-900 dark:text-green-200 text-center">
+                🔒 <strong>Login Seguro</strong>
                 <br />
                 <span className="text-xs text-green-700 dark:text-green-300">
-                  Acesse sua conta de forma rápida e segura usando sua conta Google!
+                  Para sua segurança e facilidade, utilizamos apenas o login com Google. Não é necessário decorar senhas!
                 </span>
               </p>
             </motion.div>
           </div>
-
-          {/* Form removido - apenas Google OAuth */}
-          <motion.form
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            onSubmit={handleSubmit}
-            className="px-8 pb-8 space-y-6 hidden"
-          >
-            {/* Error Message */}
-            {errorMessage && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 p-4 flex items-start gap-3"
-              >
-                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700 dark:text-red-300">
-                  {errorMessage}
-                </p>
-              </motion.div>
-            )}
-
-            {/* Email Field */}
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="block text-sm font-baloo2 font-semibold text-gray-700 dark:text-gray-300"
-              >
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  disabled={isLoading}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-900 placeholder-gray-400 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                  placeholder="seu@email.com"
-                />
-              </div>
-            </div>
-
-            {/* Password Field */}
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="block text-sm font-baloo2 font-semibold text-gray-700 dark:text-gray-300"
-              >
-                Senha
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  disabled={isLoading}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-900 placeholder-gray-400 transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group w-full relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-orange-600 px-6 py-3 font-baloo2 text-lg font-bold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                {isLoading ? (
-                  <>
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    Entrando...
-                  </>
-                ) : (
-                  <>
-                    Entrar
-                    <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                  </>
-                )}
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-pink-600 opacity-0 transition-opacity group-hover:opacity-100" />
-            </button>
-          </motion.form>
 
           {/* Footer */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="p-8 pt-0 text-center space-y-3"
+            className="p-8 pt-0 text-center space-y-3 bg-gray-50/50 dark:bg-gray-900/50 border-t border-gray-200/50 dark:border-gray-800/50"
           >
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Ainda não tem uma conta?{' '}
-              <a
-                href="/signup"
-                className="font-baloo2 font-semibold text-primary hover:text-orange-600 transition-colors"
-              >
-                Criar conta grátis
-              </a>
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-500">
-              ou{' '}
+            <p className="text-xs text-gray-500 dark:text-gray-500 pt-4">
               <a
                 href="/"
-                className="text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors"
+                className="text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors flex items-center justify-center gap-2"
               >
-                voltar para home
+                <ArrowRight className="h-3 w-3 rotate-180" />
+                Voltar para home
               </a>
             </p>
           </motion.div>
