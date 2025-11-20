@@ -2,6 +2,7 @@ import { getAllOrders, getOrderStats } from '@/lib/delivery/queries';
 import { OrderList } from '@/components/delivery/OrderList';
 import { formatPrice } from '@/lib/delivery/cart';
 import { AdminHeader } from '@/components/admin/AdminHeader';
+import { LiquidGlass } from '@/components/ui/liquid-glass';
 import Link from 'next/link';
 import { Package, Clock, CheckCircle, TrendingUp, DollarSign } from 'lucide-react';
 
@@ -19,165 +20,143 @@ interface PageProps {
 
 export default async function AdminOrdersPage({ searchParams }: PageProps) {
   const statusFilter = searchParams.status;
-  
+
   const [orders, stats] = await Promise.all([
     getAllOrders(statusFilter),
     getOrderStats(),
   ]);
 
+  const statsData = [
+    {
+      label: 'Total',
+      value: stats.totalOrders,
+      icon: Package,
+      color: 'blue',
+    },
+    {
+      label: 'Pendentes',
+      value: stats.pendingOrders,
+      icon: Clock,
+      color: 'yellow',
+    },
+    {
+      label: 'Em Andamento',
+      value: stats.activeOrders,
+      icon: TrendingUp,
+      color: 'orange',
+    },
+    {
+      label: 'Hoje',
+      value: stats.todayOrders,
+      icon: CheckCircle,
+      color: 'green',
+    },
+    {
+      label: 'Faturamento',
+      value: formatPrice(stats.totalRevenue),
+      icon: DollarSign,
+      color: 'green',
+    },
+  ];
+
   return (
-    <>
-      <AdminHeader 
+    <div className="p-4 sm:p-6 space-y-6">
+      <AdminHeader
         title="Gerenciar Pedidos"
         description="Gerencie todos os pedidos de delivery em tempo real"
       />
-      
-      <div className="p-6">
-        {/* Estatísticas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total de Pedidos</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalOrders}
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {statsData.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <LiquidGlass key={stat.label} className="p-5 group hover:scale-[1.02] transition-transform" intensity={0.3}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  {stat.label}
                 </p>
+                <div className={`p-2 rounded-lg bg-${stat.color}-50 dark:bg-${stat.color}-900/20`}>
+                  <Icon size={18} className={`text-${stat.color}-600 dark:text-${stat.color}-400`} />
+                </div>
               </div>
-              <Package className="text-blue-600" size={32} />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Pendentes</p>
-                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                  {stats.pendingOrders}
-                </p>
-              </div>
-              <Clock className="text-yellow-600" size={32} />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Em Andamento</p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                  {stats.activeOrders}
-                </p>
-              </div>
-              <TrendingUp className="text-orange-600" size={32} />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Hoje</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {stats.todayOrders}
-                </p>
-              </div>
-              <CheckCircle className="text-green-600" size={32} />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Faturamento</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {formatPrice(stats.totalRevenue)}
-                </p>
-              </div>
-              <DollarSign className="text-green-600" size={32} />
-            </div>
-          </div>
-        </div>
-
-        {/* Filtros */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md mb-8">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-            Filtrar por Status
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/admin/pedidos"
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                !statusFilter
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-            >
-              Todos ({stats.totalOrders})
-            </Link>
-            <Link
-              href="/admin/pedidos?status=pending"
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                statusFilter === 'pending'
-                  ? 'bg-yellow-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-            >
-              ⏳ Pendentes ({stats.pendingOrders})
-            </Link>
-            <Link
-              href="/admin/pedidos?status=confirmed"
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                statusFilter === 'confirmed'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-            >
-              ✅ Confirmados
-            </Link>
-            <Link
-              href="/admin/pedidos?status=preparing"
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                statusFilter === 'preparing'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-            >
-              📦 Preparando
-            </Link>
-            <Link
-              href="/admin/pedidos?status=delivering"
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                statusFilter === 'delivering'
-                  ? 'bg-orange-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-            >
-              🚚 Em Entrega
-            </Link>
-            <Link
-              href="/admin/pedidos?status=completed"
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                statusFilter === 'completed'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-            >
-              🎉 Entregues
-            </Link>
-            <Link
-              href="/admin/pedidos?status=cancelled"
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                statusFilter === 'cancelled'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-            >
-              ❌ Cancelados
-            </Link>
-          </div>
-        </div>
-
-        {/* Lista de Pedidos */}
-        <OrderList orders={orders} />
+              <p className="font-baloo2 text-2xl font-bold text-gray-900 dark:text-white">
+                {stat.value}
+              </p>
+            </LiquidGlass>
+          );
+        })}
       </div>
-    </>
+
+      {/* Filters */}
+      <LiquidGlass className="p-2 flex flex-wrap gap-2" intensity={0.2}>
+        <Link
+          href="/admin/pedidos"
+          className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${!statusFilter
+              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+            }`}
+        >
+          Todos ({stats.totalOrders})
+        </Link>
+        <Link
+          href="/admin/pedidos?status=pending"
+          className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'pending'
+              ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+            }`}
+        >
+          ⏳ Pendentes ({stats.pendingOrders})
+        </Link>
+        <Link
+          href="/admin/pedidos?status=confirmed"
+          className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'confirmed'
+              ? 'bg-green-600 text-white shadow-lg shadow-green-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+            }`}
+        >
+          ✅ Confirmados
+        </Link>
+        <Link
+          href="/admin/pedidos?status=preparing"
+          className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'preparing'
+              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+            }`}
+        >
+          📦 Preparando
+        </Link>
+        <Link
+          href="/admin/pedidos?status=delivering"
+          className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'delivering'
+              ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+            }`}
+        >
+          🚚 Em Entrega
+        </Link>
+        <Link
+          href="/admin/pedidos?status=completed"
+          className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'completed'
+              ? 'bg-green-600 text-white shadow-lg shadow-green-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+            }`}
+        >
+          🎉 Entregues
+        </Link>
+        <Link
+          href="/admin/pedidos?status=cancelled"
+          className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'cancelled'
+              ? 'bg-red-600 text-white shadow-lg shadow-red-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+            }`}
+        >
+          ❌ Cancelados
+        </Link>
+      </LiquidGlass>
+
+      {/* Order List */}
+      <OrderList orders={orders} />
+    </div>
   );
 }

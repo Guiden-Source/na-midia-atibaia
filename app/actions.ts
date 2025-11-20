@@ -2,7 +2,7 @@
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { generateCouponCode } from '@/lib/utils';
-import type { Event } from '@/lib/types';
+import type { Event, Promotion, PromotionClaim } from '@/lib/types';
 import { rateLimit, getRateLimitIdentifier } from '@/lib/rate-limit';
 import { headers } from 'next/headers';
 
@@ -11,7 +11,7 @@ async function sendEventNotification(eventName: string, location: string, eventD
   try {
     const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
     const restKey = process.env.ONESIGNAL_REST_API_KEY;
-    
+
     if (!appId || !restKey) {
       console.log('[OneSignal] Credenciais não configuradas, notificação ignorada');
       return;
@@ -20,7 +20,7 @@ async function sendEventNotification(eventName: string, location: string, eventD
     const title = '🎉 Novo evento em Atibaia!';
     const message = `${eventName} • ${location} • ${eventDate}`;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    
+
     const response = await fetch('https://onesignal.com/api/v1/notifications', {
       method: 'POST',
       headers: {
@@ -29,13 +29,13 @@ async function sendEventNotification(eventName: string, location: string, eventD
       },
       body: JSON.stringify({
         app_id: appId,
-        headings: { 
-          pt: title, 
-          en: '🎉 New event in Atibaia!' 
+        headings: {
+          pt: title,
+          en: '🎉 New event in Atibaia!'
         },
-        contents: { 
-          pt: message, 
-          en: message 
+        contents: {
+          pt: message,
+          en: message
         },
         url: eventUrl || siteUrl,
         included_segments: ['All'],
@@ -57,7 +57,7 @@ async function sendEventNotification(eventName: string, location: string, eventD
 
 export async function fetchEvents(): Promise<Event[]> {
   const supabase = createSupabaseServerClient();
-  
+
   // Try filtering by is_active; if column doesn't exist, fallback to all events
   let data: any[] | null = null;
   try {
@@ -132,7 +132,7 @@ export async function fetchEvents(): Promise<Event[]> {
 
 export async function fetchEvent(id: string): Promise<Event | null> {
   const supabase = createSupabaseServerClient();
-  
+
   const { data, error } = await supabase
     .from('events')
     .select(`
@@ -170,7 +170,7 @@ export async function confirmPresence(
   formData: FormData
 ): Promise<ConfirmState> {
   const supabase = createSupabaseServerClient();
-  
+
   try {
     const event_id = String(formData.get('event_id') || '').trim();
     const user_name = String(formData.get('user_name') || '').trim();
@@ -221,19 +221,19 @@ export async function confirmPresence(
           discount_percentage: 15,
           is_used: false,
         });
-      
+
       if (!error) {
         coupErr = null;
         break;
       }
-      
+
       // Se for erro de unicidade, tenta novamente
       if (error.message?.includes('unique') || error.code === '23505') {
         attempts++;
         coupErr = error;
         continue;
       }
-      
+
       // Outro tipo de erro: falha imediata
       coupErr = error;
       break;
@@ -255,11 +255,11 @@ export async function createEvent(
   formData: FormData
 ): Promise<CreateEventState> {
   const supabase = createSupabaseServerClient();
-  
+
   try {
     const name = String(formData.get('name') || '').trim();
     const location = String(formData.get('location') || '').trim();
-    
+
     // Validação básica
     if (!name || name.length < 3) {
       return { ok: false, error: 'Nome do evento deve ter pelo menos 3 caracteres' };
@@ -277,7 +277,7 @@ export async function createEvent(
       // Respeita o CHECK do schema: ('Afterparty','Show','Baile','Festival','Outro')
       event_type: ((): string => {
         const v = String(formData.get('event_type') || '').trim();
-        const allowed = ['Afterparty','Show','Baile','Festival','Outro'];
+        const allowed = ['Afterparty', 'Show', 'Baile', 'Festival', 'Outro'];
         return allowed.includes(v) ? v : 'Afterparty';
       })(),
       is_active: true,
@@ -293,14 +293,14 @@ export async function createEvent(
     if (error) return { ok: false, error: error.message };
 
     // Best-effort: enviar notificação push (não bloqueia criação)
-    const eventDate = new Date(payload.start_time).toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
+    const eventDate = new Date(payload.start_time).toLocaleDateString('pt-BR', {
+      day: '2-digit',
       month: 'short',
       hour: '2-digit',
       minute: '2-digit'
     });
     const eventUrl = data?.id ? `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/evento/${data.id}` : undefined;
-    sendEventNotification(payload.name, payload.location, eventDate, eventUrl).catch(() => {});
+    sendEventNotification(payload.name, payload.location, eventDate, eventUrl).catch(() => { });
 
     return { ok: true, id: data?.id };
   } catch (e: any) {
@@ -347,7 +347,7 @@ export type CreateEventInput = {
 
 export async function createEventAction(data: CreateEventInput): Promise<ActionResult<{ id: string }>> {
   const supabase = createSupabaseServerClient();
-  
+
   try {
     const payload = {
       name: data.name,
@@ -369,14 +369,14 @@ export async function createEventAction(data: CreateEventInput): Promise<ActionR
     if (error || !inserted) return { success: false, error: error?.message || 'Erro ao criar evento' };
 
     // Notificar usuários (não bloqueante)
-    const eventDate = new Date(payload.start_time).toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
+    const eventDate = new Date(payload.start_time).toLocaleDateString('pt-BR', {
+      day: '2-digit',
       month: 'short',
       hour: '2-digit',
       minute: '2-digit'
     });
     const eventUrl = inserted?.id ? `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/evento/${inserted.id}` : undefined;
-    sendEventNotification(payload.name, payload.location, eventDate, eventUrl).catch(() => {});
+    sendEventNotification(payload.name, payload.location, eventDate, eventUrl).catch(() => { });
 
     return { success: true, data: { id: inserted.id } };
   } catch (e: any) {
@@ -388,7 +388,7 @@ export type ConfirmUserData = { name: string; email?: string; phone?: string };
 
 export async function confirmPresenceAction(eventId: string, user: ConfirmUserData): Promise<ActionResult<{ code: string }>> {
   const supabase = createSupabaseServerClient();
-  
+
   try {
     if (!eventId || !user?.name) return { success: false, error: 'Dados incompletos' };
 
@@ -408,9 +408,9 @@ export async function confirmPresenceAction(eventId: string, user: ConfirmUserDa
     // CRÍTICO: Se não tem email, retornar erro
     if (!userEmail) {
       console.error('❌ confirmPresenceAction - No email provided!');
-      return { 
-        success: false, 
-        error: 'Por favor, faça login antes de confirmar presença.' 
+      return {
+        success: false,
+        error: 'Por favor, faça login antes de confirmar presença.'
       };
     }
 
@@ -425,9 +425,9 @@ export async function confirmPresenceAction(eventId: string, user: ConfirmUserDa
 
       if (existingCoupon) {
         console.log('⚠️ confirmPresenceAction - User already has coupon for this event:', existingCoupon.code);
-        return { 
-          success: false, 
-          error: 'Você já possui um cupom para este evento! Verifique seus cupons em Perfil.' 
+        return {
+          success: false,
+          error: 'Você já possui um cupom para este evento! Verifique seus cupons em Perfil.'
         };
       }
     }
@@ -440,9 +440,9 @@ export async function confirmPresenceAction(eventId: string, user: ConfirmUserDa
 
     if (!rateLimitResult.success) {
       const minutesLeft = Math.ceil((rateLimitResult.resetAt - Date.now()) / 60000);
-      return { 
-        success: false, 
-        error: `Muitas tentativas. Tente novamente em ${minutesLeft} minutos.` 
+      return {
+        success: false,
+        error: `Muitas tentativas. Tente novamente em ${minutesLeft} minutos.`
       };
     }
 
@@ -456,7 +456,7 @@ export async function confirmPresenceAction(eventId: string, user: ConfirmUserDa
       })
       .select('*')
       .single();
-    
+
     if (confErr || !conf) {
       console.error('❌ confirmPresenceAction - Error creating confirmation:', confErr);
       return { success: false, error: confErr?.message || 'Erro ao confirmar' };
@@ -465,7 +465,7 @@ export async function confirmPresenceAction(eventId: string, user: ConfirmUserDa
     console.log('✅ confirmPresenceAction - Confirmation created:', conf.id);
 
     const code = generateCouponCode('NAMIDIA15');
-    
+
     console.log('📝 confirmPresenceAction - Creating coupon with data:', {
       code,
       event_id: eventId,
@@ -486,7 +486,7 @@ export async function confirmPresenceAction(eventId: string, user: ConfirmUserDa
       })
       .select()
       .single();
-    
+
     if (coupErr) {
       console.error('❌ confirmPresenceAction - Error creating coupon:', coupErr);
       return { success: false, error: coupErr.message };
@@ -509,7 +509,7 @@ export async function confirmPresenceAction(eventId: string, user: ConfirmUserDa
 
 export async function validateCoupon(code: string): Promise<ActionResult<{ id: string; code: string }>> {
   const supabase = createSupabaseServerClient();
-  
+
   try {
     if (!code?.trim()) return { success: false, error: 'Código inválido' };
     const now = new Date().toISOString();
@@ -559,12 +559,12 @@ export type GrowthData = {
 
 export async function getAnalyticsOverview(period?: 'today' | 'week' | 'month' | 'all'): Promise<ActionResult<AnalyticsOverview>> {
   const supabase = createSupabaseServerClient();
-  
+
   try {
     // Calcular data inicial baseado no período
     const now = new Date();
     let startDate: string | null = null;
-    
+
     if (period === 'today') {
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       startDate = today.toISOString();
@@ -595,10 +595,10 @@ export async function getAnalyticsOverview(period?: 'today' | 'week' | 'month' |
     const couponsUsed = couponsData?.filter(c => c.is_used).length || 0;
 
     // Taxas
-    const conversionRate = totalEvents && totalEvents > 0 
+    const conversionRate = totalEvents && totalEvents > 0
       ? ((totalConfirmations || 0) / (totalEvents * 100)) * 100 // Assumindo média de 100 visitas por evento
       : 0;
-    
+
     const couponUsageRate = totalCoupons && totalCoupons > 0
       ? (couponsUsed / totalCoupons) * 100
       : 0;
@@ -626,7 +626,7 @@ export async function getAnalyticsOverview(period?: 'today' | 'week' | 'month' |
 
 export async function getEventsPopularity(limit: number = 10): Promise<ActionResult<EventPopularity[]>> {
   const supabase = createSupabaseServerClient();
-  
+
   try {
     const { data: events, error } = await supabase
       .from('events')
@@ -645,7 +645,7 @@ export async function getEventsPopularity(limit: number = 10): Promise<ActionRes
       const confirmations = Array.isArray(event.confirmations) ? event.confirmations.length : 0;
       const coupons = Array.isArray(event.coupons) ? event.coupons : [];
       const couponsUsed = coupons.filter((c: any) => c.is_used).length;
-      
+
       return {
         event_id: event.id,
         event_name: event.name,
@@ -670,7 +670,7 @@ export async function getEventsPopularity(limit: number = 10): Promise<ActionRes
 
 export async function getGrowthData(days: number = 7): Promise<ActionResult<GrowthData[]>> {
   const supabase = createSupabaseServerClient();
-  
+
   try {
     const now = new Date();
     const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
@@ -724,7 +724,7 @@ export async function getGrowthData(days: number = 7): Promise<ActionResult<Grow
       if (growthMap[dateStr]) growthMap[dateStr].coupons++;
     });
 
-    const growthData = Object.values(growthMap).sort((a, b) => 
+    const growthData = Object.values(growthMap).sort((a, b) =>
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
@@ -734,5 +734,144 @@ export async function getGrowthData(days: number = 7): Promise<ActionResult<Grow
     };
   } catch (e: any) {
     return { success: false, error: e?.message || 'Erro ao buscar dados de crescimento' };
+  }
+}
+
+// ================================
+// PROMOÇÕES
+// ================================
+
+/**
+ * Buscar todas as promoções ativas e válidas
+ */
+export async function fetchPromotionsAction(): Promise<ActionResult<Promotion[]>> {
+  const supabase = createSupabaseServerClient();
+
+  try {
+    const { data, error } = await supabase
+      .from('promotions')
+      .select('*')
+      .eq('active', true)
+      .or(`valid_until.is.null,valid_until.gte.${new Date().toISOString()}`)
+      .order('featured', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data as Promotion[] };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Erro ao buscar promoções' };
+  }
+}
+
+/**
+ * Buscar promoções em destaque (para a homepage)
+ */
+export async function fetchFeaturedPromotionsAction(): Promise<ActionResult<Promotion[]>> {
+  const supabase = createSupabaseServerClient();
+
+  try {
+    const { data, error } = await supabase
+      .from('promotions')
+      .select('*')
+      .eq('active', true)
+      .eq('featured', true)
+      .or(`valid_until.is.null,valid_until.gte.${new Date().toISOString()}`)
+      .order('created_at', { ascending: false })
+      .limit(6); // Máximo 6 promoções em destaque
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data as Promotion[] };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Erro ao buscar promoções em destaque' };
+  }
+}
+
+/**
+ * Buscar uma promoção específica por ID
+ */
+export async function fetchPromotionById(id: string): Promise<ActionResult<Promotion | null>> {
+  const supabase = createSupabaseServerClient();
+
+  try {
+    const { data, error } = await supabase
+      .from('promotions')
+      .select('*')
+      .eq('id', id)
+      .eq('active', true)
+      .single();
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data as Promotion };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Erro ao buscar promoção' };
+  }
+}
+
+/**
+ * Resgatar uma promoção (chamar função RPC do Supabase)
+ */
+export async function claimPromotionAction(promotionId: string): Promise<ActionResult<{ code: string; message: string }>> {
+  const supabase = createSupabaseServerClient();
+
+  try {
+    // Verificar se usuário está autenticado
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: 'Você precisa estar logado para resgatar promoções' };
+    }
+
+    // Chamar função RPC do Supabase
+    const { data, error } = await supabase
+      .rpc('claim_promotion', { p_promotion_id: promotionId });
+
+    if (error) return { success: false, error: error.message };
+
+    // Parsear resultado JSON da função
+    const result = typeof data === 'string' ? JSON.parse(data) : data;
+
+    if (!result.success) {
+      return { success: false, error: result.error || 'Erro ao resgatar promoção' };
+    }
+
+    return {
+      success: true,
+      data: {
+        code: result.code,
+        message: `Promoção resgatada! Código: ${result.code}`
+      }
+    };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Erro ao resgatar promoção' };
+  }
+}
+
+/**
+ * Buscar cupons resgatados do usuário logado
+ */
+export async function fetchUserPromotionClaims(): Promise<ActionResult<(PromotionClaim & { promotion: Promotion })[]>> {
+  const supabase = createSupabaseServerClient();
+
+  try {
+    // Verificar se usuário está autenticado
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: 'Você precisa estar logado' };
+    }
+
+    const { data, error } = await supabase
+      .from('promotion_claims')
+      .select(`
+        *,
+        promotion:promotions(*)
+      `)
+      .eq('user_id', user.id)
+      .order('claimed_at', { ascending: false });
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, data: data as any };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Erro ao buscar cupons' };
   }
 }
