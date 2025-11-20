@@ -7,8 +7,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   User, Ticket, Calendar, Users, Settings, LogOut,
-  ShoppingBag, Package, MapPin, ShoppingCart,
-  ChevronRight, Star, Heart, Bell
+  ShoppingBag, Package, MapPin, ShoppingCart, ChevronRight
 } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { getCart } from "@/lib/delivery/cart";
@@ -39,39 +38,16 @@ export default function PerfilPage() {
       }
 
       setUser(user);
-
-      // Verificar se é admin
       setIsAdmin(isUserAdmin(user));
 
-      // Buscar estatísticas usando count para otimizar performance
+      // Buscar estatísticas
       const [cuponsCount, eventosCount, pedidosCount, enderecosCount] = await Promise.all([
-        // Cupons disponíveis (não usados)
-        supabase
-          .from("coupons")
-          .select("*", { count: "exact", head: true })
-          .eq("user_email", user.email || "")
-          .is("used_at", null),
-
-        // Eventos confirmados
-        supabase
-          .from("confirmations")
-          .select("*", { count: "exact", head: true })
-          .eq("user_email", user.email || ""),
-
-        // Pedidos delivery
-        supabase
-          .from("delivery_orders")
-          .select("*", { count: "exact", head: true })
-          .eq("user_email", user.email || ""),
-
-        // Endereços salvos
-        supabase
-          .from("delivery_addresses")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id),
+        supabase.from("coupons").select("*", { count: "exact", head: true }).eq("user_email", user.email || "").is("used_at", null),
+        supabase.from("confirmations").select("*", { count: "exact", head: true }).eq("user_email", user.email || ""),
+        supabase.from("delivery_orders").select("*", { count: "exact", head: true }).eq("user_email", user.email || ""),
+        supabase.from("delivery_addresses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
       ]);
 
-      // Obter items do carrinho
       const cart = getCart();
 
       setStats({
@@ -94,21 +70,6 @@ export default function PerfilPage() {
     router.push("/");
   };
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -117,240 +78,130 @@ export default function PerfilPage() {
     );
   }
 
+  const quickLinks = [
+    { icon: ShoppingBag, label: "Novo Pedido", href: "/delivery", color: "orange", desc: "Faça um novo pedido" },
+    { icon: Package, label: "Pedidos", href: "/perfil/pedidos", color: "blue", desc: `${stats.pedidos} pedidos` },
+    { icon: ShoppingCart, label: "Carrinho", href: "/delivery/cart", color: "green", desc: `${stats.carrinho} itens` },
+    { icon: MapPin, label: "Endereços", href: "/perfil/enderecos", color: "pink", desc: `${stats.enderecos} salvos` },
+    { icon: Ticket, label: "Cupons", href: "/perfil/cupons", color: "purple", desc: `${stats.cupons} disponíveis` },
+    { icon: Calendar, label: "Eventos", href: "/perfil/eventos", color: "indigo", desc: `${stats.eventos} confirmados` },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      {/* Background Elements */}
+      {/* Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[20%] -right-[10%] w-[70%] h-[70%] rounded-full bg-gradient-to-br from-orange-400/10 to-pink-400/10 blur-3xl animate-pulse" />
         <div className="absolute top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-purple-400/10 to-blue-400/10 blur-3xl animate-pulse delay-1000" />
       </div>
 
-      <div className="container mx-auto px-4 py-8 sm:py-12 pt-24 md:pt-28 relative z-10">
+      <div className="container mx-auto px-4 py-8 sm:py-12 pt-24 md:pt-28 relative z-10 max-w-6xl">
         <motion.div
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="space-y-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
         >
-          {/* Profile Header */}
-          <motion.div variants={item}>
-            <LiquidGlass className="p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-center gap-4 sm:gap-6 text-center md:text-left">
-              <div className="relative group shrink-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary to-purple-600 rounded-full blur-md opacity-50 group-hover:opacity-75 transition-opacity" />
-                <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-gradient-to-br from-primary to-orange-600 p-1">
+          {/* Profile Header - Simplified */}
+          <LiquidGlass className="p-6 lg:p-8">
+            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6">
+              {/* Avatar */}
+              <div className="relative shrink-0">
+                <div className="h-24 w-24 lg:h-28 lg:w-28 rounded-full bg-gradient-to-br from-primary to-orange-600 p-1">
                   <div className="h-full w-full rounded-full bg-white dark:bg-gray-900 flex items-center justify-center overflow-hidden">
                     {user?.user_metadata?.avatar_url ? (
                       <img src={user.user_metadata.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
                     ) : (
-                      <User className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" />
+                      <User className="h-12 w-12 text-gray-400" />
                     )}
                   </div>
                 </div>
-                <button className="absolute bottom-0 right-0 p-1.5 sm:p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
-                  <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                </button>
               </div>
 
-              <div className="flex-1 min-w-0 w-full">
-                <h1 className="font-baloo2 text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2 truncate">
+              {/* Info */}
+              <div className="flex-1 text-center lg:text-left min-w-0">
+                <h1 className="font-baloo2 text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
                   Olá, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Visitante'}! 👋
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 flex items-center justify-center md:justify-start gap-2 truncate">
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0" />
-                  <span className="truncate">{user?.email}</span>
-                </p>
-                <div className="mt-3 sm:mt-4 flex flex-wrap justify-center md:justify-start gap-2 sm:gap-3">
-                  <span className="px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs sm:text-sm font-medium flex items-center gap-1">
-                    <Star className="h-3 w-3" /> Membro
-                  </span>
-                  <span className="px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs sm:text-sm font-medium flex items-center gap-1">
-                    <Heart className="h-3 w-3" /> {stats.eventos} Eventos
-                  </span>
-                </div>
+                <p className="text-gray-600 dark:text-gray-400 mb-4 truncate">{user?.email}</p>
               </div>
 
-              <div className="flex flex-col sm:flex-row md:flex-col gap-2 sm:gap-3 w-full md:w-auto">
-                <button className="w-full md:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
-                  <Bell className="h-4 w-4" />
-                  Notificações
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="w-full md:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 text-red-600 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sair
-                </button>
-              </div>
-            </LiquidGlass>
-          </motion.div>
-
-          {/* Stats Grid */}
-          <motion.div variants={item} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            {[
-              { icon: Ticket, label: "Cupons", value: stats.cupons, color: "orange" },
-              { icon: Calendar, label: "Eventos", value: stats.eventos, color: "purple" },
-              { icon: Package, label: "Pedidos", value: stats.pedidos, color: "blue" },
-              { icon: ShoppingCart, label: "Carrinho", value: stats.carrinho, color: "green" },
-              { icon: MapPin, label: "Endereços", value: stats.enderecos, color: "pink" },
-            ].map((stat, index) => (
-              <LiquidGlass
-                key={index}
-                className="p-3 sm:p-4 flex flex-col items-center justify-center text-center group cursor-pointer min-h-[140px]"
-                intensity={0.3}
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="px-6 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 text-red-600 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-2 shrink-0"
               >
-                <div className={`mb-2 sm:mb-3 p-2 sm:p-3 rounded-2xl bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600 dark:text-${stat.color}-400 group-hover:scale-110 transition-transform duration-300`}>
-                  <stat.icon className="h-5 w-5 sm:h-6 sm:w-6" />
-                </div>
-                <span className="font-baloo2 text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate w-full px-1">
-                  {stat.value}
-                </span>
-                <span className="text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate w-full px-1">
-                  {stat.label}
-                </span>
-              </LiquidGlass>
-            ))}
-          </motion.div>
+                <LogOut className="h-4 w-4" />
+                Sair
+              </button>
+            </div>
+          </LiquidGlass>
 
-          {/* Admin Panel Link (só para admins) */}
+          {/* Admin Panel (only for admins) */}
           {isAdmin && (
-            <motion.div variants={item}>
-              <Link href="/admin" className="block">
-                <LiquidGlass className="p-6 flex items-center gap-6 group hover:border-purple-500/50 transition-colors bg-gradient-to-r from-orange-500/10 to-purple-600/10">
-                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
-                    <Settings className="h-8 w-8" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-baloo2 text-2xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 transition-colors">
-                      Painel Administrativo
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Gerencie eventos, usuários e cupons da plataforma
-                    </p>
-                  </div>
-                  <div className="h-10 w-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all">
-                    <ChevronRight className="h-6 w-6" />
-                  </div>
-                </LiquidGlass>
-              </Link>
-            </motion.div>
+            <Link href="/admin">
+              <LiquidGlass className="p-6 flex items-center gap-4 hover:border-purple-500/50 transition-colors bg-gradient-to-r from-orange-500/5 to-purple-600/5 group">
+                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                  <Settings className="h-7 w-7" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-baloo2 text-xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 transition-colors">
+                    Painel Administrativo
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Gerencie a plataforma</p>
+                </div>
+                <ChevronRight className="h-6 w-6 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
+              </LiquidGlass>
+            </Link>
           )}
 
-          {/* Main Sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Delivery Section */}
-            <motion.div variants={item} className="space-y-4">
-              <h2 className="font-baloo2 text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <span className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400">
-                  <ShoppingBag className="h-5 w-5" />
-                </span>
-                Delivery
-              </h2>
-              <div className="grid grid-cols-1 gap-3">
-                <Link href="/delivery" className="block">
-                  <LiquidGlass className="p-4 flex items-center gap-4 group hover:border-orange-500/30 transition-colors">
-                    <div className="h-12 w-12 rounded-xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform">
-                      <ShoppingBag className="h-6 w-6" />
+          {/* Quick Links Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {quickLinks.map((link, index) => (
+              <motion.div
+                key={link.href}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Link href={link.href}>
+                  <LiquidGlass className={`p-5 group hover:border-${link.color}-500/30 transition-colors h-full`}>
+                    <div className="flex items-start gap-4">
+                      <div className={`h-12 w-12 rounded-xl bg-${link.color}-50 dark:bg-${link.color}-900/20 flex items-center justify-center text-${link.color}-600 dark:text-${link.color}-400 group-hover:scale-110 transition-transform shrink-0`}>
+                        <link.icon className="h-6 w-6" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className={`font-baloo2 font-bold text-gray-900 dark:text-white group-hover:text-${link.color}-600 transition-colors mb-1`}>
+                          {link.label}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{link.desc}</p>
+                      </div>
+                      <ChevronRight className={`h-5 w-5 text-gray-400 group-hover:text-${link.color}-500 group-hover:translate-x-1 transition-all shrink-0`} />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-orange-600 transition-colors">Fazer Novo Pedido</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Explore nosso cardápio completo</p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-orange-500 group-hover:translate-x-1 transition-all" />
                   </LiquidGlass>
                 </Link>
+              </motion.div>
+            ))}
 
-                <Link href="/perfil/pedidos" className="block">
-                  <LiquidGlass className="p-4 flex items-center gap-4 group hover:border-blue-500/30 transition-colors">
-                    <div className="h-12 w-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-                      <Package className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">Meus Pedidos</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Acompanhe seus pedidos em andamento</p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
-                  </LiquidGlass>
-                </Link>
-
-                <Link href="/delivery/cart" className="block">
-                  <LiquidGlass className="p-4 flex items-center gap-4 group hover:border-green-500/30 transition-colors">
-                    <div className="h-12 w-12 rounded-xl bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
-                      <ShoppingCart className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-green-600 transition-colors">Carrinho</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {stats.carrinho} {stats.carrinho === 1 ? 'item' : 'itens'} no carrinho
-                      </p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-green-500 group-hover:translate-x-1 transition-all" />
-                  </LiquidGlass>
-                </Link>
-
-                <Link href="/perfil/enderecos" className="block">
-                  <LiquidGlass className="p-4 flex items-center gap-4 group hover:border-pink-500/30 transition-colors">
-                    <div className="h-12 w-12 rounded-xl bg-pink-50 dark:bg-pink-900/20 flex items-center justify-center text-pink-600 dark:text-pink-400 group-hover:scale-110 transition-transform">
-                      <MapPin className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-pink-600 transition-colors">Endereços Salvos</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Gerencie seus locais de entrega</p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-pink-500 group-hover:translate-x-1 transition-all" />
-                  </LiquidGlass>
-                </Link>
-              </div>
-            </motion.div>
-
-            {/* Eventos Section */}
-            <motion.div variants={item} className="space-y-4">
-              <h2 className="font-baloo2 text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <span className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
-                  <Calendar className="h-5 w-5" />
-                </span>
-                Eventos & Cupons
-              </h2>
-              <div className="grid grid-cols-1 gap-3">
-                <Link href="/perfil/cupons" className="block">
-                  <LiquidGlass className="p-4 flex items-center gap-4 group hover:border-purple-500/30 transition-colors">
-                    <div className="h-12 w-12 rounded-xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
-                      <Ticket className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-purple-600 transition-colors">Meus Cupons</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Visualize seus ingressos e descontos</p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
-                  </LiquidGlass>
-                </Link>
-
-                <Link href="/perfil/eventos" className="block">
-                  <LiquidGlass className="p-4 flex items-center gap-4 group hover:border-indigo-500/30 transition-colors">
-                    <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                      <Calendar className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">Eventos Confirmados</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Histórico de eventos que você participou</p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all" />
-                  </LiquidGlass>
-                </Link>
-
-                <Link href="/perfil/amigos" className="block">
-                  <LiquidGlass className="p-4 flex items-center gap-4 group hover:border-green-500/30 transition-colors">
-                    <div className="h-12 w-12 rounded-xl bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
-                      <Users className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-green-600 transition-colors">Amigos</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Conecte-se com outros usuários</p>
-                    </div>
-                    <div className="px-2 py-1 rounded text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-500">EM BREVE</div>
-                  </LiquidGlass>
-                </Link>
-              </div>
+            {/* Amigos - Coming Soon */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <LiquidGlass className="p-5 opacity-60 cursor-not-allowed h-full">
+                <div className="flex items-start gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 shrink-0">
+                    <Users className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-baloo2 font-bold text-gray-900 dark:text-white mb-1">Amigos</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Em breve</p>
+                  </div>
+                  <div className="px-2 py-1 rounded text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-500 shrink-0">
+                    BREVE
+                  </div>
+                </div>
+              </LiquidGlass>
             </motion.div>
           </div>
         </motion.div>
