@@ -134,7 +134,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                                 </button>
                             ) : (
                                 <Link
-                                    href="/auth"
+                                    href="/login"
                                     onClick={onClose}
                                     className="w-full flex items-center gap-3 p-3 rounded-xl text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
                                 >

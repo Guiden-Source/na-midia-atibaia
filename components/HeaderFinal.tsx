@@ -145,7 +145,7 @@ export default function HeaderFinal() {
                   </>
                 ) : (
                   <Link
-                    href="/auth"
+                    href="/login"
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-500/20"
                   >
                     <LogIn className="h-4 w-4" />
