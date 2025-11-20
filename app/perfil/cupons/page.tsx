@@ -33,7 +33,7 @@ export default function CuponsPage() {
     const loadCupons = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         console.log('🎫 Cupons - User not logged in, redirecting to login');
         router.push("/login");
@@ -89,8 +89,8 @@ export default function CuponsPage() {
       .eq("id", selectedCoupon.id);
 
     if (!error) {
-      setCupons(cupons.map(c => 
-        c.id === selectedCoupon.id 
+      setCupons(cupons.map(c =>
+        c.id === selectedCoupon.id
           ? { ...c, used_at: new Date().toISOString() }
           : c
       ));
@@ -112,26 +112,39 @@ export default function CuponsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      {/* Header */}
-      <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md border-b border-white/20 sticky top-0 z-10 pt-20 md:pt-24">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/perfil" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-                <ChevronLeft className="h-6 w-6" />
-              </Link>
-              <h1 className="font-baloo2 text-2xl font-bold text-gray-900 dark:text-white">
-                Meus Cupons
-              </h1>
-            </div>
-            <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              ← Home
-            </Link>
-          </div>
-        </div>
+      {/* Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[20%] -right-[10%] w-[70%] h-[70%] rounded-full bg-gradient-to-br from-orange-400/10 to-pink-400/10 blur-3xl animate-pulse" />
+        <div className="absolute top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-purple-400/10 to-blue-400/10 blur-3xl animate-pulse delay-1000" />
       </div>
 
-      <div className="container mx-auto px-4 py-8 sm:py-12">
+      <div className="container mx-auto px-4 py-8 sm:py-12 pt-24 md:pt-28 relative z-10">
+        {/* Header */}
+        <div className="mb-8">
+          <Link
+            href="/perfil"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary font-medium transition-colors mb-6 group"
+          >
+            <div className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm group-hover:shadow-md transition-all">
+              <ChevronLeft size={20} />
+            </div>
+            <span className="font-baloo2">Voltar ao perfil</span>
+          </Link>
+
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
+              <Ticket size={32} />
+            </div>
+            <div>
+              <h1 className="font-baloo2 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">
+                Meus Cupons
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Gerencie seus cupons de desconto
+              </p>
+            </div>
+          </div>
+        </div>
         {/* Cupons Disponíveis */}
         <div className="mb-8">
           <h2 className="font-baloo2 text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
