@@ -242,7 +242,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 }
 
 // Import the components
-import { Header } from '@/components/Header';
+import Header from '@/components/HeaderFinal';
 import { ExpandableTabs } from '@/components/ui/expandable-tabs';
 import { AuthDebug } from '@/components/AuthDebug';
 import { PWAInstaller } from '@/components/PWAInstaller';
