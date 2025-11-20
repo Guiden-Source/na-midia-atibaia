@@ -40,6 +40,45 @@ export type Coupon = {
   created_at: string; // ISO
 };
 
+export type DiscountType = 'percentage' | 'fixed' | 'freebie' | 'special';
+
+export type PromotionCategory = 'food' | 'drinks' | 'events' | 'delivery' | 'general';
+
+export type Promotion = {
+  id: string;
+  title: string;
+  description?: string | null;
+  discount_type: DiscountType;
+  discount_value?: number | null;
+  code?: string | null;
+  valid_from?: string; // ISO
+  valid_until?: string | null; // ISO
+  terms?: string | null;
+  category?: PromotionCategory | null;
+  image_url?: string | null;
+  venue_name?: string | null;
+  venue_instagram?: string | null;
+  venue_phone?: string | null;
+  featured: boolean;
+  active: boolean;
+  max_uses?: number | null;
+  current_uses: number;
+  created_at: string; // ISO
+  updated_at: string; // ISO
+};
+
+export type PromotionClaimStatus = 'active' | 'used' | 'expired';
+
+export type PromotionClaim = {
+  id: string;
+  promotion_id: string;
+  user_id: string;
+  claim_code?: string | null;
+  status: PromotionClaimStatus;
+  used_at?: string | null;
+  claimed_at: string; // ISO
+};
+
 // Opcional: Tipos gerados para o cliente tipado do Supabase (mínimos)
 export type Database = {
   public: {
