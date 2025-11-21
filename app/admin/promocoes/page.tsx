@@ -39,14 +39,25 @@ export default function AdminPromotionsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Tem certeza que deseja excluir esta promoção?")) return;
 
-        const { error } = await supabase.from("promotions").delete().eq("id", id);
+        try {
+            const { error, data } = await supabase
+                .from("promotions")
+                .delete()
+                .eq("id", id)
+                .select();
 
-        if (error) {
-            toast.error("Erro ao excluir promoção");
-            console.error(error);
-        } else {
+            if (error) {
+                console.error("Delete error:", error);
+                toast.error(`Erro ao excluir: ${error.message}`);
+                return;
+            }
+
+            console.log("Deleted promotion:", data);
             toast.success("Promoção excluída com sucesso!");
             fetchPromotions();
+        } catch (err: any) {
+            console.error("Unexpected error:", err);
+            toast.error(`Erro inesperado: ${err.message}`);
         }
     };
 
@@ -188,8 +199,8 @@ export default function AdminPromotionsPage() {
                                         <button
                                             onClick={() => handleToggleActive(promotion)}
                                             className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${promotion.active
-                                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                                                    : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
+                                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                                : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
                                                 }`}
                                         >
                                             {promotion.active ? "Ativa" : "Inativa"}
@@ -197,8 +208,8 @@ export default function AdminPromotionsPage() {
                                         <button
                                             onClick={() => handleToggleFeatured(promotion)}
                                             className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${promotion.featured
-                                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                                                    : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-500"
+                                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                                : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-500"
                                                 }`}
                                         >
                                             {promotion.featured ? "⭐ Destaque" : "Destacar"}
