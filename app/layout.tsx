@@ -7,7 +7,7 @@ import './globals.css';
 import type { Viewport } from 'next';
 
 const baloo2 = Baloo_2({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-baloo2' });
-const inter = Inter({ subsets: ['latin'], weight: ['400','500','600','700'], variable: '--font-inter' });
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-inter' });
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://namidia.com.br'),
@@ -18,7 +18,7 @@ export const metadata = {
   creator: 'Na Mídia',
   publisher: 'Na Mídia',
   manifest: '/manifest.json',
-  icons: { 
+  icons: {
     icon: [
       { url: '/favicon.ico' },
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -92,7 +92,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="apple-mobile-web-app-title" content="Na Mídia" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="format-detection" content="telephone=no" />
-        
+
         {/* Splash screens para iOS */}
         <link rel="apple-touch-startup-image" href="/apple-touch-icon.png" />
       </head>
@@ -105,7 +105,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       >
         <PWAInstaller />
         <Header />
-        
+
         <main className="flex-1">{children}</main>
 
         <Toaster
@@ -119,22 +119,22 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             },
           }}
         />
-        
+
         <Analytics />
-        
+
         {/* Debug de autenticação (apenas em desenvolvimento) */}
         {process.env.NODE_ENV === 'development' && <AuthDebug />}
-        
+
         <footer className="py-12 md:py-16 mb-20 md:mb-0 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8">
             {/* Footer Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-8">
-              
+
               {/* Coluna 1 - Sobre */}
               <div className="space-y-4">
-                <img 
-                  src="/logotiponamidiavetorizado.svg" 
-                  alt="Na Mídia" 
+                <img
+                  src="/logotiponamidiavetorizado.svg"
+                  alt="Na Mídia"
                   className="h-10 w-auto"
                 />
                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -202,8 +202,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 </h3>
                 <ul className="space-y-2">
                   <li>
-                    <a 
-                      href="https://www.instagram.com/namidia.atibaia/" 
+                    <a
+                      href="https://www.instagram.com/namidia.atibaia/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors inline-flex items-center gap-2"
@@ -242,7 +242,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 }
 
 // Import the components
-import Header from '@/components/HeaderFinal';
+import Header from '@/components/Header';
 import { ExpandableTabs } from '@/components/ui/expandable-tabs';
 import { AuthDebug } from '@/components/AuthDebug';
 import { PWAInstaller } from '@/components/PWAInstaller';

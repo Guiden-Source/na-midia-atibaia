@@ -41,7 +41,7 @@ export function ModernHowItWorksSection() {
     <section id="como-funciona" className="relative py-16 lg:py-20 overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
-      
+
       {/* Decorative elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-orange-400/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-400/10 rounded-full blur-3xl" />
@@ -102,7 +102,7 @@ export function ModernHowItWorksSection() {
                 <div className="relative rounded-3xl p-8 md:p-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl border border-orange-200/20 dark:border-orange-800/20 shadow-2xl overflow-hidden">
                   {/* Gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 via-transparent to-pink-50/50 dark:from-orange-950/30 dark:via-transparent dark:to-pink-950/30 pointer-events-none" />
-                  
+
                   {/* Content */}
                   <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
                     {/* Icon Side */}
@@ -112,7 +112,7 @@ export function ModernHowItWorksSection() {
                         <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center font-baloo2 text-xl font-bold text-white shadow-lg z-10">
                           {steps[currentStep].number}
                         </div>
-                        
+
                         {/* Icon container */}
                         <motion.div
                           initial={{ rotate: -10 }}
@@ -162,8 +162,8 @@ export function ModernHowItWorksSection() {
                 onClick={() => setCurrentStep(index)}
                 className={cn(
                   "rounded-full transition-all duration-300",
-                  index === currentStep 
-                    ? "w-8 h-1.5 bg-gradient-to-r from-orange-500 to-pink-500" 
+                  index === currentStep
+                    ? "w-8 h-1.5 bg-gradient-to-r from-orange-500 to-pink-500"
                     : "w-1.5 h-1.5 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400"
                 )}
                 aria-label={`Go to step ${index + 1}`}
@@ -181,7 +181,7 @@ export function ModernHowItWorksSection() {
           className="text-center mt-16"
         >
           <a
-            href="/login-modern"
+            href="/login"
             aria-label="Criar sua conta agora"
             className={cn(
               "inline-flex items-center justify-center gap-2",
