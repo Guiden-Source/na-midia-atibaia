@@ -29,6 +29,7 @@ interface Stats {
   totalCoupons: number;
   usedCoupons: number;
   totalEvents: number;
+  totalUsers: number;
 }
 
 interface Order {
@@ -51,6 +52,7 @@ export default function AdminDashboard() {
     totalCoupons: 0,
     usedCoupons: 0,
     totalEvents: 0,
+    totalUsers: 0,
   });
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,6 +94,12 @@ export default function AdminDashboard() {
       const totalCoupons = coupons?.length || 0;
       const usedCoupons = coupons?.filter((c: any) => c.used_at).length || 0;
 
+      // Buscar total de usuários (auth)
+      const { count: totalUsers } = await supabase.auth.admin.listUsers({
+        page: 1,
+        perPage: 1
+      });
+
       setStats({
         totalProducts,
         activeProducts,
@@ -102,6 +110,7 @@ export default function AdminDashboard() {
         totalCoupons,
         usedCoupons,
         totalEvents: events?.length || 0,
+        totalUsers: totalUsers || 0,
       });
 
       setOrders((ordersData as Order[]) || []);
@@ -315,8 +324,8 @@ export default function AdminDashboard() {
                       R$ {parseFloat(order.total.toString()).toFixed(2)}
                     </p>
                     <span className={`text-xs px-2 py-0.5 rounded-full ${order.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                        order.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                          'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                        'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
                       }`}>
                       {order.status}
                     </span>
@@ -362,7 +371,7 @@ export default function AdminDashboard() {
                   </div>
                   <span className="font-medium text-gray-900 dark:text-white">Usuários</span>
                 </div>
-                <span className="font-baloo2 text-xl font-bold text-gray-900 dark:text-white">234</span>
+                <span className="font-baloo2 text-xl font-bold text-gray-900 dark:text-white">{stats.totalUsers}</span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
                 <div className="flex items-center gap-3">
