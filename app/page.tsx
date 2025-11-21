@@ -7,7 +7,7 @@ import { isLive } from '@/lib/utils';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import toast from 'react-hot-toast';
 import Image from 'next/image';
-import { Sparkles, Gift, PartyPopper, Calendar, Ticket, Zap } from 'lucide-react';
+import { Sparkles, Gift, PartyPopper, Calendar, Zap, TrendingUp, ShoppingBag } from 'lucide-react';
 import { BlurFade } from '@/components/ui/blur-fade';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 import { EventBentoGrid } from '@/components/EventBentoGrid';
@@ -17,8 +17,9 @@ import { EventSuggestions } from '@/components/search/EventSuggestions';
 import { createClient } from '@/lib/supabase/client';
 import { QuickCategories } from '@/components/QuickCategories';
 import { PromotionsGrid } from '@/components/PromotionsGrid';
+import Link from 'next/link';
 
-// Componente de Skeleton Loader
+// Skeleton Loader
 function EventCardSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border bg-card shadow-lg animate-pulse">
@@ -36,18 +37,18 @@ function EventCardSkeleton() {
   );
 }
 
-// Hero Section - Design Moderno Inspirado em Dribbble/Behance
+// Hero Section Otimizado
 function HeroSection({ events }: { events: Event[] }) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      {/* Decorative background elements */}
+      {/* Background decorations */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
       <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl" />
       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300/20 rounded-full blur-3xl" />
 
       <div className="container relative mx-auto px-5 sm:px-6 lg:px-8 pt-32 pb-16 sm:pt-40 sm:pb-24 lg:pt-48 lg:pb-32">
         <div className="mx-auto max-w-5xl">
-          {/* Logo - Reduzido em 35% */}
+          {/* Logo */}
           <div className="mb-6 sm:mb-8 flex justify-center">
             <Image
               src="/logotiponamidiavetorizado.svg"
@@ -59,7 +60,7 @@ function HeroSection({ events }: { events: Event[] }) {
             />
           </div>
 
-          {/* Heading - Line-height reduzido para 1.15 */}
+          {/* Heading */}
           <h1 className="mb-6 text-center font-baloo2 text-3xl font-extrabold leading-[1.15] tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-7xl">
             Seu Guia Completo de <br />
             <span className="bg-gradient-to-r from-primary via-orange-500 to-orange-600 bg-clip-text text-transparent">Atibaia</span>
@@ -86,14 +87,34 @@ function HeroSection({ events }: { events: Event[] }) {
               <Zap className="h-5 w-5 transition-transform group-hover:rotate-12" fill="currentColor" />
             </a>
 
-            <a
-              href="#como-funciona"
+            <Link
+              href="/delivery"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-primary bg-white/80 backdrop-blur-sm px-8 py-4 min-h-[52px] font-baloo2 text-base sm:text-lg font-semibold text-orange-700 transition-all hover:scale-105 hover:bg-white hover:shadow-xl active:scale-95 dark:bg-gray-800/80 dark:text-orange-400 dark:hover:bg-gray-800"
-              aria-label="Saiba como funciona a plataforma"
+              aria-label="Acessar delivery"
             >
-              Saiba Mais
-              <Gift className="h-5 w-5" />
-            </a>
+              <ShoppingBag className="h-5 w-5" />
+              Delivery
+            </Link>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+            <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">100+</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Eventos</div>
+            </div>
+            <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">50+</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Promoções</div>
+            </div>
+            <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">1000+</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Usuários</div>
+            </div>
+            <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">24/7</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Delivery</div>
+            </div>
           </div>
         </div>
       </div>
@@ -114,7 +135,6 @@ export default function HomePage() {
     try {
       const result = await fetchEventsAction();
 
-      // Verificar se result é válido
       if (!result) {
         console.error('fetchEventsAction returned undefined');
         toast.error('Erro ao carregar eventos. Tente recarregar a página.');
@@ -153,7 +173,7 @@ export default function HomePage() {
   useEffect(() => {
     loadEvents();
     loadPromotions();
-    const id = setInterval(() => startTransition(loadEvents), 60000); // Otimizado: 60s em vez de 30s
+    const id = setInterval(() => startTransition(loadEvents), 60000);
     return () => clearInterval(id);
   }, []);
 
@@ -170,7 +190,6 @@ export default function HomePage() {
   const handleConfirmPresence = async (): Promise<{ success: boolean; error?: string | null }> => {
     if (!selectedEvent) return { success: false, error: 'Nenhum evento selecionado.' };
 
-    // Buscar dados do usuário logado
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -179,12 +198,6 @@ export default function HomePage() {
     }
 
     const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário';
-
-    console.log('🎫 HomePage - Confirming presence:', {
-      name: userName,
-      email: user.email,
-      eventId: selectedEvent.id
-    });
 
     const result = await confirmPresenceAction(selectedEvent.id, {
       name: userName,
@@ -274,13 +287,13 @@ export default function HomePage() {
 
               {/* Ver Todas as Promoções */}
               <div className="mt-10 flex justify-center">
-                <a
-                  href="/cupons"
+                <Link
+                  href="/promocoes"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-4 font-baloo2 text-base sm:text-lg font-bold text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl active:scale-95"
                 >
                   Ver Todas as Promoções
                   <Gift className="h-5 w-5" />
-                </a>
+                </Link>
               </div>
             </BlurFade>
           </div>
@@ -333,12 +346,12 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Testimonials Section - Após os eventos */}
+      {/* Testimonials Section */}
       <BlurFade delay={0.3} inView>
         <TestimonialsSection />
       </BlurFade>
 
-      {/* CTA Final - Antes do footer */}
+      {/* CTA Final */}
       <section className="relative py-20 lg:py-28 overflow-hidden bg-gradient-to-br from-orange-50 via-white to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
         <div className="absolute top-20 right-10 w-96 h-96 bg-orange-400/20 rounded-full blur-3xl" />
