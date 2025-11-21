@@ -10,7 +10,9 @@ import {
   BarChart3,
   ChevronLeft,
   ChevronRight,
-  Home
+  Home,
+  Gift,
+  Ticket
 } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
@@ -31,6 +33,16 @@ const menuItems = [
     title: 'Pedidos',
     href: '/admin/pedidos',
     icon: ShoppingCart,
+  },
+  {
+    title: 'Promoções',
+    href: '/admin/promocoes',
+    icon: Gift,
+  },
+  {
+    title: 'Cupons',
+    href: '/admin/cupons',
+    icon: Ticket,
   },
   {
     title: 'Criar Evento',
@@ -85,8 +97,8 @@ export function AdminSidebar() {
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-medium ${isActive
-                    ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg shadow-orange-500/20'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg shadow-orange-500/20'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
                   }`}
                 title={collapsed ? item.title : undefined}
               >
