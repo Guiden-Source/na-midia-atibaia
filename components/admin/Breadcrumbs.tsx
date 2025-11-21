@@ -21,6 +21,8 @@ export function Breadcrumbs() {
     'editar': 'Editar Evento',
     'analytics': 'Analytics',
     'delivery': 'Delivery',
+    'promocoes': 'Promoções',
+    'cupons': 'Cupons',
   };
 
   // Gerar breadcrumbs baseado no pathname
@@ -38,10 +40,10 @@ export function Breadcrumbs() {
       if (segment === 'admin' && index === 0) return;
 
       currentPath += `/${segment}`;
-      
+
       // Se for um ID (número ou UUID), mostra como "Item #ID"
       if (/^[0-9a-f-]{36}$/.test(segment) || /^\d+$/.test(segment)) {
-        breadcrumbs.push({ 
+        breadcrumbs.push({
           label: `#${segment.substring(0, 8)}...`,
           href: undefined // Último item, sem link
         });
@@ -67,13 +69,13 @@ export function Breadcrumbs() {
   return (
     <nav className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
       <Home className="w-4 h-4 text-gray-400" />
-      
+
       {breadcrumbs.map((crumb, index) => (
         <div key={index} className="flex items-center gap-2">
           {index > 0 && (
             <ChevronRight className="w-4 h-4 text-gray-400" />
           )}
-          
+
           {crumb.href ? (
             <Link
               href={crumb.href}
@@ -101,13 +103,13 @@ export function CustomBreadcrumbs({ items }: CustomBreadcrumbsProps) {
   return (
     <nav className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
       <Home className="w-4 h-4 text-gray-400" />
-      
+
       {items.map((item, index) => (
         <div key={index} className="flex items-center gap-2">
           {index > 0 && (
             <ChevronRight className="w-4 h-4 text-gray-400" />
           )}
-          
+
           {item.href ? (
             <Link
               href={item.href}
