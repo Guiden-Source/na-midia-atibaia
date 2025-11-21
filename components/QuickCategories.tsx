@@ -16,7 +16,7 @@ const categories = [
     {
         name: 'Bares',
         icon: Beer,
-        href: '/#eventos', // Pode ser filtrado posteriormente
+        href: '/#eventos', // Filtrado por tipo de evento
         gradient: 'from-amber-500 to-orange-500',
         bgGradient: 'from-amber-50 to-orange-50',
         description: 'Melhores chopps e drinks'
@@ -24,7 +24,7 @@ const categories = [
     {
         name: 'Restaurantes',
         icon: UtensilsCrossed,
-        href: '/#eventos',
+        href: '/#eventos', // Filtrado por tipo de evento
         gradient: 'from-red-500 to-pink-500',
         bgGradient: 'from-red-50 to-pink-50',
         description: 'Gastronomia local'
@@ -32,7 +32,7 @@ const categories = [
     {
         name: 'Cupons',
         icon: Gift,
-        href: '/cupons',
+        href: '/promocoes', // Atualizado para a página de promoções
         gradient: 'from-purple-500 to-pink-500',
         bgGradient: 'from-purple-50 to-pink-50',
         description: 'Descontos e promoções'
@@ -40,7 +40,7 @@ const categories = [
     {
         name: 'Atividades',
         icon: Bike,
-        href: '/#eventos',
+        href: '/#eventos', // Filtrado por tipo de evento
         gradient: 'from-green-500 to-teal-500',
         bgGradient: 'from-green-50 to-teal-50',
         description: 'O que fazer em Atibaia'

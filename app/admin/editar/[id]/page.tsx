@@ -3,16 +3,18 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { AdminHeader } from '@/components/admin/AdminHeader';
+import { LiquidGlass } from '@/components/ui/liquid-glass';
 import toast from 'react-hot-toast';
 import { Drink, EventDrink, DRINK_TYPES } from '@/lib/drinks/types';
-import { Calendar, MapPin, Clock, FileText } from 'lucide-react';
+import { Calendar, MapPin, Clock, FileText, Save, X, Sparkles, Beer } from 'lucide-react';
 import { MediaUpload } from '@/components/admin/MediaUpload';
+import { motion } from 'framer-motion';
 
 export default function EditEventPage() {
   const params = useParams();
   const router = useRouter();
   const eventId = params.id as string;
-  
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -207,299 +209,333 @@ export default function EditEventPage() {
 
   if (loading) {
     return (
-      <main className="container py-8 pt-24 md:pt-28">
-        <div className="flex items-center justify-center h-64">
-          <p className="text-gray-700 dark:text-gray-300 animate-pulse text-lg">⏳ Carregando evento...</p>
+      <div className="p-4 sm:p-6 space-y-6">
+        <AdminHeader
+          title="Editar Evento"
+          description="Carregando informações do evento..."
+        />
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <>
-      <AdminHeader 
+    <div className="p-4 sm:p-6 space-y-6">
+      <AdminHeader
         title="Editar Evento"
-        description="Atualize as informações do evento"
+        description="Atualize as informações do evento e gerencie bebidas"
       />
-      
-      <div className="p-6">
-        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Upload de Mídia */}
-          <div className="md:col-span-2">
-            <MediaUpload
-              value={formData.image_url}
-              onChange={(url) => setFormData({ ...formData, image_url: url })}
-              onRemove={() => setFormData({ ...formData, image_url: '' })}
-              accept="both"
-              label="Imagem ou Vídeo do Evento"
-            />
-          </div>
 
-          {/* Nome */}
-          <div className="md:col-span-2">
-            <label htmlFor="name" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
-              <Calendar className="h-4 w-4 text-primary" />
-              Nome do Evento *
-            </label>
-            <input
-              id="name"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white placeholder:text-gray-600 dark:placeholder:text-gray-400 focus:border-primary focus:outline-none transition-colors"
-              placeholder="Nome do evento"
-            />
-          </div>
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Formulário Principal */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <LiquidGlass className="p-6 sm:p-8" intensity={0.3}>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Upload de Mídia */}
+              <div>
+                <MediaUpload
+                  value={formData.image_url}
+                  onChange={(url) => setFormData({ ...formData, image_url: url })}
+                  onRemove={() => setFormData({ ...formData, image_url: '' })}
+                  accept="both"
+                  label="Imagem ou Vídeo do Evento"
+                />
+              </div>
 
-          {/* Local */}
-          <div className="md:col-span-2">
-            <label htmlFor="location" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
-              <MapPin className="h-4 w-4 text-primary" />
-              Local *
-            </label>
-            <input
-              id="location"
-              required
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white placeholder:text-gray-600 dark:placeholder:text-gray-400 focus:border-primary focus:outline-none transition-colors"
-              placeholder="Local do evento"
-            />
-          </div>
-
-          {/* Data Início */}
-          <div>
-            <label htmlFor="start_time" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
-              <Clock className="h-4 w-4 text-primary" />
-              Data e Hora de Início *
-            </label>
-            <input
-              id="start_time"
-              type="datetime-local"
-              required
-              value={formData.start_time}
-              onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
-              className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white focus:border-primary focus:outline-none transition-colors"
-            />
-          </div>
-
-          {/* Data Fim */}
-          <div>
-            <label htmlFor="end_time" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
-              <Clock className="h-4 w-4 text-primary" />
-              Data e Hora de Término *
-            </label>
-            <input
-              id="end_time"
-              type="datetime-local"
-              required
-              value={formData.end_time}
-              onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-              className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white focus:border-primary focus:outline-none transition-colors"
-            />
-          </div>
-
-          {/* Tipo de Evento */}
-          <div className="md:col-span-2">
-            <label htmlFor="event_type" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
-              <FileText className="h-4 w-4 text-primary" />
-              Tipo de Evento
-            </label>
-            <select
-              id="event_type"
-              value={formData.event_type}
-              onChange={(e) => setFormData({ ...formData, event_type: e.target.value })}
-              className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white focus:border-primary focus:outline-none transition-colors"
-            >
-              <option>Afterparty</option>
-              <option>Show</option>
-              <option>Baile</option>
-              <option>Festival</option>
-              <option>Outro</option>
-            </select>
-          </div>
-
-          {/* Checkboxes */}
-          <div className="md:col-span-2 flex flex-col gap-3">
-            <label className="flex items-center gap-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-950/20 dark:to-pink-950/20 px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:scale-105 transition-transform">
-              <input
-                type="checkbox"
-                checked={formData.na_midia_present}
-                onChange={(e) => setFormData({ ...formData, na_midia_present: e.target.checked })}
-                className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
-              />
-              🍹 Equipe Na Mídia presente (oferece cupom de bebida)
-            </label>
-            <label className="flex items-center gap-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:scale-105 transition-transform">
-              <input
-                type="checkbox"
-                checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
-              />
-              ✅ Evento ativo (visível no site)
-            </label>
-          </div>
-
-          {/* Descrição */}
-          <div className="md:col-span-2">
-            <label htmlFor="description" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
-              <FileText className="h-4 w-4 text-primary" />
-              Descrição
-            </label>
-            <textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="min-h-32 w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white placeholder:text-gray-600 dark:placeholder:text-gray-400 focus:border-primary focus:outline-none transition-colors"
-              placeholder="Descreva os detalhes do evento..."
-            />
-          </div>
-
-          {/* Botão de Submit */}
-          <div className="md:col-span-2 flex gap-4">
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 px-6 py-4 font-bold text-white shadow-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {saving ? '💾 Salvando...' : '✅ Salvar Alterações'}
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push('/admin')}
-              className="rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4 font-semibold text-gray-900 dark:text-white transition-all hover:scale-105"
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      </form>
-
-      {/* Gestão de Bebidas */}
-      <div className="mt-8 rounded-2xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 shadow-lg">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="font-righteous text-3xl text-foreground">🍹 Bebidas do Evento</h2>
-            <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-              Selecione as bebidas disponíveis e configure preços
-            </p>
-          </div>
-          <button
-            onClick={saveDrinks}
-            className="rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-3 font-baloo2 font-bold text-white shadow-lg transition-all hover:scale-105"
-          >
-            💾 Salvar Bebidas
-          </button>
-        </div>
-
-        {loadingDrinks ? (
-          <div className="flex items-center justify-center py-12">
-            <p className="text-gray-700 dark:text-gray-300 animate-pulse text-lg">⏳ Carregando bebidas...</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {Object.entries(DRINK_TYPES).map(([tipo, info]) => {
-              const drinksOfType = allDrinks.filter(d => d.tipo === tipo);
-              if (drinksOfType.length === 0) return null;
-
-              return (
-                <div key={tipo} className="border-b pb-6 last:border-b-0">
-                  <h3 className="mb-4 flex items-center gap-2 font-bold text-gray-900 dark:text-white">
-                    <span className="text-2xl">{info.icon}</span>
-                    <span>{info.label}</span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-normal">
-                      ({drinksOfType.filter(d => selectedDrinks.has(d.id)).length}/{drinksOfType.length})
-                    </span>
-                  </h3>
-
-                  <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                    {drinksOfType.map((drink) => {
-                      const isSelected = selectedDrinks.has(drink.id);
-                      const config = selectedDrinks.get(drink.id);
-
-                      return (
-                        <div
-                          key={drink.id}
-                          className={`rounded-xl border-2 p-4 transition-all ${
-                            isSelected
-                              ? 'border-primary bg-primary/10 shadow-md'
-                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-primary/50'
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => toggleDrink(drink.id, drink)}
-                              className="mt-1 h-5 w-5 rounded border-input text-primary focus:ring-2 focus:ring-ring"
-                            />
-                            <div className="flex-1">
-                              <div className="flex items-start justify-between">
-                                <div>
-                                  <p className="font-medium text-foreground">{drink.nome}</p>
-                                  {drink.descricao && (
-                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                      {drink.descricao}
-                                    </p>
-                                  )}
-                                </div>
-                                {drink.preco && (
-                                  <span className="text-xs text-muted-foreground ml-2">
-                                    R$ {drink.preco.toFixed(2)}
-                                  </span>
-                                )}
-                              </div>
-
-                              {isSelected && (
-                                <div className="mt-3 space-y-2">
-                                  <div>
-                                    <label className="text-xs text-muted-foreground">
-                                      Preço no evento (opcional)
-                                    </label>
-                                    <input
-                                      type="number"
-                                      step="0.01"
-                                      min="0"
-                                      value={config?.preco || ''}
-                                      onChange={(e) => updateDrinkPrice(drink.id, e.target.value ? parseFloat(e.target.value) : undefined)}
-                                      className="mt-1 w-full rounded border border-input bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                                      placeholder="R$ 0,00"
-                                    />
-                                  </div>
-                                  <label className="flex items-center gap-2 text-xs text-foreground">
-                                    <input
-                                      type="checkbox"
-                                      checked={config?.destaque || false}
-                                      onChange={() => toggleDrinkDestaque(drink.id)}
-                                      className="h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
-                                    />
-                                    ⭐ Bebida em destaque
-                                  </label>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Nome */}
+                <div className="md:col-span-2">
+                  <label htmlFor="name" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+                    <Calendar className="h-4 w-4 text-primary" />
+                    Nome do Evento *
+                  </label>
+                  <input
+                    id="name"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-primary focus:outline-none transition-colors"
+                    placeholder="Nome do evento"
+                  />
                 </div>
-              );
-            })}
 
-            {selectedDrinks.size === 0 && (
-              <div className="py-12 text-center">
-                <p className="text-gray-700 dark:text-gray-300 text-lg">
-                  🍺 Nenhuma bebida selecionada. Selecione bebidas para este evento.
+                {/* Local */}
+                <div className="md:col-span-2">
+                  <label htmlFor="location" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    Local *
+                  </label>
+                  <input
+                    id="location"
+                    required
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-primary focus:outline-none transition-colors"
+                    placeholder="Local do evento"
+                  />
+                </div>
+
+                {/* Data Início */}
+                <div>
+                  <label htmlFor="start_time" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+                    <Clock className="h-4 w-4 text-primary" />
+                    Data e Hora de Início *
+                  </label>
+                  <input
+                    id="start_time"
+                    type="datetime-local"
+                    required
+                    value={formData.start_time}
+                    onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                    className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white focus:border-primary focus:outline-none transition-colors"
+                  />
+                </div>
+
+                {/* Data Fim */}
+                <div>
+                  <label htmlFor="end_time" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+                    <Clock className="h-4 w-4 text-primary" />
+                    Data e Hora de Término *
+                  </label>
+                  <input
+                    id="end_time"
+                    type="datetime-local"
+                    required
+                    value={formData.end_time}
+                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                    className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white focus:border-primary focus:outline-none transition-colors"
+                  />
+                </div>
+
+                {/* Tipo de Evento */}
+                <div className="md:col-span-2">
+                  <label htmlFor="event_type" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+                    <FileText className="h-4 w-4 text-primary" />
+                    Tipo de Evento
+                  </label>
+                  <select
+                    id="event_type"
+                    value={formData.event_type}
+                    onChange={(e) => setFormData({ ...formData, event_type: e.target.value })}
+                    className="w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white focus:border-primary focus:outline-none transition-colors"
+                  >
+                    <option>Afterparty</option>
+                    <option>Show</option>
+                    <option>Baile</option>
+                    <option>Festival</option>
+                    <option>Outro</option>
+                  </select>
+                </div>
+
+                {/* Checkboxes */}
+                <div className="md:col-span-2 flex flex-col gap-3">
+                  <label className="flex items-center gap-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-950/20 dark:to-pink-950/20 px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:scale-[1.01] transition-transform">
+                    <input
+                      type="checkbox"
+                      checked={formData.na_midia_present}
+                      onChange={(e) => setFormData({ ...formData, na_midia_present: e.target.checked })}
+                      className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+                    />
+                    🍹 Equipe Na Mídia presente (oferece cupom de bebida)
+                  </label>
+                  <label className="flex items-center gap-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white cursor-pointer hover:scale-[1.01] transition-transform">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+                    />
+                    ✅ Evento ativo (visível no site)
+                  </label>
+                </div>
+
+                {/* Descrição */}
+                <div className="md:col-span-2">
+                  <label htmlFor="description" className="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
+                    <FileText className="h-4 w-4 text-primary" />
+                    Descrição
+                  </label>
+                  <textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="min-h-32 w-full rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-primary focus:outline-none transition-colors"
+                    placeholder="Descreva os detalhes do evento..."
+                  />
+                </div>
+
+                {/* Botões de Ação */}
+                <div className="md:col-span-2 flex gap-4">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 px-6 py-4 font-baloo2 text-lg font-bold text-white shadow-lg transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  >
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        Salvando...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={20} />
+                        Salvar Alterações
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/admin')}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4 font-baloo2 text-lg font-semibold text-gray-900 dark:text-white transition-all hover:scale-[1.02]"
+                  >
+                    <X size={20} />
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </form>
+          </LiquidGlass>
+        </motion.div>
+
+        {/* Gestão de Bebidas */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <LiquidGlass className="p-6 sm:p-8" intensity={0.3}>
+            <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-baloo2 text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Beer className="h-7 w-7 text-primary" />
+                  Bebidas do Evento
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  Selecione as bebidas disponíveis e configure preços
                 </p>
               </div>
+              <button
+                onClick={saveDrinks}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-3 font-baloo2 font-bold text-white shadow-lg transition-all hover:scale-[1.02]"
+              >
+                <Save size={18} />
+                Salvar Bebidas
+              </button>
+            </div>
+
+            {loadingDrinks ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {Object.entries(DRINK_TYPES).map(([tipo, info]) => {
+                  const drinksOfType = allDrinks.filter(d => d.tipo === tipo);
+                  if (drinksOfType.length === 0) return null;
+
+                  return (
+                    <div key={tipo} className="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-b-0">
+                      <h3 className="mb-4 flex items-center gap-2 font-baloo2 text-xl font-bold text-gray-900 dark:text-white">
+                        <span className="text-2xl">{info.icon}</span>
+                        <span>{info.label}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400 font-normal">
+                          ({drinksOfType.filter(d => selectedDrinks.has(d.id)).length}/{drinksOfType.length})
+                        </span>
+                      </h3>
+
+                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                        {drinksOfType.map((drink) => {
+                          const isSelected = selectedDrinks.has(drink.id);
+                          const config = selectedDrinks.get(drink.id);
+
+                          return (
+                            <div
+                              key={drink.id}
+                              className={`rounded-xl border-2 p-4 transition-all ${isSelected
+                                  ? 'border-primary bg-primary/10 shadow-md'
+                                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-primary/50'
+                                }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={() => toggleDrink(drink.id, drink)}
+                                  className="mt-1 h-5 w-5 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+                                />
+                                <div className="flex-1">
+                                  <div className="flex items-start justify-between">
+                                    <div>
+                                      <p className="font-medium text-gray-900 dark:text-white">{drink.nome}</p>
+                                      {drink.descricao && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                          {drink.descricao}
+                                        </p>
+                                      )}
+                                    </div>
+                                    {drink.preco && (
+                                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                                        R$ {drink.preco.toFixed(2)}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {isSelected && (
+                                    <div className="mt-3 space-y-2">
+                                      <div>
+                                        <label className="text-xs text-gray-600 dark:text-gray-400">
+                                          Preço no evento (opcional)
+                                        </label>
+                                        <input
+                                          type="number"
+                                          step="0.01"
+                                          min="0"
+                                          value={config?.preco || ''}
+                                          onChange={(e) => updateDrinkPrice(drink.id, e.target.value ? parseFloat(e.target.value) : undefined)}
+                                          className="mt-1 w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-primary focus:outline-none"
+                                          placeholder="R$ 0,00"
+                                        />
+                                      </div>
+                                      <label className="flex items-center gap-2 text-xs text-gray-900 dark:text-white cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          checked={config?.destaque || false}
+                                          onChange={() => toggleDrinkDestaque(drink.id)}
+                                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+                                        />
+                                        ⭐ Bebida em destaque
+                                      </label>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {selectedDrinks.size === 0 && (
+                  <div className="py-12 text-center">
+                    <Beer className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+                    <p className="text-gray-600 dark:text-gray-400 text-lg">
+                      Nenhuma bebida selecionada. Selecione bebidas para este evento.
+                    </p>
+                  </div>
+                )}
+              </div>
             )}
-          </div>
-        )}
+          </LiquidGlass>
+        </motion.div>
       </div>
-      </div>
-    </>
+    </div>
   );
 }
