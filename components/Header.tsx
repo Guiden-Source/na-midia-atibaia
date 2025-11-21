@@ -1,9 +1,8 @@
 "use client";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { buttonClasses } from './Button';
 import { CartBadge } from './delivery/CartBadge';
-import { Moon, Sun, Search, X, User, Menu, ShoppingBag, Gift } from 'lucide-react';
+import { Moon, Sun, Search, X, User, Menu, ShoppingBag, Gift, LogOut, Home } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
@@ -14,8 +13,10 @@ export default function Header() {
   const [darkMode, setDarkMode] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);
@@ -31,7 +32,6 @@ export default function Header() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
     };
@@ -46,6 +46,12 @@ export default function Header() {
     else document.documentElement.classList.remove('dark');
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setShowUserMenu(false);
+    window.location.reload();
+  };
+
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -55,12 +61,17 @@ export default function Header() {
     }
   };
 
+  const userName = user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Usuário';
+
   return (
-    <header className="fixed left-0 right-0 top-4 z-40">
-      <div className={`container mx-auto px-4 py-2 rounded-full border border-white/20 dark:border-white/10 backdrop-blur-xl transition-all ${scrolled ? 'bg-white/95 dark:bg-gray-900/95 shadow-lg' : 'bg-white/80 dark:bg-gray-900/80'}`}>
+    <header className="fixed left-0 right-0 top-2 md:top-4 z-40 px-3 md:px-4">
+      <div className={`w-full md:container md:mx-auto px-4 md:px-6 py-3 md:py-3.5 rounded-2xl md:rounded-full border border-orange-200/30 dark:border-orange-900/30 backdrop-blur-xl transition-all duration-300 ${scrolled
+          ? 'bg-white/98 dark:bg-gray-900/98 shadow-xl shadow-orange-500/5'
+          : 'bg-white/90 dark:bg-gray-900/90 shadow-lg'
+        }`}>
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center flex-shrink-0">
             <Image
               src="/logotiponamidiavetorizado.svg"
               alt="Na Mídia"
@@ -73,14 +84,23 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
-            <Link href="/#eventos" className={buttonClasses('ghost')}>
+            <Link
+              href="/#eventos"
+              className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all"
+            >
               Eventos
             </Link>
-            <Link href="/delivery" className={buttonClasses('ghost')}>
+            <Link
+              href="/delivery"
+              className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all inline-flex items-center gap-2"
+            >
               <ShoppingBag className="h-4 w-4" />
               Delivery
             </Link>
-            <Link href="/promocoes" className={buttonClasses('ghost')}>
+            <Link
+              href="/promocoes"
+              className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all inline-flex items-center gap-2"
+            >
               <Gift className="h-4 w-4" />
               Promoções
             </Link>
@@ -91,54 +111,82 @@ export default function Header() {
             {/* Search Button */}
             <button
               onClick={() => setShowSearch((s) => !s)}
-              className={buttonClasses('outline')}
+              className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all"
               aria-label="Buscar"
             >
-              <Search className="h-4 w-4" />
-              <span className="hidden md:inline">Buscar</span>
+              <Search className="h-5 w-5" />
             </button>
 
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDark}
-              className={buttonClasses('outline')}
+              className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all"
               aria-label={darkMode ? 'Modo claro' : 'Modo escuro'}
             >
-              {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
-
-            {/* Profile Link (Desktop) */}
-            {user && (
-              <Link
-                href="/perfil"
-                className={`${buttonClasses('outline')} hidden sm:flex`}
-                aria-label="Perfil"
-              >
-                <User className="h-4 w-4" />
-                <span className="hidden md:inline">Perfil</span>
-              </Link>
-            )}
 
             {/* Cart Badge */}
             <CartBadge />
 
+            {/* User Menu (Desktop) */}
+            {user ? (
+              <div className="relative hidden sm:block">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-medium text-sm hover:shadow-lg transition-all"
+                >
+                  <User className="h-4 w-4" />
+                  <span className="hidden md:inline">{userName}</span>
+                </button>
+
+                {/* Dropdown Menu */}
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <Link
+                      href="/perfil"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <User className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">Meu Perfil</span>
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left"
+                    >
+                      <LogOut className="h-4 w-4 text-red-600 dark:text-red-400" />
+                      <span className="text-sm font-medium text-red-600 dark:text-red-400">Sair</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-medium text-sm hover:shadow-lg transition-all"
+              >
+                Entrar
+              </Link>
+            )}
+
             {/* Mobile Menu Button */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className={`${buttonClasses('outline')} lg:hidden`}
+              className="lg:hidden p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all"
               aria-label="Menu"
             >
-              <Menu className="h-4 w-4" />
+              <Menu className="h-5 w-5" />
             </button>
           </div>
         </div>
 
         {/* Search Bar */}
         {showSearch && (
-          <form onSubmit={onSearch} className="mt-3">
+          <form onSubmit={onSearch} className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
             <div className="relative">
               <input
-                className="w-full rounded-xl px-4 py-2 pl-10 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full rounded-xl px-4 py-2.5 pl-10 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                 placeholder="Buscar eventos, produtos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -148,7 +196,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => { setShowSearch(false); setSearchQuery(''); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                 aria-label="Fechar busca"
               >
                 <X className="h-5 w-5" />
@@ -159,41 +207,62 @@ export default function Header() {
 
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <nav className="lg:hidden mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
+          <nav className="lg:hidden mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-1">
             <Link
-              href="/#eventos"
-              className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-medium transition-colors"
+              href="/"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white font-medium transition-colors"
               onClick={() => setShowMobileMenu(false)}
             >
-              📅 Eventos
+              <Home className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              Home
+            </Link>
+            <Link
+              href="/#eventos"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white font-medium transition-colors"
+              onClick={() => setShowMobileMenu(false)}
+            >
+              <span className="text-xl">📅</span>
+              Eventos
             </Link>
             <Link
               href="/delivery"
-              className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-medium transition-colors"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white font-medium transition-colors"
               onClick={() => setShowMobileMenu(false)}
             >
-              🛍️ Delivery
+              <ShoppingBag className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              Delivery
             </Link>
             <Link
               href="/promocoes"
-              className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-medium transition-colors"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white font-medium transition-colors"
               onClick={() => setShowMobileMenu(false)}
             >
-              🎁 Promoções
+              <Gift className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              Promoções
             </Link>
-            {user && (
-              <Link
-                href="/perfil"
-                className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-900 dark:text-white font-medium transition-colors"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                👤 Perfil
-              </Link>
-            )}
-            {!user && (
+
+            {user ? (
+              <>
+                <Link
+                  href="/perfil"
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white font-medium transition-colors"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <User className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                  Meu Perfil
+                </Link>
+                <button
+                  onClick={() => { handleLogout(); setShowMobileMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 font-medium transition-colors text-left"
+                >
+                  <LogOut className="h-5 w-5" />
+                  Sair
+                </button>
+              </>
+            ) : (
               <Link
                 href="/login"
-                className="block px-4 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold text-center transition-transform hover:scale-[1.02]"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold transition-transform hover:scale-[1.02]"
                 onClick={() => setShowMobileMenu(false)}
               >
                 Entrar / Cadastrar
