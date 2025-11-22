@@ -136,10 +136,14 @@ export async function createOrder(
     if (orderNumberError) throw orderNumberError;
     const orderNumber = orderNumberData as string;
 
-    // 2. Criar pedido
-    const { data: order, error: orderError } = await supabase
+    // 2. Gerar ID do pedido (client-side) para evitar retorno do INSERT (RLS)
+    const orderId = crypto.randomUUID();
+
+    // 3. Criar pedido
+    const { error: orderError } = await supabase
       .from('delivery_orders')
       .insert({
+        id: orderId,
         order_number: orderNumber,
         user_id: userId,
         user_name: checkoutData.user_name,
@@ -159,15 +163,13 @@ export async function createOrder(
         total,
         notes: checkoutData.notes,
         status: 'pending',
-      })
-      .select()
-      .single();
+      });
 
     if (orderError) throw orderError;
 
-    // 3. Criar itens do pedido
+    // 4. Criar itens do pedido
     const orderItems = cartItems.map((item) => ({
-      order_id: order.id,
+      order_id: orderId,
       product_id: item.product.id,
       product_name: item.product.name,
       product_image: item.product.image_url,
@@ -182,7 +184,13 @@ export async function createOrder(
 
     if (itemsError) throw itemsError;
 
-    return order as DeliveryOrder;
+    // Retornar objeto parcial (suficiente para redirecionamento)
+    return {
+      id: orderId,
+      order_number: orderNumber,
+      total,
+      status: 'pending'
+    } as DeliveryOrder;
   } catch (error) {
     console.error('Erro ao criar pedido:', error);
     throw error;
@@ -190,6 +198,15 @@ export async function createOrder(
 }
 
 export async function getOrderById(orderId: string): Promise<DeliveryOrder | null> {
+  // Tentar buscar via RPC (seguro para guest/anon)
+  const { data: rpcData, error: rpcError } = await supabase
+    .rpc('get_order_details_by_id', { p_order_id: orderId });
+
+  if (!rpcError && rpcData) {
+    return rpcData as DeliveryOrder;
+  }
+
+  // Fallback para método tradicional (caso RPC falhe ou não exista)
   const { data, error } = await supabase
     .from('delivery_orders')
     .select(`

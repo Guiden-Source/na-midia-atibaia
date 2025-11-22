@@ -158,9 +158,15 @@ export default function CheckoutPage() {
         notes: formData.notes || '',
       };
 
+      // Converter itens do contexto para o formato esperado por createOrder
+      const cartItemsForOrder = items.map(item => ({
+        product: item,
+        quantity: item.quantity
+      }));
+
       const order = await createOrder(
         orderData,
-        items,
+        cartItemsForOrder,
         subtotal,
         deliveryFee,
         total,
@@ -171,7 +177,7 @@ export default function CheckoutPage() {
       contextClearCart();
 
       // Redirecionar para página de sucesso
-      router.push(`/delivery/checkout/success/${order.id}`);
+      router.push(`/delivery/order-confirmed/${order.id}`);
     } catch (error: any) {
       console.error('Erro ao criar pedido:', error);
       toast.error(`Erro ao processar pedido: ${error.message || 'Tente novamente.'}`);
@@ -453,7 +459,7 @@ export default function CheckoutPage() {
 
               <div className="space-y-3 mb-6">
                 {items.map((item) => (
-                  <div key={item.product.id} className="flex items-center justify-between text-sm">
+                  <div key={item.id} className="flex items-center justify-between text-sm">
                     <span className="text-gray-600 dark:text-gray-400">
                       {item.name} x{item.quantity}
                     </span>
