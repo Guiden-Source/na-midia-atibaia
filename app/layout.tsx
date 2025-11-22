@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { cn } from '@/lib/utils';
 import './globals.css';
 import type { Viewport } from 'next';
+import { CartProvider } from '@/lib/delivery/CartContext';
 
 const baloo2 = Baloo_2({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-baloo2' });
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-inter' });
@@ -103,27 +104,29 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           inter.variable
         )}
       >
-        <PWAInstaller />
-        <Header />
+        <CartProvider>
+          <PWAInstaller />
+          <Header />
 
-        <main className="flex-1">{children}</main>
+          <main className="flex-1">{children}</main>
 
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            // Estilo de toast inspirado na Ref 1 (iOS-like)
-            style: {
-              background: 'hsl(var(--popover))',
-              color: 'hsl(var(--popover-foreground))',
-              border: '1px solid hsl(var(--border))',
-            },
-          }}
-        />
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              // Estilo de toast inspirado na Ref 1 (iOS-like)
+              style: {
+                background: 'hsl(var(--popover))',
+                color: 'hsl(var(--popover-foreground))',
+                border: '1px solid hsl(var(--border))',
+              },
+            }}
+          />
 
-        <Analytics />
+          <Analytics />
 
-        {/* Debug de autenticação (apenas em desenvolvimento) */}
-        {process.env.NODE_ENV === 'development' && <AuthDebug />}
+          {/* Debug de autenticação (apenas em desenvolvimento) */}
+          {process.env.NODE_ENV === 'development' && <AuthDebug />}
+        </CartProvider>
 
         <footer className="py-12 md:py-16 mb-20 md:mb-0 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8">
