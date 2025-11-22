@@ -1,22 +1,70 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { getOrderById } from '@/lib/delivery/queries';
 import { OrderTracker } from '@/components/delivery/OrderTracker';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { formatPrice } from '@/lib/delivery/cart';
-import { ArrowLeft, MessageCircle, MapPin, CreditCard, Calendar, Package } from 'lucide-react';
+import { ArrowLeft, MessageCircle, MapPin, CreditCard, Package } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { DeliveryOrder } from '@/lib/delivery/types';
+import { supabase } from '@/lib/supabase';
 
-export const metadata = {
-    title: 'Detalhes do Pedido - Na Mídia Atibaia',
-    description: 'Acompanhe o status do seu pedido',
-};
+export default function OrderDetailsPage({ params }: { params: { id: string } }) {
+    const router = useRouter();
+    const [order, setOrder] = useState<DeliveryOrder | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-export default async function OrderDetailsPage({ params }: { params: { id: string } }) {
-    const order = await getOrderById(params.id);
+    useEffect(() => {
+        loadOrder();
+
+        // Subscribe to realtime updates for this order
+        const channel = supabase
+            .channel(`order-details-${params.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'delivery_orders',
+                    filter: `id=eq.${params.id}`,
+                },
+                (payload) => {
+                    console.log('Order updated in realtime:', payload.new);
+                    if (payload.new) {
+                        setOrder(prev => prev ? { ...prev, ...payload.new } as DeliveryOrder : null);
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [params.id]);
+
+    const loadOrder = async () => {
+        const data = await getOrderById(params.id);
+        if (!data) {
+            router.push('/perfil/pedidos');
+            return;
+        }
+        setOrder(data);
+        setIsLoading(false);
+    };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     if (!order) {
-        notFound();
+        return null;
     }
 
     const whatsappLink = `https://wa.me/5511914767026?text=Olá, gostaria de falar sobre o pedido #${order.order_number}`;

@@ -1,20 +1,48 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { getOrderStats } from '@/lib/delivery/queries';
 import { OrdersManager } from '@/components/delivery/OrdersManager';
 import { formatPrice } from '@/lib/delivery/cart';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { Package, Clock, CheckCircle, TrendingUp, DollarSign } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
-export const metadata = {
-  title: 'Admin - Pedidos Delivery - Na Mídia',
-  description: 'Gerenciar pedidos de delivery',
-};
+export default function AdminOrdersPage() {
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    pendingOrders: 0,
+    activeOrders: 0,
+    todayOrders: 0,
+    totalRevenue: 0,
+  });
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+  useEffect(() => {
+    loadStats();
 
-export default async function AdminOrdersPage() {
-  const stats = await getOrderStats();
+    // Subscribe to realtime updates for orders to refresh stats
+    const channel = supabase
+      .channel('admin-orders-stats')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'delivery_orders' },
+        () => {
+          console.log('Order changed, refreshing stats...');
+          loadStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const loadStats = async () => {
+    const data = await getOrderStats();
+    setStats(data);
+  };
 
   const statsData = [
     {
