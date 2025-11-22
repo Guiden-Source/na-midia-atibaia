@@ -4,10 +4,13 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { DeliveryProduct } from '@/lib/delivery/types';
 import { formatPrice } from '@/lib/delivery/cart';
-import { Plus, Edit, Trash2, Check, X, Upload, Search, Filter } from 'lucide-react';
+import { Plus, Edit, Trash2, Check, X, Upload, Search, Filter, Package, DollarSign, Tag, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import { ProductsTableSkeleton } from '@/components/admin/LoadingStates';
 import { EmptyProducts } from '@/components/admin/EmptyStates';
+import { LiquidGlass } from '@/components/ui/liquid-glass';
+import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 type ProductFormData = {
   name: string;
@@ -34,12 +37,12 @@ export function ProductsManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<DeliveryProduct | null>(null);
-  
+
   // Filtros e busca
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  
+
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
@@ -54,16 +57,16 @@ export function ProductsManager() {
   });
 
   const supabase = createClient();
-  
+
   // Produtos filtrados
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (product.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+      (product.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
-    const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'active' && product.is_active) ||
-                         (statusFilter === 'inactive' && !product.is_active);
-    
+    const matchesStatus = statusFilter === 'all' ||
+      (statusFilter === 'active' && product.is_active) ||
+      (statusFilter === 'inactive' && !product.is_active);
+
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
@@ -73,13 +76,13 @@ export function ProductsManager() {
 
   const loadData = async () => {
     setIsLoading(true);
-    
+
     // Carregar categorias
     const { data: categoriesData } = await supabase
       .from('delivery_categories')
       .select('*')
       .order('name');
-    
+
     if (categoriesData) {
       setCategories(categoriesData);
     }
@@ -89,7 +92,7 @@ export function ProductsManager() {
       .from('delivery_products')
       .select('*')
       .order('created_at', { ascending: false });
-    
+
     if (productsData) {
       setProducts(productsData);
     }
@@ -109,6 +112,7 @@ export function ProductsManager() {
           .eq('id', editingProduct.id);
 
         if (error) throw error;
+        toast.success('Produto atualizado com sucesso!');
       } else {
         // Criar novo produto
         const { error } = await supabase
@@ -116,6 +120,7 @@ export function ProductsManager() {
           .insert([formData]);
 
         if (error) throw error;
+        toast.success('Produto criado com sucesso!');
       }
 
       // Recarregar dados
@@ -123,7 +128,7 @@ export function ProductsManager() {
       resetForm();
     } catch (error) {
       console.error('Erro ao salvar produto:', error);
-      alert('Erro ao salvar produto. Tente novamente.');
+      toast.error('Erro ao salvar produto. Tente novamente.');
     }
   };
 
@@ -138,10 +143,11 @@ export function ProductsManager() {
 
       if (error) throw error;
 
+      toast.success('Produto excluído com sucesso!');
       await loadData();
     } catch (error) {
       console.error('Erro ao excluir produto:', error);
-      alert('Erro ao excluir produto. Tente novamente.');
+      toast.error('Erro ao excluir produto. Tente novamente.');
     }
   };
 
@@ -154,9 +160,34 @@ export function ProductsManager() {
 
       if (error) throw error;
 
-      await loadData();
+      // Otimistic update
+      setProducts(products.map(p =>
+        p.id === product.id ? { ...p, is_active: !p.is_active } : p
+      ));
+      toast.success(`Produto ${!product.is_active ? 'ativado' : 'desativado'}!`);
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
+      toast.error('Erro ao atualizar status');
+    }
+  };
+
+  const handleToggleFeatured = async (product: DeliveryProduct) => {
+    try {
+      const { error } = await supabase
+        .from('delivery_products')
+        .update({ is_featured: !product.is_featured })
+        .eq('id', product.id);
+
+      if (error) throw error;
+
+      // Otimistic update
+      setProducts(products.map(p =>
+        p.id === product.id ? { ...p, is_featured: !p.is_featured } : p
+      ));
+      toast.success(`Produto ${!product.is_featured ? 'destacado' : 'removido dos destaques'}!`);
+    } catch (error) {
+      console.error('Erro ao atualizar destaque:', error);
+      toast.error('Erro ao atualizar destaque');
     }
   };
 
@@ -203,16 +234,16 @@ export function ProductsManager() {
       {/* Header com Botão e Estatísticas */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Produtos
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-baloo2">
+            Gerenciar Produtos
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {filteredProducts.length} de {products.length} produtos
+            {filteredProducts.length} de {products.length} produtos cadastrados
           </p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-95"
         >
           {showForm ? (
             <>
@@ -222,33 +253,34 @@ export function ProductsManager() {
           ) : (
             <>
               <Plus size={20} />
-              <span>Adicionar Produto</span>
+              <span>Novo Produto</span>
             </>
           )}
         </button>
       </div>
 
       {/* Filtros e Busca */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md border border-gray-200 dark:border-gray-700">
+      <LiquidGlass className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Busca */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="Buscar produtos..."
+              placeholder="Buscar por nome ou descrição..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white/50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
             />
           </div>
 
           {/* Filtro por Categoria */}
-          <div>
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white/50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all appearance-none"
             >
               <option value="all">Todas as Categorias</option>
               {categories.map((cat) => (
@@ -260,11 +292,12 @@ export function ProductsManager() {
           </div>
 
           {/* Filtro por Status */}
-          <div>
+          <div className="relative">
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full bg-gray-400" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-8 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white/50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all appearance-none"
             >
               <option value="all">Todos os Status</option>
               <option value="active">Ativos</option>
@@ -272,339 +305,365 @@ export function ProductsManager() {
             </select>
           </div>
         </div>
-
-        {/* Contador de Filtros Ativos */}
-        {(searchTerm || selectedCategory !== 'all' || statusFilter !== 'all') && (
-          <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <Filter size={16} />
-            <span>Filtros ativos:</span>
-            {searchTerm && <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 rounded">Busca: "{searchTerm}"</span>}
-            {selectedCategory !== 'all' && (
-              <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900 rounded">
-                {categories.find(c => c.id === selectedCategory)?.name}
-              </span>
-            )}
-            {statusFilter !== 'all' && (
-              <span className="px-2 py-1 bg-green-100 dark:bg-green-900 rounded">
-                {statusFilter === 'active' ? 'Ativos' : 'Inativos'}
-              </span>
-            )}
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedCategory('all');
-                setStatusFilter('all');
-              }}
-              className="text-blue-600 dark:text-blue-400 hover:underline ml-2"
-            >
-              Limpar filtros
-            </button>
-          </div>
-        )}
-      </div>
+      </LiquidGlass>
 
       {/* Formulário */}
-      {showForm && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-            {editingProduct ? 'Editar Produto' : 'Novo Produto'}
-          </h2>
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <LiquidGlass className="p-6 mb-6 border-2 border-orange-500/20">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 font-baloo2 flex items-center gap-2">
+                {editingProduct ? <Edit className="text-orange-500" /> : <Plus className="text-orange-500" />}
+                {editingProduct ? 'Editar Produto' : 'Novo Produto'}
+              </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Nome */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Nome *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Coluna 1: Informações Básicas */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                        Nome do Produto *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
+                        placeholder="Ex: X-Bacon Especial"
+                      />
+                    </div>
 
-              {/* Preço */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Preço (R$) *
-                </label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  min="0"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                          Preço (R$) *
+                        </label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <input
+                            type="number"
+                            required
+                            step="0.01"
+                            min="0"
+                            value={formData.price}
+                            onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                          Desconto (%)
+                        </label>
+                        <div className="relative">
+                          <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={formData.discount_percentage || ''}
+                            onChange={(e) => setFormData({ ...formData, discount_percentage: parseInt(e.target.value) || 0 })}
+                            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-              {/* Categoria */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Categoria *
-                </label>
-                <select
-                  required
-                  value={formData.category_id}
-                  onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Selecione...</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                        Categoria *
+                      </label>
+                      <select
+                        required
+                        value={formData.category_id}
+                        onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
+                      >
+                        <option value="">Selecione uma categoria...</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-              {/* Unidade */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Unidade *
-                </label>
-                <select
-                  required
-                  value={formData.unit}
-                  onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="un">Unidade</option>
-                  <option value="kg">Quilograma</option>
-                  <option value="g">Grama</option>
-                  <option value="l">Litro</option>
-                  <option value="ml">Mililitro</option>
-                  <option value="cx">Caixa</option>
-                  <option value="pct">Pacote</option>
-                </select>
-              </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                          Unidade *
+                        </label>
+                        <select
+                          required
+                          value={formData.unit}
+                          onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
+                        >
+                          <option value="un">Unidade</option>
+                          <option value="kg">Kg</option>
+                          <option value="g">Gramas</option>
+                          <option value="l">Litros</option>
+                          <option value="ml">ml</option>
+                          <option value="cx">Caixa</option>
+                          <option value="pct">Pacote</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                          Estoque *
+                        </label>
+                        <div className="relative">
+                          <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <input
+                            type="number"
+                            required
+                            min="0"
+                            value={formData.stock}
+                            onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
+                            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-              {/* Estoque */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Estoque *
-                </label>
-                <input
-                  type="number"
-                  required
-                  min="0"
-                  value={formData.stock}
-                  onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+                  {/* Coluna 2: Detalhes e Imagem */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                        URL da Imagem
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          type="url"
+                          value={formData.image_url}
+                          onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                          placeholder="https://..."
+                          className="flex-1 px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none"
+                        />
+                      </div>
+                      {/* Image Preview */}
+                      <div className="mt-2 relative w-full h-40 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center">
+                        {formData.image_url ? (
+                          <Image
+                            src={formData.image_url}
+                            alt="Preview"
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                              // Fallback se a imagem falhar
+                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Erro+na+Imagem';
+                            }}
+                          />
+                        ) : (
+                          <div className="text-center text-gray-400">
+                            <Upload className="mx-auto h-8 w-8 mb-2" />
+                            <span className="text-sm">Preview da imagem</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-              {/* Desconto */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Desconto (%)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={formData.discount_percentage || 0}
-                  onChange={(e) => setFormData({ ...formData, discount_percentage: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                        Descrição
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none resize-none"
+                        placeholder="Descreva os ingredientes e detalhes do produto..."
+                      />
+                    </div>
 
-            {/* Descrição */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Descrição
-              </label>
-              <textarea
-                rows={3}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+                    <div className="flex gap-4 pt-2">
+                      <label className="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex-1">
+                        <input
+                          type="checkbox"
+                          checked={formData.is_active}
+                          onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                          className="w-5 h-5 text-orange-500 rounded focus:ring-orange-500"
+                        />
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Produto Ativo
+                        </span>
+                      </label>
 
-            {/* URL da Imagem */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                URL da Imagem
-              </label>
-              <input
-                type="url"
-                value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                placeholder="https://exemplo.com/imagem.jpg"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+                      <label className="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex-1">
+                        <input
+                          type="checkbox"
+                          checked={formData.is_featured}
+                          onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                          className="w-5 h-5 text-orange-500 rounded focus:ring-orange-500"
+                        />
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          Destaque
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Checkboxes */}
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.is_featured}
-                  onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Produto em Destaque
-                </span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.is_active}
-                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Produto Ativo
-                </span>
-              </label>
-            </div>
-
-            {/* Botões */}
-            <div className="flex gap-3 pt-4">
-              <button
-                type="submit"
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-              >
-                <Check size={20} />
-                <span>{editingProduct ? 'Atualizar' : 'Criar'} Produto</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={resetForm}
-                className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-              >
-                <X size={20} />
-                <span>Cancelar</span>
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+                {/* Botões */}
+                <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 font-bold text-white shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all"
+                  >
+                    {editingProduct ? 'Salvar Alterações' : 'Criar Produto'}
+                  </button>
+                </div>
+              </form>
+            </LiquidGlass>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Lista de Produtos */}
       {filteredProducts.length === 0 && products.length === 0 ? (
         <EmptyProducts />
       ) : filteredProducts.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400 text-lg">
+        <LiquidGlass className="p-12 text-center">
+          <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">
             Nenhum produto encontrado com os filtros selecionados.
           </p>
-        </div>
+          <button
+            onClick={() => {
+              setSearchTerm('');
+              setSelectedCategory('all');
+              setStatusFilter('all');
+            }}
+            className="mt-4 text-orange-500 hover:text-orange-600 font-bold"
+          >
+            Limpar Filtros
+          </button>
+        </LiquidGlass>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Produto
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Preço
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Estoque
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredProducts.map((product) => (
-                <tr key={product.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
+        <div className="grid grid-cols-1 gap-4">
+          <AnimatePresence>
+            {filteredProducts.map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <LiquidGlass className="p-4 hover:scale-[1.01] transition-transform group">
+                  <div className="flex items-center gap-4">
+                    {/* Imagem */}
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 border border-gray-200 dark:border-gray-700">
                       {product.image_url ? (
-                        <div className="relative w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden flex-shrink-0">
-                          <Image
-                            src={product.image_url}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
+                        <Image
+                          src={product.image_url}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                        />
                       ) : (
-                        <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-xl flex-shrink-0">
-                          📦
+                        <div className="w-full h-full flex items-center justify-center text-2xl">
+                          🍔
                         </div>
                       )}
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {product.name}
+                      {product.discount_percentage && product.discount_percentage > 0 && (
+                        <div className="absolute top-0 left-0 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br">
+                          -{product.discount_percentage}%
                         </div>
-                        {product.is_featured && (
-                          <span className="text-xs text-yellow-600 dark:text-yellow-400">
-                            ⭐ Destaque
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between mb-1">
+                        <h3 className="font-bold text-gray-900 dark:text-white text-lg truncate pr-4">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-green-600 dark:text-green-400">
+                            {formatPrice(product.price)}
                           </span>
-                        )}
+                        </div>
+                      </div>
+
+                      <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1 mb-2">
+                        {product.description || 'Sem descrição'}
+                      </p>
+
+                      <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                        <span className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">
+                          <Package size={12} />
+                          {product.stock} {product.unit}
+                        </span>
+                        <span className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">
+                          <Tag size={12} />
+                          {categories.find(c => c.id === product.category_id)?.name || 'Sem categoria'}
+                        </span>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">
-                      {formatPrice(product.price)}
-                      {product.discount_percentage && product.discount_percentage > 0 && (
-                        <span className="ml-2 text-xs text-green-600 dark:text-green-400">
-                          -{product.discount_percentage}%
-                        </span>
-                      )}
+
+                    {/* Ações Rápidas */}
+                    <div className="flex items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-4">
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => handleToggleActive(product)}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${product.is_active
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200'
+                              : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200'
+                            }`}
+                        >
+                          {product.is_active ? 'Ativo' : 'Inativo'}
+                        </button>
+                        <button
+                          onClick={() => handleToggleFeatured(product)}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${product.is_featured
+                              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 hover:bg-yellow-200'
+                              : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200'
+                            }`}
+                        >
+                          {product.is_featured ? '★ Destaque' : '☆ Destacar'}
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col gap-2 ml-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                          title="Editar"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="p-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          title="Excluir"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 dark:text-white">
-                      {product.stock} {product.unit}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      onClick={() => handleToggleActive(product)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                        product.is_active
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      {product.is_active ? 'Ativo' : 'Inativo'}
-                    </button>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                        title="Editar"
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        title="Excluir"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </LiquidGlass>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
-      </div>
       )}
     </div>
   );
