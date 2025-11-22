@@ -116,28 +116,69 @@ export function OrdersManager() {
   };
 
   const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
-    const { error } = await supabase
-      .from('delivery_orders')
-      .update({ status: newStatus })
-      .eq('id', orderId);
+    // Find the order to update
+    const orderToUpdate = orders.find(o => o.id === orderId);
+    if (!orderToUpdate) {
+      toast.error('Pedido não encontrado');
+      return;
+    }
 
-    if (error) {
-      console.error('Error updating status:', error);
-      toast.error('Erro ao atualizar status');
-    } else {
+    // Show loading state on the specific order
+    setOrders(prevOrders =>
+      prevOrders.map(o => o.id === orderId ? { ...o, isUpdating: true } as any : o)
+    );
+
+    try {
+      console.log(`Updating order ${orderId} from ${orderToUpdate.status} to ${newStatus}`);
+
+      // Perform the update
+      const { data, error } = await supabase
+        .from('delivery_orders')
+        .update({ status: newStatus })
+        .eq('id', orderId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating status:', error);
+        throw error;
+      }
+
+      console.log('Update successful:', data);
+
+      // Success feedback
       toast.success(`Status atualizado para ${STATUS_CONFIG[newStatus as keyof typeof STATUS_CONFIG]?.label || newStatus}`);
 
-      // Update local state immediately
+      // The realtime subscription will handle the state update
+      // But we clear the loading state immediately
       setOrders(prevOrders =>
-        prevOrders.map(o => o.id === orderId ? { ...o, status: newStatus } : o)
+        prevOrders.map(o => {
+          if (o.id === orderId) {
+            const { isUpdating, ...rest } = o as any;
+            return { ...rest, status: newStatus };
+          }
+          return o;
+        })
       );
 
       if (selectedOrder?.id === orderId) {
         setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
       }
 
-      // Reload to ensure sync (optional but safer)
-      // loadOrders();
+    } catch (error: any) {
+      console.error('Failed to update status:', error);
+      toast.error(error.message || 'Erro ao atualizar status');
+
+      // Revert loading state on error
+      setOrders(prevOrders =>
+        prevOrders.map(o => {
+          if (o.id === orderId) {
+            const { isUpdating, ...rest } = o as any;
+            return rest;
+          }
+          return o;
+        })
+      );
     }
   };
 
