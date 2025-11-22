@@ -40,7 +40,11 @@ export function ProductCardModern({ product }: ProductCardProps) {
                     </div>
                 </div>
             </div>
-        ), { position: 'bottom-center', duration: 2000 });
+        ), {
+            position: 'bottom-center',
+            duration: 1500,
+            id: `toast-${product.id}` // Prevent duplicates
+        });
     };
 
     const hasDiscount = product.discount_percentage && product.discount_percentage > 0;

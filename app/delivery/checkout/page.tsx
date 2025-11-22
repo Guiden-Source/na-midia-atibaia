@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCart, clearCart, formatPrice, validateCart } from '@/lib/delivery/cart';
+import { clearCart, formatPrice, validateCart } from '@/lib/delivery/cart';
 import { createOrder } from '@/lib/delivery/queries';
-import { Cart, ALLOWED_CONDOMINIUMS, PAYMENT_METHODS } from '@/lib/delivery/types';
+import { ALLOWED_CONDOMINIUMS, PAYMENT_METHODS } from '@/lib/delivery/types';
 import { ArrowLeft, AlertCircle, User, MapPin, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/lib/auth/hooks';
@@ -28,10 +28,13 @@ interface CheckoutFormData {
 export default function CheckoutPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useUser();
-  const { scheduledTime } = useCart();
-  const [cart, setCart] = useState<Cart>({ items: [], subtotal: 0, delivery_fee: 0, total: 0 });
+  const { items, total, scheduledTime, clearCart: contextClearCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Calculate subtotal and delivery fee based on context items
+  const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const deliveryFee = 0; // Always free
 
   const [formData, setFormData] = useState<CheckoutFormData>({
     whatsapp: '',
@@ -45,12 +48,15 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    const loadedCart = getCart();
-    setCart(loadedCart);
-
     // Verificar se carrinho está vazio
-    if (loadedCart.items.length === 0) {
-      router.push('/delivery/cart');
+    if (items.length === 0) {
+      // Small delay to allow context to load
+      const timer = setTimeout(() => {
+        if (items.length === 0) {
+          router.push('/delivery');
+        }
+      }, 500);
+      return () => clearTimeout(timer);
     }
 
     // Verificar se usuário está logado
@@ -79,7 +85,7 @@ export default function CheckoutPage() {
         receiver_name: user.user_metadata.full_name,
       }));
     }
-  }, [router, user, authLoading]);
+  }, [router, user, authLoading, items.length]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -104,7 +110,7 @@ export default function CheckoutPage() {
     if (!formData.block) newErrors.block = 'Bloco é obrigatório';
     if (!formData.apartment) newErrors.apartment = 'Apartamento é obrigatório';
 
-    if (formData.payment_method === 'dinheiro' && formData.change_for && formData.change_for < cart.total) {
+    if (formData.payment_method === 'dinheiro' && formData.change_for && formData.change_for < total) {
       newErrors.change_for = 'O valor do troco deve ser maior que o total do pedido';
     }
 
@@ -121,9 +127,8 @@ export default function CheckoutPage() {
     }
 
     // Validar carrinho
-    const cartValidation = validateCart();
-    if (!cartValidation.isValid) {
-      toast.error(cartValidation.errors.join('\n'));
+    if (items.length === 0) {
+      toast.error('Seu carrinho está vazio');
       return;
     }
 
@@ -155,27 +160,27 @@ export default function CheckoutPage() {
 
       const order = await createOrder(
         orderData,
-        cart.items,
-        cart.subtotal,
-        cart.delivery_fee,
-        cart.total
+        items,
+        subtotal,
+        deliveryFee,
+        total,
+        user.id
       );
 
-      // Limpar carrinho
-      clearCart();
-      window.dispatchEvent(new Event('cartUpdated'));
+      // Limpar carrinho usando contexto
+      contextClearCart();
 
       // Redirecionar para página de sucesso
       router.push(`/delivery/checkout/success/${order.id}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao criar pedido:', error);
-      toast.error('Erro ao processar pedido. Tente novamente.');
+      toast.error(`Erro ao processar pedido: ${error.message || 'Tente novamente.'}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (authLoading || cart.items.length === 0) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
@@ -184,16 +189,16 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 pt-24">
       <div className="container mx-auto px-4 max-w-5xl">
         {/* Header */}
         <div className="mb-6">
           <Link
-            href="/delivery/cart"
+            href="/delivery"
             className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-bold transition-colors mb-4"
           >
             <ArrowLeft size={20} />
-            <span>Voltar ao carrinho</span>
+            <span>Voltar ao cardápio</span>
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-baloo2">
             Finalizar Pedido
@@ -227,7 +232,7 @@ export default function CheckoutPage() {
                       value={formData.whatsapp}
                       onChange={handleInputChange}
                       required
-                      className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all ${errors.whatsapp ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all ${errors.whatsapp ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
                         }`}
                       placeholder="(11) 99999-9999"
                     />
@@ -246,7 +251,7 @@ export default function CheckoutPage() {
                       value={formData.receiver_name}
                       onChange={handleInputChange}
                       required
-                      className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all ${errors.receiver_name ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all ${errors.receiver_name ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
                         }`}
                       placeholder="João da Silva"
                     />
@@ -276,7 +281,7 @@ export default function CheckoutPage() {
                       value={formData.condominium}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all"
+                      className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
                     >
                       <option value="">Selecione o condomínio</option>
                       {ALLOWED_CONDOMINIUMS.map((cond) => (
@@ -298,7 +303,7 @@ export default function CheckoutPage() {
                         value={formData.block}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all"
+                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
                         placeholder="05"
                       />
                     </div>
@@ -313,7 +318,7 @@ export default function CheckoutPage() {
                         value={formData.apartment}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all"
+                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
                         placeholder="42"
                       />
                     </div>
@@ -335,8 +340,8 @@ export default function CheckoutPage() {
                     <label
                       key={method.method}
                       className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${formData.payment_method === method.method
-                          ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                        ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                         }`}
                     >
                       <input
@@ -366,9 +371,9 @@ export default function CheckoutPage() {
                       value={formData.change_for || ''}
                       onChange={handleInputChange}
                       step="0.01"
-                      min={cart.total}
-                      className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all"
-                      placeholder={`Mínimo: ${formatPrice(cart.total)}`}
+                      min={total}
+                      className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
+                      placeholder={`Mínimo: ${formatPrice(total)}`}
                     />
                   </div>
                 )}
@@ -384,7 +389,7 @@ export default function CheckoutPage() {
                   value={formData.notes}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white resize-none outline-none transition-all"
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none outline-none transition-all"
                   placeholder="Alguma observação sobre o pedido? Ex: Deixar na portaria, tocar interfone, etc."
                 />
               </LiquidGlass>
@@ -424,7 +429,7 @@ export default function CheckoutPage() {
                     Processando...
                   </span>
                 ) : (
-                  `Finalizar Pedido - ${formatPrice(cart.total)}`
+                  `Finalizar Pedido - ${formatPrice(total)}`
                 )}
               </button>
             </form>
@@ -432,7 +437,7 @@ export default function CheckoutPage() {
 
           {/* Resumo */}
           <div className="lg:col-span-1">
-            <LiquidGlass className="p-6 sticky top-4">
+            <LiquidGlass className="p-6 sticky top-24">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 font-baloo2">
                 Resumo do Pedido
               </h2>
@@ -447,13 +452,13 @@ export default function CheckoutPage() {
               )}
 
               <div className="space-y-3 mb-6">
-                {cart.items.map((item) => (
+                {items.map((item) => (
                   <div key={item.product.id} className="flex items-center justify-between text-sm">
                     <span className="text-gray-600 dark:text-gray-400">
-                      {item.product.name} x{item.quantity}
+                      {item.name} x{item.quantity}
                     </span>
                     <span className="font-bold text-gray-900 dark:text-white">
-                      {formatPrice(item.product.price * item.quantity)}
+                      {formatPrice(item.price * item.quantity)}
                     </span>
                   </div>
                 ))}
@@ -463,7 +468,7 @@ export default function CheckoutPage() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
                   <span className="font-bold text-gray-900 dark:text-white">
-                    {formatPrice(cart.subtotal)}
+                    {formatPrice(subtotal)}
                   </span>
                 </div>
 
@@ -477,7 +482,7 @@ export default function CheckoutPage() {
                 <div className="flex items-center justify-between text-xl font-bold pt-3 border-t border-gray-200 dark:border-gray-700">
                   <span className="text-gray-900 dark:text-white font-baloo2">Total</span>
                   <span className="text-green-600 dark:text-green-400 font-baloo2">
-                    {formatPrice(cart.total)}
+                    {formatPrice(total)}
                   </span>
                 </div>
               </div>

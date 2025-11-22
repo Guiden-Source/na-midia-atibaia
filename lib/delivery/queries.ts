@@ -125,7 +125,8 @@ export async function createOrder(
   cartItems: CartItem[],
   subtotal: number,
   deliveryFee: number,
-  total: number
+  total: number,
+  userId?: string
 ): Promise<DeliveryOrder> {
   try {
     // 1. Gerar número do pedido
@@ -140,6 +141,7 @@ export async function createOrder(
       .from('delivery_orders')
       .insert({
         order_number: orderNumber,
+        user_id: userId,
         user_name: checkoutData.user_name,
         user_phone: checkoutData.user_phone,
         user_email: checkoutData.user_email,
