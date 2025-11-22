@@ -1,6 +1,5 @@
 import { getProducts, searchProducts } from '@/lib/delivery/queries';
 import { ProductList } from '@/components/delivery/ProductList';
-import { DeliveryHeader } from '@/components/delivery/DeliveryHeader';
 import { CategoryCarousel } from '@/components/delivery/CategoryCarousel';
 import { FloatingCart } from '@/components/delivery/FloatingCart';
 import { getServerSession } from '@/lib/auth/server';
@@ -28,7 +27,7 @@ export default async function DeliveryPage({
     title = `Resultados para "${search}"`;
     emptyMessage = `Nenhum produto encontrado para "${search}"`;
   } else if (categorySlug) {
-    products = await getProducts(search, categorySlug);
+    products = await getProducts(categorySlug);
     title = `Categoria: ${categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1)}`;
   } else {
     products = await getProducts();
@@ -37,9 +36,7 @@ export default async function DeliveryPage({
   const userName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Visitante';
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-[150px] md:pt-[120px]">
-      <DeliveryHeader />
-
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-24">
       <div className="container mx-auto px-4 py-6 space-y-8">
         {/* Welcome Message */}
         {!search && (
