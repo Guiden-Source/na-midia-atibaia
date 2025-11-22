@@ -13,12 +13,15 @@ interface CartContextType {
     removeItem: (productId: string) => void;
     clearCart: () => void;
     total: number;
+    scheduledTime: string | null;
+    setScheduledTime: (time: string | null) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
+    const [scheduledTime, setScheduledTime] = useState<string | null>(null);
 
     // Load from localStorage on mount
     useEffect(() => {
@@ -30,12 +33,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 console.error('Failed to parse cart', e);
             }
         }
+        const savedTime = localStorage.getItem('delivery-scheduled-time');
+        if (savedTime) setScheduledTime(savedTime);
     }, []);
 
     // Save to localStorage on change
     useEffect(() => {
         localStorage.setItem('delivery-cart', JSON.stringify(items));
     }, [items]);
+
+    useEffect(() => {
+        if (scheduledTime) localStorage.setItem('delivery-scheduled-time', scheduledTime);
+        else localStorage.removeItem('delivery-scheduled-time');
+    }, [scheduledTime]);
 
     const addItem = (product: DeliveryProduct) => {
         setItems((prev) => {
@@ -53,12 +63,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems((prev) => prev.filter((i) => i.id !== productId));
     };
 
-    const clearCart = () => setItems([]);
+    const clearCart = () => {
+        setItems([]);
+        setScheduledTime(null);
+    };
 
     const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     return (
-        <CartContext.Provider value={{ items, addItem, removeItem, clearCart, total }}>
+        <CartContext.Provider value={{ items, addItem, removeItem, clearCart, total, scheduledTime, setScheduledTime }}>
             {children}
         </CartContext.Provider>
     );

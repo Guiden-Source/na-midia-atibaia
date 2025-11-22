@@ -3,23 +3,27 @@
 import { useEffect, useState } from 'react';
 import { Cart as CartType } from '@/lib/delivery/types';
 import { getCart, removeFromCart, updateCartItemQuantity, clearCart, formatPrice } from '@/lib/delivery/cart';
-import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, Clock, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useCart } from '@/lib/delivery/CartContext';
+import { SchedulingModal } from './SchedulingModal';
 
 export function Cart() {
   const [cart, setCart] = useState<CartType>({ items: [], subtotal: 0, delivery_fee: 0, total: 0 });
   const [isLoading, setIsLoading] = useState(true);
+  const [isSchedulingOpen, setIsSchedulingOpen] = useState(false);
+  const { scheduledTime } = useCart();
   const router = useRouter();
 
   useEffect(() => {
     loadCart();
-    
+
     // Listener para atualizar carrinho
     const handleCartUpdate = () => loadCart();
     window.addEventListener('cartUpdated', handleCartUpdate);
-    
+
     return () => {
       window.removeEventListener('cartUpdated', handleCartUpdate);
     };
@@ -87,7 +91,7 @@ export function Cart() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-baloo2">
           Carrinho ({cart.items.length} {cart.items.length === 1 ? 'item' : 'itens'})
         </h1>
         <button
@@ -103,7 +107,7 @@ export function Cart() {
         {cart.items.map((item) => (
           <div
             key={item.product.id}
-            className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md border border-gray-200 dark:border-gray-700 flex items-center gap-4"
+            className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center gap-4 hover:shadow-md transition-shadow"
           >
             {/* Imagem */}
             {item.product.image_url ? (
@@ -123,7 +127,7 @@ export function Cart() {
 
             {/* Detalhes */}
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+              <h3 className="font-bold text-gray-900 dark:text-white mb-1 font-baloo2 text-lg">
                 {item.product.name}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
@@ -135,19 +139,19 @@ export function Cart() {
                 <button
                   onClick={() => handleUpdateQuantity(item.product.id, item.quantity - 1)}
                   disabled={item.quantity <= 1}
-                  className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-600 dark:text-gray-300"
                 >
                   <Minus size={16} />
                 </button>
 
-                <span className="w-12 text-center font-semibold text-gray-900 dark:text-white">
+                <span className="w-8 text-center font-bold text-gray-900 dark:text-white">
                   {item.quantity}
                 </span>
 
                 <button
                   onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
                   disabled={item.quantity >= item.product.stock}
-                  className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-600 dark:text-gray-300"
                 >
                   <Plus size={16} />
                 </button>
@@ -156,15 +160,15 @@ export function Cart() {
 
             {/* Subtotal e remover */}
             <div className="flex flex-col items-end gap-3">
-              <div className="text-xl font-bold text-gray-900 dark:text-white">
+              <div className="text-lg font-bold text-gray-900 dark:text-white">
                 {formatPrice(item.product.price * item.quantity)}
               </div>
               <button
                 onClick={() => handleRemoveItem(item.product.id)}
-                className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                className="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                 title="Remover item"
               >
-                <Trash2 size={20} />
+                <Trash2 size={18} />
               </button>
             </div>
           </div>
@@ -172,10 +176,43 @@ export function Cart() {
       </div>
 
       {/* Resumo do pedido */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 font-baloo2">
           Resumo do Pedido
         </h2>
+
+        {/* Agendamento */}
+        <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-medium">
+              <Clock size={18} className="text-orange-500" />
+              <span>Entrega:</span>
+            </div>
+            <button
+              onClick={() => setIsSchedulingOpen(true)}
+              className="text-sm font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              Alterar
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            {scheduledTime ? (
+              <>
+                <Calendar size={16} className="text-gray-400" />
+                <span className="font-bold text-gray-900 dark:text-white">
+                  Hoje às {scheduledTime}
+                </span>
+              </>
+            ) : (
+              <>
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="font-bold text-gray-900 dark:text-white">
+                  O mais rápido possível (30-45 min)
+                </span>
+              </>
+            )}
+          </div>
+        </div>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between text-gray-600 dark:text-gray-400">
@@ -192,9 +229,9 @@ export function Cart() {
             </span>
           </div>
 
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-3 flex items-center justify-between">
-            <span className="text-xl font-bold text-gray-900 dark:text-white">Total</span>
-            <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 flex items-center justify-between">
+            <span className="text-xl font-bold text-gray-900 dark:text-white font-baloo2">Total</span>
+            <span className="text-2xl font-bold text-green-600 dark:text-green-400 font-baloo2">
               {formatPrice(cart.total)}
             </span>
           </div>
@@ -202,18 +239,23 @@ export function Cart() {
 
         <button
           onClick={handleCheckout}
-          className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-bold text-lg transition-colors shadow-lg hover:shadow-xl"
+          className="w-full mt-8 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]"
         >
           Finalizar Pedido
         </button>
 
         <Link
           href="/delivery"
-          className="block text-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium mt-4 transition-colors"
+          className="block text-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-medium mt-4 transition-colors text-sm"
         >
-          ← Continuar comprando
+          Continuar comprando
         </Link>
       </div>
+
+      <SchedulingModal
+        isOpen={isSchedulingOpen}
+        onClose={() => setIsSchedulingOpen(false)}
+      />
     </div>
   );
 }
