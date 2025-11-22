@@ -48,11 +48,11 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
-    // Verificar se carrinho está vazio
-    if (items.length === 0) {
+    // Verificar se carrinho está vazio (apenas se não estiver submetendo)
+    if (items.length === 0 && !isLoading) {
       // Small delay to allow context to load
       const timer = setTimeout(() => {
-        if (items.length === 0) {
+        if (items.length === 0 && !isLoading) {
           router.push('/delivery');
         }
       }, 500);
@@ -178,10 +178,10 @@ export default function CheckoutPage() {
 
       // Redirecionar para página de sucesso
       router.push(`/delivery/order-confirmed/${order.id}`);
+      // Não setar isLoading(false) aqui para evitar que o useEffect dispare o redirect para /delivery
     } catch (error: any) {
       console.error('Erro ao criar pedido:', error);
       toast.error(`Erro ao processar pedido: ${error.message || 'Tente novamente.'}`);
-    } finally {
       setIsLoading(false);
     }
   };

@@ -51,7 +51,7 @@ export default async function PedidosPage({ searchParams }: PageProps) {
       *,
       items:delivery_order_items(*)
     `)
-    .eq('user_phone', user.user_metadata.phone || user.email)
+    .or(`user_id.eq.${user.id},user_phone.eq.${user.user_metadata.phone || user.email}`)
     .order('created_at', { ascending: false });
 
   if (statusFilter) {
@@ -64,24 +64,24 @@ export default async function PedidosPage({ searchParams }: PageProps) {
   const { count: allCount } = await supabase
     .from('delivery_orders')
     .select('*', { count: 'exact', head: true })
-    .eq('user_phone', user.user_metadata.phone || user.email);
+    .or(`user_id.eq.${user.id},user_phone.eq.${user.user_metadata.phone || user.email}`);
 
   const { count: activeCount } = await supabase
     .from('delivery_orders')
     .select('*', { count: 'exact', head: true })
-    .eq('user_phone', user.user_metadata.phone || user.email)
+    .or(`user_id.eq.${user.id},user_phone.eq.${user.user_metadata.phone || user.email}`)
     .in('status', ['pending', 'confirmed', 'preparing', 'delivering']);
 
   const { count: completedCount } = await supabase
     .from('delivery_orders')
     .select('*', { count: 'exact', head: true })
-    .eq('user_phone', user.user_metadata.phone || user.email)
+    .or(`user_id.eq.${user.id},user_phone.eq.${user.user_metadata.phone || user.email}`)
     .eq('status', 'completed');
 
   const { count: cancelledCount } = await supabase
     .from('delivery_orders')
     .select('*', { count: 'exact', head: true })
-    .eq('user_phone', user.user_metadata.phone || user.email)
+    .or(`user_id.eq.${user.id},user_phone.eq.${user.user_metadata.phone || user.email}`)
     .eq('status', 'cancelled');
 
   return (
@@ -125,8 +125,8 @@ export default async function PedidosPage({ searchParams }: PageProps) {
           <Link
             href="/perfil/pedidos"
             className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${!statusFilter
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 scale-[1.02]'
-                : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
               }`}
           >
             Todos ({allCount || 0})
@@ -134,8 +134,8 @@ export default async function PedidosPage({ searchParams }: PageProps) {
           <Link
             href="/perfil/pedidos?status=pending,confirmed,preparing,delivering"
             className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter && ['pending', 'confirmed', 'preparing', 'delivering'].includes(statusFilter)
-                ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20 scale-[1.02]'
-                : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+              ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
               }`}
           >
             Ativos ({activeCount || 0})
@@ -143,8 +143,8 @@ export default async function PedidosPage({ searchParams }: PageProps) {
           <Link
             href="/perfil/pedidos?status=completed"
             className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'completed'
-                ? 'bg-green-600 text-white shadow-lg shadow-green-600/20 scale-[1.02]'
-                : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+              ? 'bg-green-600 text-white shadow-lg shadow-green-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
               }`}
           >
             Entregues ({completedCount || 0})
@@ -152,8 +152,8 @@ export default async function PedidosPage({ searchParams }: PageProps) {
           <Link
             href="/perfil/pedidos?status=cancelled"
             className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'cancelled'
-                ? 'bg-red-600 text-white shadow-lg shadow-red-600/20 scale-[1.02]'
-                : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+              ? 'bg-red-600 text-white shadow-lg shadow-red-600/20 scale-[1.02]'
+              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
               }`}
           >
             Cancelados ({cancelledCount || 0})
