@@ -326,10 +326,10 @@ export function OrdersManager() {
                       <div key={idx} className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 last:border-0 pb-3 last:pb-0">
                         <div className="flex items-center gap-3">
                           <span className="font-bold text-orange-500">{item.quantity}x</span>
-                          <span className="text-gray-700 dark:text-gray-300">{item.product.name}</span>
+                          <span className="text-gray-700 dark:text-gray-300">{item.product_name}</span>
                         </div>
                         <span className="font-medium text-gray-900 dark:text-white">
-                          {formatPrice(item.product.price * item.quantity)}
+                          {formatPrice(item.subtotal)}
                         </span>
                       </div>
                     ))}
