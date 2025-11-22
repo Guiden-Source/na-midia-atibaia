@@ -1,29 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getCartItemCount } from '@/lib/delivery/cart';
+import { useCart } from '@/lib/delivery/CartContext';
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 
 export function CartBadge() {
-  const [itemCount, setItemCount] = useState(0);
+  const { items } = useCart();
 
-  useEffect(() => {
-    // Carregar contagem inicial
-    updateCount();
-
-    // Listener para atualizar quando carrinho mudar
-    const handleCartUpdate = () => updateCount();
-    window.addEventListener('cartUpdated', handleCartUpdate);
-
-    return () => {
-      window.removeEventListener('cartUpdated', handleCartUpdate);
-    };
-  }, []);
-
-  const updateCount = () => {
-    setItemCount(getCartItemCount());
-  };
+  // Calculate total item count from context
+  const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <Link
@@ -32,7 +17,7 @@ export function CartBadge() {
       title="Ver carrinho"
     >
       <ShoppingCart size={24} className="text-gray-700 dark:text-gray-300" />
-      
+
       {itemCount > 0 && (
         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
           {itemCount > 9 ? '9+' : itemCount}

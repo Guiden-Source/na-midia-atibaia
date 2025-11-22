@@ -55,19 +55,21 @@ export function FloatingCart() {
         <>
             {/* Floating Button */}
             <motion.button
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                onClick={() => setIsOpen(true)}
-                className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-orange-500 to-pink-500 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl hover:scale-110 transition-all"
+                onClick={() => setIsOpen(!isOpen)}
+                className="fixed bottom-20 md:bottom-4 right-4 z-[100] bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-full shadow-2xl hover:shadow-orange-500/50 transition-all hover:scale-110 active:scale-95"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
             >
-                <div className="relative">
-                    <ShoppingCart size={28} />
-                    {itemCount > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center animate-pulse">
-                            {itemCount}
-                        </span>
-                    )}
-                </div>
+                <ShoppingCart size={24} />
+                {itemCount > 0 && (
+                    <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg"
+                    >
+                        {itemCount}
+                    </motion.span>
+                )}
             </motion.button>
 
             {/* Slide-over Panel */}
