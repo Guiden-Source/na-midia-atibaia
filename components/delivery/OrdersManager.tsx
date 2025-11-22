@@ -61,15 +61,30 @@ export function OrdersManager() {
   useEffect(() => {
     loadOrders();
 
-    // Realtime subscription
+    // Realtime subscription - only reload on new orders (INSERT)
     const channel = supabase
       .channel('orders_changes')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'delivery_orders' },
+        { event: 'INSERT', schema: 'public', table: 'delivery_orders' },
         (payload) => {
-          console.log('Change received!', payload);
+          console.log('New order received!', payload);
           loadOrders();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'delivery_orders' },
+        (payload) => {
+          console.log('Order updated!', payload);
+          // Update specific order in state instead of reloading all
+          const updatedOrder = payload.new as Order;
+          setOrders(prevOrders =>
+            prevOrders.map(o => o.id === updatedOrder.id ? { ...o, ...updatedOrder } : o)
+          );
+          if (selectedOrder?.id === updatedOrder.id) {
+            setSelectedOrder(prev => prev ? { ...prev, ...updatedOrder } : null);
+          }
         }
       )
       .subscribe();
