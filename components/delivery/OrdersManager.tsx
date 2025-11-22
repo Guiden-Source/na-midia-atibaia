@@ -82,7 +82,13 @@ export function OrdersManager() {
   const loadOrders = async () => {
     const { data, error } = await supabase
       .from('delivery_orders')
-      .select('*')
+      .select(`
+        *,
+        items:delivery_order_items(
+          *,
+          product:delivery_products(*)
+        )
+      `)
       .order('created_at', { ascending: false }); // Most recent first
 
     if (error) {
@@ -105,11 +111,18 @@ export function OrdersManager() {
       toast.error('Erro ao atualizar status');
     } else {
       toast.success(`Status atualizado para ${STATUS_CONFIG[newStatus as keyof typeof STATUS_CONFIG]?.label || newStatus}`);
-      // Optimistic update
-      setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+
+      // Update local state immediately
+      setOrders(prevOrders =>
+        prevOrders.map(o => o.id === orderId ? { ...o, status: newStatus } : o)
+      );
+
       if (selectedOrder?.id === orderId) {
         setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
       }
+
+      // Reload to ensure sync (optional but safer)
+      // loadOrders();
     }
   };
 
