@@ -142,17 +142,17 @@ export function FloatingCart() {
                                                     <button
                                                         onClick={() => handleDecreaseQuantity(item)}
                                                         disabled={item.quantity <= 1}
-                                                        className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+                                                        className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
                                                     >
                                                         <Minus size={12} />
                                                     </button>
-                                                    <span className="font-bold text-sm w-6 text-center">
+                                                    <span className="font-bold text-sm w-6 text-center text-gray-900 dark:text-white">
                                                         {item.quantity}
                                                     </span>
                                                     <button
                                                         onClick={() => handleIncreaseQuantity(item)}
                                                         disabled={item.quantity >= item.stock}
-                                                        className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+                                                        className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
                                                     >
                                                         <Plus size={12} />
                                                     </button>
