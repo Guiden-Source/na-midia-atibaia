@@ -4,28 +4,41 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCart, clearCart, formatPrice, validateCart } from '@/lib/delivery/cart';
 import { createOrder } from '@/lib/delivery/queries';
-import { validateCheckoutForm } from '@/lib/delivery/validation';
-import { Cart, CheckoutFormData, ALLOWED_CONDOMINIUMS, PAYMENT_METHODS } from '@/lib/delivery/types';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { Cart, ALLOWED_CONDOMINIUMS, PAYMENT_METHODS } from '@/lib/delivery/types';
+import { ArrowLeft, AlertCircle, User, MapPin, CreditCard } from 'lucide-react';
 import Link from 'next/link';
+import { useUser } from '@/lib/auth/hooks';
+import { LiquidGlass } from '@/components/ui/liquid-glass';
+import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
+import { useCart } from '@/lib/delivery/CartContext';
+
+interface CheckoutFormData {
+  // Dados mínimos necessários
+  whatsapp: string;
+  receiver_name: string;
+  condominium: string;
+  block: string;
+  apartment: string;
+  payment_method: 'pix' | 'dinheiro' | 'cartao';
+  change_for?: number;
+  notes?: string;
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useUser();
+  const { scheduledTime } = useCart();
   const [cart, setCart] = useState<Cart>({ items: [], subtotal: 0, delivery_fee: 0, total: 0 });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   const [formData, setFormData] = useState<CheckoutFormData>({
-    user_name: '',
-    user_phone: '',
-    user_email: '',
-    address_street: '',
-    address_number: '',
-    address_complement: '',
-    address_condominium: '',
-    address_block: '',
-    address_apartment: '',
-    address_reference: '',
+    whatsapp: '',
+    receiver_name: '',
+    condominium: '',
+    block: '',
+    apartment: '',
     payment_method: 'pix',
     change_for: undefined,
     notes: '',
@@ -39,12 +52,39 @@ export default function CheckoutPage() {
     if (loadedCart.items.length === 0) {
       router.push('/delivery/cart');
     }
-  }, [router]);
+
+    // Verificar se usuário está logado
+    if (!authLoading && !user) {
+      toast.error('Você precisa estar logado para finalizar o pedido');
+      router.push('/login');
+    }
+
+    // Pré-preencher dados do localStorage (se veio do Jerônimo)
+    const savedBlock = localStorage.getItem('jeronimo_block');
+    const savedApt = localStorage.getItem('jeronimo_apartment');
+
+    if (savedBlock && savedApt) {
+      setFormData(prev => ({
+        ...prev,
+        block: savedBlock,
+        apartment: savedApt,
+        condominium: 'Jeronimo de Camargo 1', // Padrão
+      }));
+    }
+
+    // Pré-preencher nome do usuário
+    if (user?.user_metadata?.full_name) {
+      setFormData(prev => ({
+        ...prev,
+        receiver_name: user.user_metadata.full_name,
+      }));
+    }
+  }, [router, user, authLoading]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Limpar erro do campo ao digitar
     if (errors[name]) {
       setErrors(prev => {
@@ -55,20 +95,40 @@ export default function CheckoutPage() {
     }
   };
 
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.whatsapp) newErrors.whatsapp = 'WhatsApp é obrigatório';
+    if (!formData.receiver_name) newErrors.receiver_name = 'Nome de quem vai receber é obrigatório';
+    if (!formData.condominium) newErrors.condominium = 'Condomínio é obrigatório';
+    if (!formData.block) newErrors.block = 'Bloco é obrigatório';
+    if (!formData.apartment) newErrors.apartment = 'Apartamento é obrigatório';
+
+    if (formData.payment_method === 'dinheiro' && formData.change_for && formData.change_for < cart.total) {
+      newErrors.change_for = 'O valor do troco deve ser maior que o total do pedido';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    if (!user) {
+      toast.error('Você precisa estar logado');
+      return;
+    }
+
     // Validar carrinho
     const cartValidation = validateCart();
     if (!cartValidation.isValid) {
-      alert(cartValidation.errors.join('\n'));
+      toast.error(cartValidation.errors.join('\n'));
       return;
     }
 
     // Validar formulário
-    const formValidation = validateCheckoutForm(formData);
-    if (!formValidation.isValid) {
-      setErrors(formValidation.errors);
+    if (!validateForm()) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -76,9 +136,25 @@ export default function CheckoutPage() {
     setIsLoading(true);
 
     try {
-      // Criar pedido
+      // Criar pedido com dados completos
+      const orderData = {
+        user_name: user.user_metadata?.full_name || user.email || 'Cliente',
+        user_phone: formData.whatsapp,
+        user_email: user.email || '',
+        address_street: 'Residencial Jerônimo de Camargo', // Fixo
+        address_number: formData.apartment,
+        address_complement: `Bloco ${formData.block}`,
+        address_condominium: formData.condominium,
+        address_block: formData.block,
+        address_apartment: formData.apartment,
+        address_reference: '',
+        payment_method: formData.payment_method,
+        change_for: formData.change_for,
+        notes: formData.notes || '',
+      };
+
       const order = await createOrder(
-        formData,
+        orderData,
         cart.items,
         cart.subtotal,
         cart.delivery_fee,
@@ -93,14 +169,18 @@ export default function CheckoutPage() {
       router.push(`/delivery/checkout/success/${order.id}`);
     } catch (error) {
       console.error('Erro ao criar pedido:', error);
-      alert('Erro ao processar pedido. Tente novamente.');
+      toast.error('Erro ao processar pedido. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (cart.items.length === 0) {
-    return null;
+  if (authLoading || cart.items.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
@@ -110,100 +190,93 @@ export default function CheckoutPage() {
         <div className="mb-6">
           <Link
             href="/delivery/cart"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-bold transition-colors mb-4"
           >
             <ArrowLeft size={20} />
             <span>Voltar ao carrinho</span>
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-baloo2">
             Finalizar Pedido
           </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Olá, <strong>{user?.user_metadata?.full_name || user?.email}</strong>! Preencha os dados abaixo.
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Formulário */}
           <div className="lg:col-span-2">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Dados Pessoais */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                  Dados Pessoais
-                </h2>
-                
+              {/* Dados de Contato */}
+              <LiquidGlass className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <User className="text-orange-500" size={24} />
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white font-baloo2">
+                    Dados de Contato
+                  </h2>
+                </div>
+
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Nome completo *
-                    </label>
-                    <input
-                      type="text"
-                      name="user_name"
-                      value={formData.user_name}
-                      onChange={handleInputChange}
-                      required
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
-                        errors.user_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                      }`}
-                      placeholder="João da Silva"
-                    />
-                    {errors.user_name && (
-                      <p className="text-red-500 text-sm mt-1">{errors.user_name}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Telefone (WhatsApp) *
+                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                      WhatsApp *
                     </label>
                     <input
                       type="tel"
-                      name="user_phone"
-                      value={formData.user_phone}
+                      name="whatsapp"
+                      value={formData.whatsapp}
                       onChange={handleInputChange}
                       required
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white ${
-                        errors.user_phone ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                      }`}
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all ${errors.whatsapp ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
+                        }`}
                       placeholder="(11) 99999-9999"
                     />
-                    {errors.user_phone && (
-                      <p className="text-red-500 text-sm mt-1">{errors.user_phone}</p>
+                    {errors.whatsapp && (
+                      <p className="text-red-500 text-sm mt-1">{errors.whatsapp}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Email (opcional)
+                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                      Nome de quem vai receber *
                     </label>
                     <input
-                      type="email"
-                      name="user_email"
-                      value={formData.user_email}
+                      type="text"
+                      name="receiver_name"
+                      value={formData.receiver_name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="seuemail@exemplo.com"
+                      required
+                      className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all ${errors.receiver_name ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
+                        }`}
+                      placeholder="João da Silva"
                     />
+                    {errors.receiver_name && (
+                      <p className="text-red-500 text-sm mt-1">{errors.receiver_name}</p>
+                    )}
                   </div>
                 </div>
-              </div>
+              </LiquidGlass>
 
               {/* Endereço de Entrega */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                  Endereço de Entrega
-                </h2>
+              <LiquidGlass className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <MapPin className="text-orange-500" size={24} />
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white font-baloo2">
+                    Endereço de Entrega
+                  </h2>
+                </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
                       Condomínio *
                     </label>
                     <select
-                      name="address_condominium"
-                      value={formData.address_condominium}
+                      name="condominium"
+                      value={formData.condominium}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                      className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all"
                     >
                       <option value="">Selecione o condomínio</option>
                       {ALLOWED_CONDOMINIUMS.map((cond) => (
@@ -216,111 +289,55 @@ export default function CheckoutPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Rua/Avenida *
+                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                        Bloco *
                       </label>
                       <input
                         type="text"
-                        name="address_street"
-                        value={formData.address_street}
+                        name="block"
+                        value={formData.block}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                        placeholder="Rua Principal"
+                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all"
+                        placeholder="05"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Número *
+                      <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                        Apartamento *
                       </label>
                       <input
                         type="text"
-                        name="address_number"
-                        value={formData.address_number}
+                        name="apartment"
+                        value={formData.apartment}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                        placeholder="123"
+                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all"
+                        placeholder="42"
                       />
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Bloco
-                      </label>
-                      <input
-                        type="text"
-                        name="address_block"
-                        value={formData.address_block}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                        placeholder="A"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Apartamento
-                      </label>
-                      <input
-                        type="text"
-                        name="address_apartment"
-                        value={formData.address_apartment}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                        placeholder="101"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Complemento
-                    </label>
-                    <input
-                      type="text"
-                      name="address_complement"
-                      value={formData.address_complement}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="Casa dos fundos"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Ponto de referência
-                    </label>
-                    <input
-                      type="text"
-                      name="address_reference"
-                      value={formData.address_reference}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                      placeholder="Próximo à portaria principal"
-                    />
                   </div>
                 </div>
-              </div>
+              </LiquidGlass>
 
               {/* Pagamento */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                  Forma de Pagamento
-                </h2>
+              <LiquidGlass className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <CreditCard className="text-orange-500" size={24} />
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white font-baloo2">
+                    Forma de Pagamento
+                  </h2>
+                </div>
 
                 <div className="space-y-3">
                   {PAYMENT_METHODS.map((method) => (
                     <label
                       key={method.method}
-                      className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        formData.payment_method === method.method
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${formData.payment_method === method.method
+                          ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
                           : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                      }`}
+                        }`}
                     >
                       <input
                         type="radio"
@@ -328,10 +345,10 @@ export default function CheckoutPage() {
                         value={method.method}
                         checked={formData.payment_method === method.method}
                         onChange={handleInputChange}
-                        className="w-5 h-5"
+                        className="w-5 h-5 text-orange-500"
                       />
                       <span className="text-2xl">{method.icon}</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-bold text-gray-900 dark:text-white">
                         {method.label}
                       </span>
                     </label>
@@ -340,7 +357,7 @@ export default function CheckoutPage() {
 
                 {formData.payment_method === 'dinheiro' && (
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
                       Troco para quanto?
                     </label>
                     <input
@@ -350,16 +367,16 @@ export default function CheckoutPage() {
                       onChange={handleInputChange}
                       step="0.01"
                       min={cart.total}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                      className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white outline-none transition-all"
                       placeholder={`Mínimo: ${formatPrice(cart.total)}`}
                     />
                   </div>
                 )}
-              </div>
+              </LiquidGlass>
 
               {/* Observações */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              <LiquidGlass className="p-6">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 font-baloo2">
                   Observações (opcional)
                 </h2>
                 <textarea
@@ -367,18 +384,22 @@ export default function CheckoutPage() {
                   value={formData.notes}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white resize-none"
+                  className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 dark:bg-gray-800 dark:text-white resize-none outline-none transition-all"
                   placeholder="Alguma observação sobre o pedido? Ex: Deixar na portaria, tocar interfone, etc."
                 />
-              </div>
+              </LiquidGlass>
 
               {/* Erros gerais */}
               {Object.keys(errors).length > 0 && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl p-4"
+                >
                   <div className="flex items-start gap-3">
                     <AlertCircle className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" size={20} />
                     <div>
-                      <h3 className="font-semibold text-red-600 dark:text-red-400 mb-2">
+                      <h3 className="font-bold text-red-600 dark:text-red-400 mb-2">
                         Corrija os erros abaixo:
                       </h3>
                       <ul className="text-sm text-red-600 dark:text-red-400 space-y-1">
@@ -388,14 +409,14 @@ export default function CheckoutPage() {
                       </ul>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               )}
 
               {/* Botão */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-bold text-lg transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -411,10 +432,19 @@ export default function CheckoutPage() {
 
           {/* Resumo */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md sticky top-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <LiquidGlass className="p-6 sticky top-4">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 font-baloo2">
                 Resumo do Pedido
               </h2>
+
+              {/* Agendamento */}
+              {scheduledTime && (
+                <div className="mb-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                  <p className="text-sm font-bold text-orange-600 dark:text-orange-400">
+                    📅 Agendado para hoje às {scheduledTime}
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-3 mb-6">
                 {cart.items.map((item) => (
@@ -422,7 +452,7 @@ export default function CheckoutPage() {
                     <span className="text-gray-600 dark:text-gray-400">
                       {item.product.name} x{item.quantity}
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-bold text-gray-900 dark:text-white">
                       {formatPrice(item.product.price * item.quantity)}
                     </span>
                   </div>
@@ -432,40 +462,26 @@ export default function CheckoutPage() {
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-bold text-gray-900 dark:text-white">
                     {formatPrice(cart.subtotal)}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Taxa de entrega</span>
-                  <span className="font-medium text-green-600 dark:text-green-400">
+                  <span className="font-bold text-green-600 dark:text-green-400">
                     GRÁTIS
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between text-xl font-bold pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <span className="text-gray-900 dark:text-white">Total</span>
-                  <span className="text-green-600 dark:text-green-400">
+                  <span className="text-gray-900 dark:text-white font-baloo2">Total</span>
+                  <span className="text-green-600 dark:text-green-400 font-baloo2">
                     {formatPrice(cart.total)}
                   </span>
                 </div>
               </div>
-
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="flex items-start gap-2 text-sm text-blue-600 dark:text-blue-400">
-                  <span className="text-xl">ℹ️</span>
-                  <div>
-                    <p className="font-medium mb-1">Como funciona?</p>
-                    <ol className="text-xs space-y-1">
-                      <li>1. Finalize o pedido aqui</li>
-                      <li>2. Envie pelo WhatsApp</li>
-                      <li>3. Receba em 30 minutos! 🚀</li>
-                    </ol>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </LiquidGlass>
           </div>
         </div>
       </div>

@@ -7,7 +7,7 @@ import { LiquidGlass } from '@/components/ui/liquid-glass';
 import confetti from 'canvas-confetti';
 
 interface AddressValidatorProps {
-    onValidated: (address: string) => void;
+    onValidated: (address: string, block: string, apartment: string) => void;
 }
 
 export function AddressValidator({ onValidated }: AddressValidatorProps) {
@@ -32,7 +32,8 @@ export function AddressValidator({ onValidated }: AddressValidatorProps) {
         });
 
         setTimeout(() => {
-            onValidated(`Residencial Jerônimo de Camargo - Bloco ${block}, Apto ${apartment}`);
+            const fullAddress = `Residencial Jerônimo de Camargo - Bloco ${block}, Apto ${apartment}`;
+            onValidated(fullAddress, block, apartment);
         }, 1500);
     };
 
