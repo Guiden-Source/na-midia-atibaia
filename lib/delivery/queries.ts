@@ -129,47 +129,8 @@ export async function createOrder(
   userId?: string
 ): Promise<DeliveryOrder> {
   try {
-    // 1. Gerar número do pedido
-    const { data: orderNumberData, error: orderNumberError } = await supabase
-      .rpc('generate_order_number');
-
-    if (orderNumberError) throw orderNumberError;
-    const orderNumber = orderNumberData as string;
-
-    // 2. Gerar ID do pedido (client-side) para evitar retorno do INSERT (RLS)
-    const orderId = crypto.randomUUID();
-
-    // 3. Criar pedido
-    const { error: orderError } = await supabase
-      .from('delivery_orders')
-      .insert({
-        id: orderId,
-        order_number: orderNumber,
-        user_id: userId,
-        user_name: checkoutData.user_name,
-        user_phone: checkoutData.user_phone,
-        user_email: checkoutData.user_email,
-        address_street: checkoutData.address_street,
-        address_number: checkoutData.address_number,
-        address_complement: checkoutData.address_complement,
-        address_condominium: checkoutData.address_condominium,
-        address_block: checkoutData.address_block,
-        address_apartment: checkoutData.address_apartment,
-        address_reference: checkoutData.address_reference,
-        payment_method: checkoutData.payment_method,
-        change_for: checkoutData.change_for,
-        subtotal,
-        delivery_fee: deliveryFee,
-        total,
-        notes: checkoutData.notes,
-        status: 'pending',
-      });
-
-    if (orderError) throw orderError;
-
-    // 4. Criar itens do pedido
-    const orderItems = cartItems.map((item) => ({
-      order_id: orderId,
+    // Preparar itens para o RPC
+    const itemsJson = cartItems.map((item) => ({
       product_id: item.product.id,
       product_name: item.product.name,
       product_image: item.product.image_url,
@@ -178,19 +139,31 @@ export async function createOrder(
       subtotal: item.product.price * item.quantity,
     }));
 
-    const { error: itemsError } = await supabase
-      .from('delivery_order_items')
-      .insert(orderItems);
+    // Chamar RPC atômico
+    const { data, error } = await supabase.rpc('create_delivery_order_complete', {
+      p_user_id: userId || null,
+      p_user_name: checkoutData.user_name,
+      p_user_phone: checkoutData.user_phone,
+      p_user_email: checkoutData.user_email || null,
+      p_address_street: checkoutData.address_street,
+      p_address_number: checkoutData.address_number,
+      p_address_complement: checkoutData.address_complement || null,
+      p_address_condominium: checkoutData.address_condominium,
+      p_address_block: checkoutData.address_block || null,
+      p_address_apartment: checkoutData.address_apartment || null,
+      p_address_reference: checkoutData.address_reference || null,
+      p_payment_method: checkoutData.payment_method,
+      p_change_for: checkoutData.change_for || null,
+      p_subtotal: subtotal,
+      p_delivery_fee: deliveryFee,
+      p_total: total,
+      p_notes: checkoutData.notes || null,
+      p_items: itemsJson
+    });
 
-    if (itemsError) throw itemsError;
+    if (error) throw error;
 
-    // Retornar objeto parcial (suficiente para redirecionamento)
-    return {
-      id: orderId,
-      order_number: orderNumber,
-      total,
-      status: 'pending'
-    } as DeliveryOrder;
+    return data as DeliveryOrder;
   } catch (error) {
     console.error('Erro ao criar pedido:', error);
     throw error;
