@@ -70,7 +70,7 @@ export function AddressValidator({ onValidated }: AddressValidatorProps) {
                                         required
                                         value={block}
                                         onChange={(e) => setBlock(e.target.value)}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none transition-all"
                                         placeholder="Ex: 05"
                                     />
                                 </div>
@@ -83,7 +83,7 @@ export function AddressValidator({ onValidated }: AddressValidatorProps) {
                                         required
                                         value={apartment}
                                         onChange={(e) => setApartment(e.target.value)}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 outline-none transition-all"
                                         placeholder="Ex: 42"
                                     />
                                 </div>

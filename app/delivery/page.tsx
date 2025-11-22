@@ -1,10 +1,9 @@
 import { getProducts, searchProducts } from '@/lib/delivery/queries';
 import { ProductList } from '@/components/delivery/ProductList';
-import Link from 'next/link';
 import { DeliveryHeader } from '@/components/delivery/DeliveryHeader';
 import { CategoryCarousel } from '@/components/delivery/CategoryCarousel';
-import { BannerCarousel } from '@/components/delivery/BannerCarousel';
-import { ShoppingBag } from 'lucide-react';
+import { FloatingCart } from '@/components/delivery/FloatingCart';
+import { getServerSession } from '@/lib/auth/server';
 
 export const metadata = {
   title: 'Delivery - Na Mídia Atibaia',
@@ -16,6 +15,7 @@ export default async function DeliveryPage({
 }: {
   searchParams: { category?: string; search?: string };
 }) {
+  const session = await getServerSession();
   const search = searchParams.search;
   const categorySlug = searchParams.category;
 
@@ -34,26 +34,39 @@ export default async function DeliveryPage({
     products = await getProducts();
   }
 
+  const userName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Visitante';
+
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-[150px] md:pt-[120px]">
-      {/* New Header */}
       <DeliveryHeader />
 
       <div className="container mx-auto px-4 py-6 space-y-8">
-        {/* Only show Banners and Categories on home (no search) */}
+        {/* Welcome Message */}
         {!search && (
-          <>
-            <BannerCarousel />
-            <CategoryCarousel />
-          </>
+          <div className="text-center md:text-left">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white font-baloo2">
+              Olá, {userName}! 👋
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              Escolha seus produtos favoritos e receba em até 30 minutos
+            </p>
+          </div>
         )}
 
-        {/* Main Content */}
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h2>
-        <ProductList products={products} emptyMessage={emptyMessage} />
+        {/* Categories */}
+        {!search && <CategoryCarousel />}
+
+        {/* Products */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-baloo2 mb-6">
+            {title}
+          </h2>
+          <ProductList products={products} emptyMessage={emptyMessage} />
+        </div>
       </div>
 
-
+      {/* Floating Cart */}
+      <FloatingCart />
     </main>
   );
 }
