@@ -24,11 +24,8 @@ export function CategoryCarousel() {
 
     return (
         <div className="py-6">
-            <div className="flex items-center justify-between px-4 mb-3">
+            <div className="px-4 mb-3">
                 <h2 className="font-bold text-lg text-gray-900 dark:text-white">Categorias</h2>
-                <Link href="/delivery/categorias" className="text-sm font-medium text-orange-500 hover:text-orange-600">
-                    Ver todas
-                </Link>
             </div>
 
             <div

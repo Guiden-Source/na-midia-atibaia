@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useCart } from '@/lib/delivery/CartContext';
 import { ShoppingCart, X, Trash2, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,53 +8,46 @@ import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { formatPrice } from '@/lib/delivery/cart';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { getCart, removeFromCart, updateCartItemQuantity } from '@/lib/delivery/cart';
-import { Cart as CartType } from '@/lib/delivery/types';
 
 export function FloatingCart() {
     const router = useRouter();
+    const { items, total, removeItem, addItem } = useCart();
     const [isOpen, setIsOpen] = useState(false);
-    const [cart, setCart] = useState<CartType>({ items: [], subtotal: 0, delivery_fee: 0, total: 0 });
 
-    useEffect(() => {
-        loadCart();
+    // Calculate subtotal and discount
+    const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-        const handleCartUpdate = () => loadCart();
-        window.addEventListener('cartUpdated', handleCartUpdate);
-
-        return () => {
-            window.removeEventListener('cartUpdated', handleCartUpdate);
-        };
-    }, []);
-
-    const loadCart = () => {
-        setCart(getCart());
-    };
-
-    const handleRemoveItem = (productId: string) => {
-        removeFromCart(productId);
-        loadCart();
-        window.dispatchEvent(new Event('cartUpdated'));
-    };
-
-    const handleUpdateQuantity = (productId: string, quantity: number) => {
-        updateCartItemQuantity(productId, quantity);
-        loadCart();
-        window.dispatchEvent(new Event('cartUpdated'));
-    };
-
-    const totalDiscount = cart.items.reduce((acc, item) => {
-        if (item.product.discount_percentage) {
-            const originalPrice = item.product.price / (1 - (item.product.discount_percentage / 100));
-            const discount = (originalPrice - item.product.price) * item.quantity;
+    const totalDiscount = items.reduce((acc, item) => {
+        if (item.discount_percentage) {
+            const originalPrice = item.price / (1 - (item.discount_percentage / 100));
+            const discount = (originalPrice - item.price) * item.quantity;
             return acc + discount;
         }
         return acc;
     }, 0);
 
-    const itemCount = cart.items.reduce((acc, item) => acc + item.quantity, 0);
+    const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
-    if (cart.items.length === 0) {
+    const handleRemoveItem = (productId: string) => {
+        removeItem(productId);
+    };
+
+    const handleIncreaseQuantity = (product: any) => {
+        addItem(product);
+    };
+
+    const handleDecreaseQuantity = (product: any) => {
+        const currentItem = items.find(item => item.id === product.id);
+        if (currentItem && currentItem.quantity > 1) {
+            // Remove and re-add with correct quantity
+            removeItem(product.id);
+            for (let i = 0; i < currentItem.quantity - 1; i++) {
+                addItem(product);
+            }
+        }
+    };
+
+    if (items.length === 0) {
         return null;
     }
 
@@ -116,15 +109,15 @@ export function FloatingCart() {
 
                             {/* Items List */}
                             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                                {cart.items.map((item) => (
-                                    <LiquidGlass key={item.product.id} className="p-3">
+                                {items.map((item) => (
+                                    <LiquidGlass key={item.id} className="p-3">
                                         <div className="flex gap-3">
                                             {/* Image */}
                                             <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
-                                                {item.product.image_url ? (
+                                                {item.image_url ? (
                                                     <Image
-                                                        src={item.product.image_url}
-                                                        alt={item.product.name}
+                                                        src={item.image_url}
+                                                        alt={item.name}
                                                         fill
                                                         className="object-cover"
                                                     />
@@ -138,16 +131,16 @@ export function FloatingCart() {
                                             {/* Info */}
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-gray-900 dark:text-white text-sm truncate">
-                                                    {item.product.name}
+                                                    {item.name}
                                                 </h3>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    {formatPrice(item.product.price)} / {item.product.unit}
+                                                    {formatPrice(item.price)} / {item.unit}
                                                 </p>
 
                                                 {/* Quantity Controls */}
                                                 <div className="flex items-center gap-2 mt-2">
                                                     <button
-                                                        onClick={() => handleUpdateQuantity(item.product.id, item.quantity - 1)}
+                                                        onClick={() => handleDecreaseQuantity(item)}
                                                         disabled={item.quantity <= 1}
                                                         className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
                                                     >
@@ -157,14 +150,14 @@ export function FloatingCart() {
                                                         {item.quantity}
                                                     </span>
                                                     <button
-                                                        onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
-                                                        disabled={item.quantity >= item.product.stock}
+                                                        onClick={() => handleIncreaseQuantity(item)}
+                                                        disabled={item.quantity >= item.stock}
                                                         className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
                                                     >
                                                         <Plus size={12} />
                                                     </button>
                                                     <button
-                                                        onClick={() => handleRemoveItem(item.product.id)}
+                                                        onClick={() => handleRemoveItem(item.id)}
                                                         className="ml-auto p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                                     >
                                                         <Trash2 size={14} />
@@ -175,7 +168,7 @@ export function FloatingCart() {
                                             {/* Price */}
                                             <div className="text-right">
                                                 <p className="font-bold text-gray-900 dark:text-white">
-                                                    {formatPrice(item.product.price * item.quantity)}
+                                                    {formatPrice(item.price * item.quantity)}
                                                 </p>
                                             </div>
                                         </div>
@@ -197,7 +190,7 @@ export function FloatingCart() {
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
                                     <span className="font-bold text-gray-900 dark:text-white">
-                                        {formatPrice(cart.subtotal)}
+                                        {formatPrice(subtotal)}
                                     </span>
                                 </div>
 
@@ -211,7 +204,7 @@ export function FloatingCart() {
                                 <div className="flex items-center justify-between text-lg font-bold pt-3 border-t border-gray-200 dark:border-gray-700">
                                     <span className="text-gray-900 dark:text-white font-baloo2">Total</span>
                                     <span className="text-green-600 dark:text-green-400 font-baloo2">
-                                        {formatPrice(cart.total)}
+                                        {formatPrice(total)}
                                     </span>
                                 </div>
 
