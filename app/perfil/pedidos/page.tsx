@@ -6,6 +6,7 @@ import { ArrowLeft, Package, Filter, Calendar, MapPin, CreditCard, DollarSign } 
 import { formatPrice } from '@/lib/delivery/cart';
 import { ORDER_STATUS_MAP, OrderStatus } from '@/lib/delivery/types';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
+import { OrderCard } from '@/components/delivery/OrderCard';
 import * as motion from 'framer-motion/client';
 
 export const metadata = {
@@ -180,80 +181,29 @@ export default async function PedidosPage({ searchParams }: PageProps) {
             </Link>
           </LiquidGlass>
         ) : (
-          <div className="space-y-4">
-            {orders.map((order, index) => {
-              const statusInfo = ORDER_STATUS_MAP[order.status as OrderStatus];
-              const itemCount = order.items?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0;
-
-              return (
-                <motion.div
-                  key={order.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Link href={`/delivery/pedidos/${order.id}`}>
-                    <LiquidGlass
-                      className="p-6 group hover:border-blue-500/30 transition-colors"
-                      intensity={0.4}
-                    >
-                      <div className="flex flex-col md:flex-row md:items-center gap-6">
-                        {/* Status Icon */}
-                        <div className={`h-16 w-16 rounded-2xl ${statusInfo.bgColor} flex items-center justify-center text-2xl shadow-lg shrink-0`}>
-                          {statusInfo.icon}
-                        </div>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-start gap-2 mb-2">
-                            <h3 className="font-baloo2 text-lg sm:text-xl font-bold text-gray-900 dark:text-white leading-tight">
-                              Pedido #{order.order_number}
-                            </h3>
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider ${statusInfo.bgColor} ${statusInfo.color} bg-opacity-20 whitespace-nowrap mt-0.5`}>
-                              {statusInfo.label}
-                            </span>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1 gap-x-4 text-sm text-gray-600 dark:text-gray-400">
-                            <div className="flex items-center gap-2">
-                              <Calendar size={14} />
-                              {new Date(order.created_at).toLocaleDateString('pt-BR', {
-                                day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit'
-                              })}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Package size={14} />
-                              {itemCount} {itemCount === 1 ? 'item' : 'itens'}
-                            </div>
-                            <div className="flex items-center gap-2 truncate">
-                              <MapPin size={14} />
-                              <span className="truncate">{order.address_street}, {order.address_number}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <CreditCard size={14} />
-                              <span className="capitalize">{order.payment_method}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Price & Action */}
-                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 pl-0 md:pl-6 md:border-l border-gray-200 dark:border-gray-700/50">
-                          <div className="text-left md:text-right">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold">Total</p>
-                            <p className="font-baloo2 text-2xl font-bold text-green-600 dark:text-green-400">
-                              {formatPrice(order.total)}
-                            </p>
-                          </div>
-                          <div className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                            Ver detalhes
-                          </div>
-                        </div>
-                      </div>
-                    </LiquidGlass>
-                  </Link>
-                </motion.div>
-              );
-            })}
+          <div className="space-y-8">
+            {Object.entries(
+              orders.reduce((groups, order) => {
+                const date = new Date(order.created_at);
+                const dateKey = date.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
+                if (!groups[dateKey]) {
+                  groups[dateKey] = [];
+                }
+                groups[dateKey].push(order);
+                return groups;
+              }, {} as Record<string, typeof orders>)
+            ).map(([date, groupOrders]) => (
+              <div key={date}>
+                <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 pl-1">
+                  {date}
+                </h3>
+                <div className="space-y-4">
+                  {groupOrders.map((order) => (
+                    <OrderCard key={order.id} order={order} />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
