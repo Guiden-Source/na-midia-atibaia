@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Breadcrumbs } from '@/components/admin/Breadcrumbs';
 import { isAdmin } from '@/lib/auth/admins';
+import { AdminRealtimeProvider } from '@/components/admin/AdminRealtimeContext';
 
 export default async function AdminLayout({
   children,
@@ -54,9 +55,11 @@ export default async function AdminLayout({
         {/* Breadcrumbs */}
         <Breadcrumbs />
 
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <AdminRealtimeProvider>
+          <main className="flex-1 overflow-y-auto">
+            {children}
+          </main>
+        </AdminRealtimeProvider>
       </div>
     </div>
   );
