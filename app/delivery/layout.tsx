@@ -10,10 +10,9 @@ export default function DeliveryLayout({
 }) {
     return (
         <CartProvider>
-            <div className="pb-20 lg:pb-0">
+            <div className="lg:pb-0">
                 {children}
             </div>
-            <BottomNav />
         </CartProvider>
     );
 }
