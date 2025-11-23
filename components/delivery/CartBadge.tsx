@@ -3,12 +3,34 @@
 import { useCart } from '@/lib/delivery/CartContext';
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export function CartBadge() {
   const { items } = useCart();
+  const [mounted, setMounted] = useState(false);
+  const [localCount, setLocalCount] = useState(0);
 
-  // Calculate total item count from context
-  const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  useEffect(() => {
+    setMounted(true);
+    // Force update on event
+    const handleUpdate = () => {
+      const saved = localStorage.getItem('delivery-cart');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          const count = parsed.reduce((acc: number, item: any) => acc + item.quantity, 0);
+          setLocalCount(count);
+        } catch (e) { }
+      }
+    };
+    window.addEventListener('cart-updated', handleUpdate);
+    handleUpdate(); // Initial load
+    return () => window.removeEventListener('cart-updated', handleUpdate);
+  }, []);
+
+  // Calculate total item count from context or local state
+  const contextCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  const itemCount = mounted ? Math.max(contextCount, localCount) : 0;
 
   return (
     <Link

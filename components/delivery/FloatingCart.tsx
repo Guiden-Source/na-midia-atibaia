@@ -91,7 +91,7 @@ export function FloatingCart() {
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-gray-900 shadow-2xl z-50 flex flex-col"
+                            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-gray-900 shadow-2xl z-[100] flex flex-col"
                         >
                             {/* Header */}
                             <div className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-orange-500 to-pink-500 text-white">
@@ -179,7 +179,7 @@ export function FloatingCart() {
                             </div>
 
                             {/* Summary */}
-                            <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 space-y-3">
+                            <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 space-y-3 pb-24 md:pb-6">
                                 {totalDiscount > 0 && (
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="text-gray-600 dark:text-gray-400">Desconto</span>
