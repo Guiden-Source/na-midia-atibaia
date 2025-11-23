@@ -235,10 +235,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
         </footer>
 
-        {/* Mobile Bottom Navigation */}
+        {/* Mobile Bottom Navigation - REMOVIDO
         <div className="md:hidden">
           <ExpandableTabs />
         </div>
+        */}
       </body>
     </html>
   );
