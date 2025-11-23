@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { DeliveryProduct } from './types';
+import { cartLogic } from './cart-logic';
 
 interface CartItem extends DeliveryProduct {
     quantity: number;
@@ -56,33 +57,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, [scheduledTime, isLoading]);
 
     const addItem = (product: DeliveryProduct) => {
-        setItems((prev) => {
-            const existing = prev.find((i) => i.id === product.id);
-            if (existing) {
-                return prev.map((i) =>
-                    i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i
-                );
-            }
-            return [...prev, { ...product, quantity: 1 }];
-        });
-
-        // Dispatch event for immediate UI updates
+        setItems((prev) => cartLogic.addItem(prev, product));
         window.dispatchEvent(new Event('cart-updated'));
     };
 
     const removeItem = (productId: string) => {
-        setItems((prev) => prev.filter((i) => i.id !== productId));
+        setItems((prev) => cartLogic.removeItem(prev, productId));
         window.dispatchEvent(new Event('cart-updated'));
     };
 
     const updateQuantity = (productId: string, quantity: number) => {
-        if (quantity < 1) {
-            removeItem(productId);
-            return;
-        }
-        setItems((prev) =>
-            prev.map((i) => (i.id === productId ? { ...i, quantity } : i))
-        );
+        setItems((prev) => cartLogic.updateQuantity(prev, productId, quantity));
         window.dispatchEvent(new Event('cart-updated'));
     };
 
@@ -92,7 +77,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         window.dispatchEvent(new Event('cart-updated'));
     };
 
-    const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const total = cartLogic.calculateTotal(items);
 
     return (
         <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, total, scheduledTime, setScheduledTime, isLoading }}>
