@@ -105,7 +105,7 @@ export default function Header() {
             {/* Search Button */}
             <button
               onClick={() => setShowSearch((s) => !s)}
-              className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all"
+              className="hidden lg:block p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all"
               aria-label="Buscar"
             >
               <Search className="h-5 w-5" />
