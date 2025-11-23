@@ -121,7 +121,7 @@ export default async function PedidosPage({ searchParams }: PageProps) {
         </div>
 
         {/* Filtros */}
-        <LiquidGlass className="p-2 mb-8 flex flex-wrap gap-2" intensity={0.2}>
+        <LiquidGlass className="p-2 mb-8 grid grid-cols-2 sm:flex sm:flex-wrap gap-2" intensity={0.2}>
           <Link
             href="/perfil/pedidos"
             className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${!statusFilter
@@ -205,11 +205,11 @@ export default async function PedidosPage({ searchParams }: PageProps) {
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-3 mb-2">
-                            <h3 className="font-baloo2 text-xl font-bold text-gray-900 dark:text-white">
+                          <div className="flex flex-wrap items-start gap-2 mb-2">
+                            <h3 className="font-baloo2 text-lg sm:text-xl font-bold text-gray-900 dark:text-white leading-tight">
                               Pedido #{order.order_number}
                             </h3>
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${statusInfo.bgColor} ${statusInfo.color} bg-opacity-20`}>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider ${statusInfo.bgColor} ${statusInfo.color} bg-opacity-20 whitespace-nowrap mt-0.5`}>
                               {statusInfo.label}
                             </span>
                           </div>

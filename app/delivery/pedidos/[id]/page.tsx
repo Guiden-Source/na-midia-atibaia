@@ -132,10 +132,10 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-bold text-gray-900 dark:text-white text-sm truncate">
+                                            <p className="font-bold text-gray-900 dark:text-white text-sm line-clamp-2 break-words leading-tight">
                                                 {item.quantity}x {item.product_name}
                                             </p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                                 {formatPrice(item.price)} un.
                                             </p>
                                         </div>
