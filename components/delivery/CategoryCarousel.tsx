@@ -30,7 +30,7 @@ export function CategoryCarousel() {
 
             <div
                 ref={scrollRef}
-                className="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x"
+                className="flex gap-6 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x"
             >
                 {CATEGORIES.map((cat) => {
                     const isActive = currentCategory === cat.slug;
@@ -38,7 +38,7 @@ export function CategoryCarousel() {
                         <Link
                             key={cat.id}
                             href={isActive ? '/delivery' : `/delivery?category=${cat.slug}`}
-                            className="flex flex-col items-center gap-2 min-w-[80px] snap-start group"
+                            className="flex flex-col items-center gap-2 min-w-[88px] snap-start group"
                         >
                             <div className={cn(
                                 "w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-sm transition-all duration-200 border",

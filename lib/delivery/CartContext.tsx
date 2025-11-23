@@ -57,10 +57,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
             return [...prev, { ...product, quantity: 1 }];
         });
+
+        // Dispatch event for immediate UI updates
+        window.dispatchEvent(new Event('cart-updated'));
     };
 
     const removeItem = (productId: string) => {
         setItems((prev) => prev.filter((i) => i.id !== productId));
+        window.dispatchEvent(new Event('cart-updated'));
     };
 
     const clearCart = () => {
