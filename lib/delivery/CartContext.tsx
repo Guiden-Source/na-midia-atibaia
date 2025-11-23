@@ -16,6 +16,7 @@ interface CartContextType {
     total: number;
     scheduledTime: string | null;
     setScheduledTime: (time: string | null) => void;
+    isLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -23,6 +24,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
     const [items, setItems] = useState<CartItem[]>([]);
     const [scheduledTime, setScheduledTime] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Load from localStorage on mount
     useEffect(() => {
@@ -36,17 +38,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
         const savedTime = localStorage.getItem('delivery-scheduled-time');
         if (savedTime) setScheduledTime(savedTime);
+        setIsLoading(false);
     }, []);
 
     // Save to localStorage on change
     useEffect(() => {
-        localStorage.setItem('delivery-cart', JSON.stringify(items));
-    }, [items]);
+        if (!isLoading) {
+            localStorage.setItem('delivery-cart', JSON.stringify(items));
+        }
+    }, [items, isLoading]);
 
     useEffect(() => {
-        if (scheduledTime) localStorage.setItem('delivery-scheduled-time', scheduledTime);
-        else localStorage.removeItem('delivery-scheduled-time');
-    }, [scheduledTime]);
+        if (!isLoading) {
+            if (scheduledTime) localStorage.setItem('delivery-scheduled-time', scheduledTime);
+            else localStorage.removeItem('delivery-scheduled-time');
+        }
+    }, [scheduledTime, isLoading]);
 
     const addItem = (product: DeliveryProduct) => {
         setItems((prev) => {
@@ -88,7 +95,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     return (
-        <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, total, scheduledTime, setScheduledTime }}>
+        <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, total, scheduledTime, setScheduledTime, isLoading }}>
             {children}
         </CartContext.Provider>
     );

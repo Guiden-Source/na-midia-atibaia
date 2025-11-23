@@ -11,7 +11,7 @@ import { useCart } from '@/lib/delivery/CartContext';
 import { SchedulingModal } from './SchedulingModal';
 
 export function Cart() {
-  const { items, total, removeItem, updateQuantity, clearCart, scheduledTime } = useCart();
+  const { items, total, removeItem, updateQuantity, clearCart, scheduledTime, isLoading } = useCart();
   const [isSchedulingOpen, setIsSchedulingOpen] = useState(false);
   const router = useRouter();
   // Calculate derived state
@@ -37,13 +37,8 @@ export function Cart() {
     router.push('/delivery/checkout');
   };
 
-  // Hydration check to avoid mismatch
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
+  // Show loading state while context is initializing
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
