@@ -1,7 +1,5 @@
-'use client';
-
 import { DeliveryProduct } from '@/lib/delivery/types';
-import { ProductCardModern } from './ProductCardModern';
+import { ProductCardList } from './ProductCardList';
 
 interface ProductListProps {
   products: DeliveryProduct[];
@@ -27,9 +25,9 @@ export function ProductList({ products, title, emptyMessage = 'Nenhum produto en
         </h2>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-4 md:px-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 md:px-0">
         {products.map((product) => (
-          <ProductCardModern key={product.id} product={product} />
+          <ProductCardList key={product.id} product={product} />
         ))}
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { getProducts, searchProducts } from '@/lib/delivery/queries';
 import { ProductList } from '@/components/delivery/ProductList';
 import { CategoryCarousel } from '@/components/delivery/CategoryCarousel';
+import { HighlightsCarousel } from '@/components/delivery/HighlightsCarousel';
 import { FloatingCart } from '@/components/delivery/FloatingCart';
 import { getServerSession } from '@/lib/auth/server';
 
@@ -53,12 +54,18 @@ export default async function DeliveryPage({
         {/* Categories */}
         {!search && <CategoryCarousel />}
 
-        {/* Products */}
+        {/* Destaques (Carousel) */}
+        {!search && !categorySlug && (
+          <HighlightsCarousel products={products.filter(p => p.is_featured)} />
+        )}
+
+        {/* Products List */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-baloo2 mb-6">
-            {title}
-          </h2>
-          <ProductList products={products} emptyMessage={emptyMessage} />
+          <ProductList
+            products={search || categorySlug ? products : products.filter(p => !p.is_featured)}
+            title={search || categorySlug ? title : "Cardápio Completo"}
+            emptyMessage={emptyMessage}
+          />
         </div>
       </div>
 
