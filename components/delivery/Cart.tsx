@@ -11,46 +11,25 @@ import { useCart } from '@/lib/delivery/CartContext';
 import { SchedulingModal } from './SchedulingModal';
 
 export function Cart() {
-  const [cart, setCart] = useState<CartType>({ items: [], subtotal: 0, delivery_fee: 0, total: 0 });
-  const [isLoading, setIsLoading] = useState(true);
+  const { items, total, removeItem, updateQuantity, clearCart, scheduledTime } = useCart();
   const [isSchedulingOpen, setIsSchedulingOpen] = useState(false);
-  const { scheduledTime } = useCart();
   const router = useRouter();
-
-  useEffect(() => {
-    loadCart();
-
-    // Listener para atualizar carrinho
-    const handleCartUpdate = () => loadCart();
-    window.addEventListener('cartUpdated', handleCartUpdate);
-
-    return () => {
-      window.removeEventListener('cartUpdated', handleCartUpdate);
-    };
-  }, []);
-
-  const loadCart = () => {
-    setCart(getCart());
-    setIsLoading(false);
-  };
+  // Calculate derived state
+  const subtotal = total;
+  const delivery_fee = 0; // Fixed for now, or calculate based on logic
+  const finalTotal = subtotal + delivery_fee;
 
   const handleRemoveItem = (productId: string) => {
-    removeFromCart(productId);
-    loadCart();
-    window.dispatchEvent(new Event('cartUpdated'));
+    removeItem(productId);
   };
 
   const handleUpdateQuantity = (productId: string, quantity: number) => {
-    updateCartItemQuantity(productId, quantity);
-    loadCart();
-    window.dispatchEvent(new Event('cartUpdated'));
+    updateQuantity(productId, quantity);
   };
 
   const handleClearCart = () => {
     if (confirm('Deseja realmente limpar o carrinho?')) {
       clearCart();
-      loadCart();
-      window.dispatchEvent(new Event('cartUpdated'));
     }
   };
 
@@ -58,7 +37,13 @@ export function Cart() {
     router.push('/delivery/checkout');
   };
 
-  if (isLoading) {
+  // Hydration check to avoid mismatch
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -66,7 +51,7 @@ export function Cart() {
     );
   }
 
-  if (cart.items.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">🛒</div>
@@ -92,7 +77,7 @@ export function Cart() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-baloo2">
-          Carrinho ({cart.items.length} {cart.items.length === 1 ? 'item' : 'itens'})
+          Carrinho ({items.length} {items.length === 1 ? 'item' : 'itens'})
         </h1>
         <button
           onClick={handleClearCart}
@@ -104,17 +89,17 @@ export function Cart() {
 
       {/* Lista de itens */}
       <div className="space-y-4">
-        {cart.items.map((item) => (
+        {items.map((item) => (
           <div
-            key={item.product.id}
+            key={item.id}
             className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center gap-4 hover:shadow-md transition-shadow"
           >
             {/* Imagem */}
-            {item.product.image_url ? (
+            {item.image_url ? (
               <div className="relative w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex-shrink-0">
                 <Image
-                  src={item.product.image_url}
-                  alt={item.product.name}
+                  src={item.image_url}
+                  alt={item.name}
                   fill
                   className="object-cover"
                 />
@@ -128,16 +113,16 @@ export function Cart() {
             {/* Detalhes */}
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-gray-900 dark:text-white mb-1 font-baloo2 text-lg">
-                {item.product.name}
+                {item.name}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                {formatPrice(item.product.price)} / {item.product.unit}
+                {formatPrice(item.price)} / {item.unit}
               </p>
 
               {/* Controles de quantidade */}
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => handleUpdateQuantity(item.product.id, item.quantity - 1)}
+                  onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                   disabled={item.quantity <= 1}
                   className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-600 dark:text-gray-300"
                 >
@@ -149,8 +134,8 @@ export function Cart() {
                 </span>
 
                 <button
-                  onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
-                  disabled={item.quantity >= item.product.stock}
+                  onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                  disabled={item.quantity >= item.stock}
                   className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-600 dark:text-gray-300"
                 >
                   <Plus size={16} />
@@ -161,10 +146,10 @@ export function Cart() {
             {/* Subtotal e remover */}
             <div className="flex flex-col items-end gap-3">
               <div className="text-lg font-bold text-gray-900 dark:text-white">
-                {formatPrice(item.product.price * item.quantity)}
+                {formatPrice(item.price * item.quantity)}
               </div>
               <button
-                onClick={() => handleRemoveItem(item.product.id)}
+                onClick={() => handleRemoveItem(item.id)}
                 className="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                 title="Remover item"
               >
@@ -218,21 +203,21 @@ export function Cart() {
           <div className="flex items-center justify-between text-gray-600 dark:text-gray-400">
             <span>Subtotal</span>
             <span className="font-medium text-gray-900 dark:text-white">
-              {formatPrice(cart.subtotal)}
+              {formatPrice(subtotal)}
             </span>
           </div>
 
           <div className="flex items-center justify-between text-gray-600 dark:text-gray-400">
             <span>Taxa de entrega</span>
             <span className="font-medium text-green-600 dark:text-green-400">
-              {cart.delivery_fee === 0 ? 'GRÁTIS' : formatPrice(cart.delivery_fee)}
+              {delivery_fee === 0 ? 'GRÁTIS' : formatPrice(delivery_fee)}
             </span>
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 flex items-center justify-between">
             <span className="text-xl font-bold text-gray-900 dark:text-white font-baloo2">Total</span>
             <span className="text-2xl font-bold text-green-600 dark:text-green-400 font-baloo2">
-              {formatPrice(cart.total)}
+              {formatPrice(finalTotal)}
             </span>
           </div>
         </div>

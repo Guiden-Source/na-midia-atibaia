@@ -11,6 +11,7 @@ interface CartContextType {
     items: CartItem[];
     addItem: (product: DeliveryProduct) => void;
     removeItem: (productId: string) => void;
+    updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
     total: number;
     scheduledTime: string | null;
@@ -67,15 +68,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
         window.dispatchEvent(new Event('cart-updated'));
     };
 
+    const updateQuantity = (productId: string, quantity: number) => {
+        if (quantity < 1) {
+            removeItem(productId);
+            return;
+        }
+        setItems((prev) =>
+            prev.map((i) => (i.id === productId ? { ...i, quantity } : i))
+        );
+        window.dispatchEvent(new Event('cart-updated'));
+    };
+
     const clearCart = () => {
         setItems([]);
         setScheduledTime(null);
+        window.dispatchEvent(new Event('cart-updated'));
     };
 
     const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     return (
-        <CartContext.Provider value={{ items, addItem, removeItem, clearCart, total, scheduledTime, setScheduledTime }}>
+        <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, total, scheduledTime, setScheduledTime }}>
             {children}
         </CartContext.Provider>
     );
