@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax' as const,
           };
-          
+
           request.cookies.set({ name, value, ...secureOptions })
           response = NextResponse.next({
             request: {
@@ -40,7 +40,7 @@ export async function middleware(request: NextRequest) {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax' as const,
           };
-          
+
           request.cookies.set({ name, value: '', ...secureOptions })
           response = NextResponse.next({
             request: {
@@ -53,13 +53,25 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  import { isAdmin } from './lib/auth/admins'
+
+  // ... (imports)
+
   const {
     data: { session },
   } = await supabase.auth.getSession()
 
+  // 1. Redirect to login if not authenticated
   if (!session && request.nextUrl.pathname.startsWith('/admin')) {
-    // Redirect to login page
     return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // 2. Redirect to home if authenticated but NOT admin
+  if (session && request.nextUrl.pathname.startsWith('/admin')) {
+    const userEmail = session.user.email;
+    if (!isAdmin(userEmail)) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
   }
 
   return response
