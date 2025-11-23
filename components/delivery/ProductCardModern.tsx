@@ -79,7 +79,7 @@ export function ProductCardModern({ product }: ProductCardProps) {
                                 -{product.discount_percentage}% OFF
                             </span>
                         )}
-                        {product.is_featured && (
+                        {!!product.is_featured && (
                             <span className="bg-gradient-to-r from-orange-500 to-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm backdrop-blur-md bg-opacity-90">
                                 ⭐ Destaque
                             </span>

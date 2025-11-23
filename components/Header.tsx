@@ -66,8 +66,8 @@ export default function Header() {
   return (
     <header className="fixed left-0 right-0 top-2 md:top-4 z-40 px-3 md:px-4">
       <div className={`w-full md:container md:mx-auto px-4 md:px-6 py-3 md:py-3.5 rounded-2xl md:rounded-full border border-orange-200/30 dark:border-orange-900/30 backdrop-blur-xl transition-all duration-300 ${scrolled
-          ? 'bg-white/98 dark:bg-gray-900/98 shadow-xl shadow-orange-500/5'
-          : 'bg-white/90 dark:bg-gray-900/90 shadow-lg'
+        ? 'bg-white/98 dark:bg-gray-900/98 shadow-xl shadow-orange-500/5'
+        : 'bg-white/90 dark:bg-gray-900/90 shadow-lg'
         }`}>
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -97,13 +97,7 @@ export default function Header() {
               <ShoppingBag className="h-4 w-4" />
               Delivery
             </Link>
-            <Link
-              href="/promocoes"
-              className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all inline-flex items-center gap-2"
-            >
-              <Gift className="h-4 w-4" />
-              Promoções
-            </Link>
+            {/* Promoções removido temporariamente */}
           </nav>
 
           {/* Actions */}
@@ -232,14 +226,7 @@ export default function Header() {
               <ShoppingBag className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               Delivery
             </Link>
-            <Link
-              href="/promocoes"
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white font-medium transition-colors"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              <Gift className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-              Promoções
-            </Link>
+            {/* Promoções removido temporariamente */}
 
             {user ? (
               <>

@@ -252,17 +252,19 @@ export default function HomePage() {
         <HeroSection events={events} />
       </BlurFade>
 
-      {/* Como Funciona */}
+      {/* Como Funciona - DESATIVADO TEMPORARIAMENTE
       <BlurFade delay={0.2} inView>
         <ModernHowItWorksSection />
       </BlurFade>
+      */}
 
-      {/* Categorias Rápidas */}
+      {/* Categorias Rápidas - DESATIVADO TEMPORARIAMENTE
       <BlurFade delay={0.25} inView>
         <QuickCategories />
       </BlurFade>
+      */}
 
-      {/* Promoções em Destaque */}
+      {/* Promoções em Destaque - DESATIVADO TEMPORARIAMENTE
       {!loadingPromotions && promotions.length > 0 && (
         <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
@@ -285,7 +287,6 @@ export default function HomePage() {
                 onPromotionClaim={loadPromotions}
               />
 
-              {/* Ver Todas as Promoções */}
               <div className="mt-10 flex justify-center">
                 <Link
                   href="/promocoes"
@@ -299,6 +300,7 @@ export default function HomePage() {
           </div>
         </section>
       )}
+      */}
 
       {/* Eventos */}
       <div id="eventos" className="container px-5 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
