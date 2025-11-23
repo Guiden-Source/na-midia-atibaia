@@ -34,6 +34,9 @@
     --ring: 34.9 91.6% 57.1%;
  
     --radius: 1rem; /* Bordas mais arredondadas, como na Ref 1 e 3 */
+    
+    /* Informar ao navegador que suportamos ambos os modos, evitando inversão forçada */
+    color-scheme: light dark;
   }
  
   .dark {
