@@ -183,7 +183,7 @@ export default async function PedidosPage({ searchParams }: PageProps) {
         ) : (
           <div className="space-y-8">
             {Object.entries(
-              orders.reduce((groups, order) => {
+              orders.reduce((groups: Record<string, typeof orders>, order) => {
                 const date = new Date(order.created_at);
                 const dateKey = date.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
                 if (!groups[dateKey]) {
@@ -191,7 +191,7 @@ export default async function PedidosPage({ searchParams }: PageProps) {
                 }
                 groups[dateKey].push(order);
                 return groups;
-              }, {} as Record<string, typeof orders>)
+              }, {})
             ).map(([date, groupOrders]) => (
               <div key={date}>
                 <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 pl-1">
