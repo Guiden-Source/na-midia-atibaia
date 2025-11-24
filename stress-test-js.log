@@ -1,0 +1,63 @@
+🚀 Starting Stress Test: 50 orders, concurrency 5
+✅ Order 1 created
+✅ Order 0 created
+✅ Order 2 created
+✅ Order 3 created
+✅ Order 4 created
+📊 Progress: 5/50
+✅ Order 8 created
+✅ Order 6 created
+✅ Order 9 created
+✅ Order 7 created
+✅ Order 5 created
+📊 Progress: 10/50
+✅ Order 13 created
+✅ Order 12 created
+✅ Order 11 created
+✅ Order 10 created
+✅ Order 14 created
+📊 Progress: 15/50
+✅ Order 15 created
+✅ Order 16 created
+✅ Order 17 created
+✅ Order 18 created
+✅ Order 19 created
+📊 Progress: 20/50
+✅ Order 20 created
+✅ Order 21 created
+✅ Order 22 created
+✅ Order 23 created
+✅ Order 24 created
+📊 Progress: 25/50
+✅ Order 28 created
+✅ Order 29 created
+✅ Order 26 created
+✅ Order 25 created
+✅ Order 27 created
+📊 Progress: 30/50
+✅ Order 31 created
+✅ Order 30 created
+✅ Order 34 created
+✅ Order 33 created
+✅ Order 32 created
+📊 Progress: 35/50
+✅ Order 37 created
+✅ Order 36 created
+✅ Order 38 created
+✅ Order 35 created
+✅ Order 39 created
+📊 Progress: 40/50
+✅ Order 41 created
+✅ Order 43 created
+✅ Order 42 created
+✅ Order 40 created
+✅ Order 44 created
+📊 Progress: 45/50
+✅ Order 46 created
+✅ Order 47 created
+✅ Order 49 created
+✅ Order 48 created
+✅ Order 45 created
+📊 Progress: 50/50
+
+🏁 Test Finished! Success: 50/50
