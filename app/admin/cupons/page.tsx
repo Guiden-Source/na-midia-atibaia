@@ -6,6 +6,7 @@ import { AdminHeader } from "@/components/admin/AdminHeader";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { motion } from "framer-motion";
 import { Plus, Edit2, Trash2, Calendar, Ticket, Copy, Check } from "lucide-react";
+import { StatsCard } from "@/components/admin/StatsCard";
 import toast from "react-hot-toast";
 
 type Coupon = {
@@ -92,47 +93,24 @@ export default function AdminCouponsPage() {
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <LiquidGlass className="p-5">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total</p>
-                            <p className="text-3xl font-baloo2 font-bold text-gray-900 dark:text-white">
-                                {stats.total}
-                            </p>
-                        </div>
-                        <div className="p-3 rounded-xl bg-blue-100 dark:bg-blue-900/30">
-                            <Ticket className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                        </div>
-                    </div>
-                </LiquidGlass>
-
-                <LiquidGlass className="p-5">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Usados</p>
-                            <p className="text-3xl font-baloo2 font-bold text-gray-900 dark:text-white">
-                                {stats.used}
-                            </p>
-                        </div>
-                        <div className="p-3 rounded-xl bg-green-100 dark:bg-green-900/30">
-                            <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
-                        </div>
-                    </div>
-                </LiquidGlass>
-
-                <LiquidGlass className="p-5">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Disponíveis</p>
-                            <p className="text-3xl font-baloo2 font-bold text-gray-900 dark:text-white">
-                                {stats.unused}
-                            </p>
-                        </div>
-                        <div className="p-3 rounded-xl bg-orange-100 dark:bg-orange-900/30">
-                            <Ticket className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                        </div>
-                    </div>
-                </LiquidGlass>
+                <StatsCard
+                    title="Total"
+                    value={stats.total}
+                    icon={Ticket}
+                    color="blue"
+                />
+                <StatsCard
+                    title="Usados"
+                    value={stats.used}
+                    icon={Check}
+                    color="green"
+                />
+                <StatsCard
+                    title="Disponíveis"
+                    value={stats.unused}
+                    icon={Ticket}
+                    color="orange"
+                />
             </div>
 
             {/* Filters */}
@@ -140,8 +118,8 @@ export default function AdminCouponsPage() {
                 <button
                     onClick={() => setFilter("all")}
                     className={`flex-1 px-4 py-2 rounded-lg font-baloo2 font-bold transition-all ${filter === "all"
-                            ? "bg-blue-600 text-white shadow-lg"
-                            : "hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300"
+                        ? "bg-blue-600 text-white shadow-lg"
+                        : "hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300"
                         }`}
                 >
                     Todos ({stats.total})
@@ -149,8 +127,8 @@ export default function AdminCouponsPage() {
                 <button
                     onClick={() => setFilter("used")}
                     className={`flex-1 px-4 py-2 rounded-lg font-baloo2 font-bold transition-all ${filter === "used"
-                            ? "bg-green-600 text-white shadow-lg"
-                            : "hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300"
+                        ? "bg-green-600 text-white shadow-lg"
+                        : "hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300"
                         }`}
                 >
                     Usados ({stats.used})
@@ -158,8 +136,8 @@ export default function AdminCouponsPage() {
                 <button
                     onClick={() => setFilter("unused")}
                     className={`flex-1 px-4 py-2 rounded-lg font-baloo2 font-bold transition-all ${filter === "unused"
-                            ? "bg-orange-600 text-white shadow-lg"
-                            : "hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300"
+                        ? "bg-orange-600 text-white shadow-lg"
+                        : "hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300"
                         }`}
                 >
                     Disponíveis ({stats.unused})
