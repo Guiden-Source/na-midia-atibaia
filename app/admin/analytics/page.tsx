@@ -7,13 +7,12 @@ import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import {
-  MetricsGrid,
-  MetricCard,
   ChartContainer,
   GrowthLineChart,
   EventsBarChart,
   ChartSkeleton,
 } from '@/components/analytics/Charts';
+import { StatsCard } from '@/components/admin/StatsCard';
 import {
   getAnalyticsOverview,
   getEventsPopularity,
@@ -126,8 +125,8 @@ export default function AnalyticsPage() {
                   key={p.value}
                   onClick={() => setPeriod(p.value)}
                   className={`px-4 py-2 rounded-xl font-baloo2 font-bold transition-all ${period === p.value
-                      ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg scale-105'
-                      : 'bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800'
+                    ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg scale-105'
+                    : 'bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800'
                     }`}
                 >
                   {p.emoji} {p.label}
@@ -170,36 +169,36 @@ export default function AnalyticsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <MetricsGrid>
-            <MetricCard
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatsCard
               title="Total de Eventos"
               value={overview.totalEvents}
-              subtitle="Eventos criados"
-              icon={<Calendar className="w-6 h-6" />}
+              description="Eventos criados"
+              icon={Calendar}
               color="orange"
             />
-            <MetricCard
+            <StatsCard
               title="Confirmações"
               value={overview.totalConfirmations}
-              subtitle={`${overview.avgConfirmationsPerEvent} por evento`}
-              icon={<Users className="w-6 h-6" />}
+              description={`${overview.avgConfirmationsPerEvent} por evento`}
+              icon={Users}
               color="pink"
             />
-            <MetricCard
+            <StatsCard
               title="Cupons Gerados"
               value={overview.totalCoupons}
-              subtitle={`${overview.couponsUsed} usados`}
-              icon={<Ticket className="w-6 h-6" />}
+              description={`${overview.couponsUsed} usados`}
+              icon={Ticket}
               color="green"
             />
-            <MetricCard
+            <StatsCard
               title="Taxa de Uso"
               value={`${overview.couponUsageRate}%`}
-              subtitle="Cupons utilizados"
-              icon={<Target className="w-6 h-6" />}
+              description="Cupons utilizados"
+              icon={Target}
               color="blue"
             />
-          </MetricsGrid>
+          </div>
         </motion.div>
       ) : null}
 
@@ -307,10 +306,10 @@ export default function AnalyticsPage() {
                       </td>
                       <td className="text-center py-4 px-4">
                         <span className={`px-3 py-1 rounded-full text-sm font-bold ${event.conversion_rate >= 50
-                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                            : event.conversion_rate >= 25
-                              ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                              : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                          : event.conversion_rate >= 25
+                            ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                           }`}>
                           {event.conversion_rate.toFixed(1)}%
                         </span>
