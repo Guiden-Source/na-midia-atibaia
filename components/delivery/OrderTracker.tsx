@@ -6,6 +6,7 @@ import { Check, Clock, ChefHat, Truck, Package } from 'lucide-react';
 import { OrderStatus, ORDER_STATUS_MAP } from '@/lib/delivery/types';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { getOrderStatus } from '@/app/delivery/actions';
 
 interface OrderTrackerProps {
     orderId: string;
@@ -22,6 +23,8 @@ const STEPS = [
 
 export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
     const [status, setStatus] = useState<OrderStatus>(initialStatus);
+
+    // ...
 
     useEffect(() => {
         // Subscribe to realtime updates
@@ -43,10 +46,19 @@ export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
             )
             .subscribe();
 
+        // Polling fallback (every 5 seconds)
+        const interval = setInterval(async () => {
+            const newStatus = await getOrderStatus(orderId);
+            if (newStatus && newStatus !== status) {
+                setStatus(newStatus);
+            }
+        }, 5000);
+
         return () => {
             supabase.removeChannel(channel);
+            clearInterval(interval);
         };
-    }, [orderId]);
+    }, [orderId, status]);
 
     const getCurrentStepIndex = () => {
         if (status === 'cancelled') return -1;

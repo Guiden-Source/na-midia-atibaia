@@ -28,7 +28,7 @@ export function AddressModal({ isOpen, onClose, onSelect, currentAddress }: Addr
                     </button>
                 </div>
 
-                <div className="p-4 space-y-3">
+                <div className="p-4 space-y-3 max-h-[70vh] overflow-y-auto">
                     {MOCK_ADDRESSES.map((addr) => (
                         <button
                             key={addr.id}
@@ -37,8 +37,8 @@ export function AddressModal({ isOpen, onClose, onSelect, currentAddress }: Addr
                                 onClose();
                             }}
                             className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all ${currentAddress === addr.address
-                                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                                    : 'border-gray-200 dark:border-gray-700 hover:border-orange-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
+                                : 'border-gray-200 dark:border-gray-700 hover:border-orange-200 hover:bg-gray-50 dark:hover:bg-gray-800'
                                 }`}
                         >
                             <div className={`p-2 rounded-full ${currentAddress === addr.address ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-gray-500'

@@ -36,7 +36,7 @@ export function BottomNav() {
                 <div className="grid grid-cols-5 h-16">
                     <Link
                         href="/delivery"
-                        className={`flex flex-col items-center justify-center space-y-1 ${isActive('/delivery') ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                        className={`flex flex-col items-center justify-center space-y-1 w-full h-full ${isActive('/delivery') ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                             }`}
                     >
                         <Home className="h-5 w-5" />
@@ -45,7 +45,7 @@ export function BottomNav() {
 
                     <button
                         onClick={handleSearchClick}
-                        className="flex flex-col items-center justify-center space-y-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                        className="flex flex-col items-center justify-center space-y-1 w-full h-full text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                     >
                         <Search className="h-5 w-5" />
                         <span className="text-[10px] font-medium">Buscar</span>
@@ -53,7 +53,7 @@ export function BottomNav() {
 
                     <Link
                         href="/delivery/cart"
-                        className={`flex flex-col items-center justify-center space-y-1 relative ${isActive('/delivery/cart') ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                        className={`flex flex-col items-center justify-center space-y-1 w-full h-full relative ${isActive('/delivery/cart') ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                             }`}
                     >
                         <div className="relative">
@@ -69,7 +69,7 @@ export function BottomNav() {
 
                     <Link
                         href="/perfil/pedidos"
-                        className={`flex flex-col items-center justify-center space-y-1 ${pathname?.startsWith('/perfil/pedidos') ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                        className={`flex flex-col items-center justify-center space-y-1 w-full h-full ${pathname?.startsWith('/perfil/pedidos') ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                             }`}
                     >
                         <Package className="h-5 w-5" />
@@ -78,7 +78,7 @@ export function BottomNav() {
 
                     <button
                         onClick={() => setIsMenuOpen(true)}
-                        className={`flex flex-col items-center justify-center space-y-1 ${isMenuOpen ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                        className={`flex flex-col items-center justify-center space-y-1 w-full h-full ${isMenuOpen ? 'text-orange-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                             }`}
                     >
                         <Menu className="h-5 w-5" />

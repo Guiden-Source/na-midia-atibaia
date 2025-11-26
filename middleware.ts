@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
+import { isAdmin } from './lib/auth/admins'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -52,10 +53,6 @@ export async function middleware(request: NextRequest) {
       },
     }
   )
-
-  import { isAdmin } from './lib/auth/admins'
-
-  // ... (imports)
 
   const {
     data: { session },

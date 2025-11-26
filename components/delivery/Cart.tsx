@@ -48,20 +48,22 @@ export function Cart() {
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">🛒</div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="w-24 h-24 bg-orange-50 dark:bg-orange-900/20 rounded-full flex items-center justify-center mb-6 animate-bounce-slow">
+          <ShoppingBag className="h-12 w-12 text-orange-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 font-baloo2">
           Seu carrinho está vazio
         </h2>
-        <p className="text-gray-500 dark:text-gray-400 mb-6">
-          Adicione produtos para começar suas compras
+        <p className="text-gray-500 dark:text-gray-400 mb-8 text-center max-w-xs">
+          Parece que você ainda não escolheu nada. Que tal dar uma olhada no nosso cardápio?
         </p>
         <Link
           href="/delivery"
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-105"
         >
           <ShoppingBag size={20} />
-          <span>Ver Produtos</span>
+          <span>Ver Cardápio</span>
         </Link>
       </div>
     );
@@ -236,6 +238,27 @@ export function Cart() {
         isOpen={isSchedulingOpen}
         onClose={() => setIsSchedulingOpen(false)}
       />
+
+      {/* Mobile Sticky Checkout Bar */}
+      <div className="fixed bottom-16 left-0 right-0 p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 lg:hidden z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Total</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white font-baloo2">
+              {formatPrice(finalTotal)}
+            </p>
+          </div>
+          <button
+            onClick={handleCheckout}
+            className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl font-bold text-lg transition-all shadow-lg active:scale-95"
+          >
+            Finalizar
+          </button>
+        </div>
+      </div>
+
+      {/* Spacer for mobile bottom bar */}
+      <div className="h-24 lg:hidden" />
     </div>
   );
 }

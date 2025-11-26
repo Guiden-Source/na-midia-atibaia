@@ -57,7 +57,9 @@ export function OrderCard({ order }: OrderCardProps) {
                                 Na Mídia Delivery
                             </h3>
                             <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                <span>Pedido concluído</span>
+                                <span className={`font-bold ${statusInfo?.color || ''}`}>
+                                    {statusInfo?.label || order.status}
+                                </span>
                                 {order.status === 'completed' && (
                                     <CheckCircle2 size={12} className="text-green-500 fill-green-500 text-white" />
                                 )}

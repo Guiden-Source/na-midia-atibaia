@@ -180,7 +180,7 @@ export default function Header() {
           <form onSubmit={onSearch} className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
             <div className="relative">
               <input
-                className="w-full rounded-xl px-4 py-2.5 pl-10 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="w-full rounded-xl px-4 py-2.5 pl-10 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-base text-gray-900 dark:text-white placeholder:text-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
                 placeholder="Buscar eventos, produtos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

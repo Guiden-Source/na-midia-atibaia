@@ -225,132 +225,42 @@ export function ProductsManager() {
         </button>
       </div>
 
-      <AlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-      <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">
-        Nenhum produto encontrado com os filtros selecionados.
-      </p>
-      <button
-        onClick={() => {
-          setSearchTerm('');
-          setSelectedCategory('all');
-          setStatusFilter('all');
-        }}
-        className="mt-4 text-orange-500 hover:text-orange-600 font-bold"
-      >
-        Limpar Filtros
-      </button>
-    </LiquidGlass>
-  ) : (
-    <div className="grid grid-cols-1 gap-4">
-      <AnimatePresence>
-        {filteredProducts.map((product, index) => (
-          <motion.div
-            key={product.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <LiquidGlass className="p-4 hover:scale-[1.01] transition-transform group">
-              <div className="flex items-center gap-4">
-                {/* Imagem */}
-                <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 border border-gray-200 dark:border-gray-700">
-                  {product.image_url ? (
-                    <Image
-                      src={product.image_url}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl">
-                      🍔
-                    </div>
-                  )}
-                  {product.discount_percentage && product.discount_percentage > 0 && (
-                    <div className="absolute top-0 left-0 bg-green-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br">
-                      -{product.discount_percentage}%
-                    </div>
-                  )}
-                </div>
+      <ProductFilters
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
+        categories={categories}
+      />
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-1">
-                    <h3 className="font-bold text-gray-900 dark:text-white text-lg truncate pr-4">
-                      {product.name}
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-green-600 dark:text-green-400">
-                        {formatPrice(product.price)}
-                      </span>
-                    </div>
-                  </div>
+      <ProductAdminList
+        products={filteredProducts}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onToggleActive={handleToggleActive}
+        onToggleFeatured={handleToggleFeatured}
+      />
 
-                  <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1 mb-2">
-                    {product.description || 'Sem descrição'}
-                  </p>
-
-                  <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                    <span className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">
-                      <Package size={12} />
-                      {product.stock} {product.unit}
-                    </span>
-                    <span className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">
-                      <Tag size={12} />
-                      {categories.find(c => c.id === product.category_id)?.name || 'Sem categoria'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Ações Rápidas */}
-                <div className="flex items-center gap-2 border-l border-gray-200 dark:border-gray-700 pl-4">
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => handleToggleActive(product)}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${product.is_active
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200'
-                        }`}
-                    >
-                      {product.is_active ? 'Ativo' : 'Inativo'}
-                    </button>
-                    <button
-                      onClick={() => handleToggleFeatured(product)}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${product.is_featured
-                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 hover:bg-yellow-200'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-200'
-                        }`}
-                    >
-                      {product.is_featured ? '★ Destaque' : '☆ Destacar'}
-                    </button>
-                  </div>
-
-                  <div className="flex flex-col gap-2 ml-2">
-                    <button
-                      onClick={() => handleEdit(product)}
-                      className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                      title="Editar"
-                    >
-                      <Edit size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      className="p-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                      title="Excluir"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </LiquidGlass>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+      {showForm && (
+        <ProductForm
+          initialData={editingProduct ? {
+            name: editingProduct.name,
+            description: editingProduct.description,
+            price: editingProduct.price.toString(),
+            promotional_price: editingProduct.promotional_price?.toString() || '',
+            category_id: editingProduct.category_id,
+            image_url: editingProduct.image_url || '',
+            active: editingProduct.active,
+            featured: editingProduct.featured,
+          } : undefined}
+          categories={categories}
+          onSubmit={handleSubmit}
+          onCancel={resetForm}
+          isEditing={!!editingProduct}
+        />
+      )}
     </div>
-  )
-}
-    </div >
   );
 }

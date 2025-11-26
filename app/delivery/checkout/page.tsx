@@ -59,12 +59,6 @@ export default function CheckoutPage() {
       return () => clearTimeout(timer);
     }
 
-    // Verificar se usuário está logado
-    if (!authLoading && !user) {
-      toast.error('Você precisa estar logado para finalizar o pedido');
-      router.push('/login');
-    }
-
     // Pré-preencher dados do localStorage (se veio do Jerônimo)
     const savedBlock = localStorage.getItem('jeronimo_block');
     const savedApt = localStorage.getItem('jeronimo_apartment');
@@ -121,11 +115,6 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user) {
-      toast.error('Você precisa estar logado');
-      return;
-    }
-
     // Validar carrinho
     if (items.length === 0) {
       toast.error('Seu carrinho está vazio');
@@ -143,9 +132,9 @@ export default function CheckoutPage() {
     try {
       // Criar pedido com dados completos
       const orderData = {
-        user_name: user.user_metadata?.full_name || user.email || 'Cliente',
+        user_name: formData.receiver_name, // Use form name as primary
         user_phone: formData.whatsapp,
-        user_email: user.email || '',
+        user_email: user?.email || '', // Optional for guests
         address_street: 'Residencial Jerônimo de Camargo', // Fixo
         address_number: formData.apartment,
         address_complement: `Bloco ${formData.block}`,
@@ -170,7 +159,7 @@ export default function CheckoutPage() {
         subtotal,
         deliveryFee,
         total,
-        user.id
+        user?.id // Optional
       );
 
       // Limpar carrinho usando contexto
@@ -210,7 +199,11 @@ export default function CheckoutPage() {
             Finalizar Pedido
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Olá, <strong>{user?.user_metadata?.full_name || user?.email}</strong>! Preencha os dados abaixo.
+            {user ? (
+              <>Olá, <strong>{user.user_metadata?.full_name || user.email}</strong>! Preencha os dados abaixo.</>
+            ) : (
+              <>Preencha os dados abaixo para finalizar seu pedido.</>
+            )}
           </p>
         </div>
 
@@ -306,6 +299,7 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         name="block"
+                        autoCapitalize="characters"
                         value={formData.block}
                         onChange={handleInputChange}
                         required
@@ -320,6 +314,7 @@ export default function CheckoutPage() {
                       </label>
                       <input
                         type="text"
+                        inputMode="numeric"
                         name="apartment"
                         value={formData.apartment}
                         onChange={handleInputChange}

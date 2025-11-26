@@ -36,7 +36,7 @@ export function StatsCard({
     const colors = colorMap[color];
 
     return (
-        <LiquidGlass className={`p-5 group hover:scale-[1.02] transition-transform ${className}`}>
+        <LiquidGlass className={`p-4 md:p-5 group hover:scale-[1.02] transition-transform ${className}`}>
             <div className="flex items-start justify-between mb-4">
                 <div className={`p-3 rounded-xl ${colors.bg} group-hover:scale-110 transition-transform`}>
                     <Icon size={24} className={colors.text} />
@@ -47,7 +47,7 @@ export function StatsCard({
                     </div>
                 )}
             </div>
-            <h3 className="font-baloo2 text-2xl font-bold text-gray-900 dark:text-white mb-1">
+            <h3 className="font-baloo2 text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1">
                 {value}
             </h3>
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">

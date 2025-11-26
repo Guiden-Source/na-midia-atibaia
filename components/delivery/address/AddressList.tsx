@@ -27,13 +27,15 @@ interface AddressListProps {
 export function AddressList({ addresses, onEdit, onDelete, onSetDefault }: AddressListProps) {
     if (addresses.length === 0) {
         return (
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-12 text-center shadow-md">
-                <div className="text-6xl mb-4">📍</div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
+                <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4">
+                    <div className="text-4xl">📍</div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 font-baloo2">
                     Nenhum endereço salvo
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                    Adicione endereços para facilitar suas compras futuras
+                <p className="text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
+                    Cadastre seus endereços para agilizar a entrega dos seus pedidos.
                 </p>
             </div>
         );
@@ -45,8 +47,8 @@ export function AddressList({ addresses, onEdit, onDelete, onSetDefault }: Addre
                 <div
                     key={address.id}
                     className={`bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md border-2 transition-all ${address.is_default
-                            ? 'border-yellow-500'
-                            : 'border-gray-200 dark:border-gray-700'
+                        ? 'border-yellow-500'
+                        : 'border-gray-200 dark:border-gray-700'
                         }`}
                 >
                     {/* Header */}

@@ -24,11 +24,9 @@ export default function AdminDashboard() {
         description="Visão geral do sistema"
       />
 
-      ```
-      {{ ... }}
+      <StatsGrid stats={stats} />
       <QuickLinks stats={stats} />
       <RecentActivity orders={recentOrders} stats={stats} />
     </div>
   );
 }
-```

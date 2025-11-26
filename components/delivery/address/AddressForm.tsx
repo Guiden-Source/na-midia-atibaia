@@ -115,6 +115,7 @@ export function AddressForm({ initialData, onSubmit, onCancel, isEditing = false
                         </label>
                         <input
                             type="text"
+                            inputMode="numeric"
                             required
                             value={formData.number}
                             onChange={(e) => setFormData({ ...formData, number: e.target.value })}
@@ -129,6 +130,7 @@ export function AddressForm({ initialData, onSubmit, onCancel, isEditing = false
                         </label>
                         <input
                             type="text"
+                            autoCapitalize="characters"
                             value={formData.block}
                             onChange={(e) => setFormData({ ...formData, block: e.target.value })}
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
@@ -142,6 +144,7 @@ export function AddressForm({ initialData, onSubmit, onCancel, isEditing = false
                         </label>
                         <input
                             type="text"
+                            inputMode="numeric"
                             value={formData.apartment}
                             onChange={(e) => setFormData({ ...formData, apartment: e.target.value })}
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"

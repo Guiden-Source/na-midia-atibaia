@@ -11,6 +11,8 @@ import { formatPrice } from '@/lib/delivery/cart';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { toast } from 'react-hot-toast';
 
+import { ImageWithZoom } from '@/components/ui/image-lightbox';
+
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
     const router = useRouter();
     const { addItem } = useCart();
@@ -89,13 +91,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                 <LiquidGlass className="mb-6 overflow-hidden">
                     <div className="relative w-full aspect-square md:aspect-video bg-gray-100 dark:bg-gray-800">
                         {product.image_url ? (
-                            <Image
+                            <ImageWithZoom
                                 src={product.image_url}
                                 alt={product.name}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                                priority
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-8xl">
@@ -164,7 +162,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </div>
 
             {/* Sticky Bottom Add to Cart */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 z-50">
+            <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 pb-safe z-50">
                 <div className="container mx-auto max-w-4xl flex items-center gap-4">
                     {/* Quantity Selector */}
                     <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-xl px-2 py-1">

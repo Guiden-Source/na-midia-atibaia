@@ -44,7 +44,7 @@ export function DeliveryHeader() {
                         <div className="flex items-center justify-between">
                             <button
                                 onClick={() => setIsAddressModalOpen(true)}
-                                className="flex items-center gap-2 text-gray-800 dark:text-gray-100 hover:bg-black/5 dark:hover:bg-white/10 px-3 py-1.5 -ml-3 rounded-xl transition-all group"
+                                className="flex items-center gap-2 text-gray-800 dark:text-gray-100 hover:bg-black/5 dark:hover:bg-white/10 px-3 py-2 -ml-3 rounded-xl transition-all group"
                             >
                                 <div className="p-1.5 bg-orange-100 dark:bg-orange-900/30 rounded-lg text-orange-600 dark:text-orange-400">
                                     <MapPin size={16} />
@@ -72,7 +72,7 @@ export function DeliveryHeader() {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder="Buscar pratos, restaurantes..."
-                                className="w-full bg-gray-100 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 rounded-2xl py-3.5 pl-12 pr-10 outline-none border-2 border-transparent focus:border-orange-500/50 focus:bg-white dark:focus:bg-gray-900 transition-all placeholder:text-gray-500 shadow-inner"
+                                className="w-full bg-gray-100 dark:bg-gray-800/50 text-base text-gray-900 dark:text-gray-100 rounded-2xl py-3.5 pl-12 pr-10 outline-none border-2 border-transparent focus:border-orange-500/50 focus:bg-white dark:focus:bg-gray-900 transition-all placeholder:text-gray-500 shadow-inner"
                                 onFocus={() => setIsSearchFocused(true)}
                                 onBlur={() => setIsSearchFocused(false)}
                             />
