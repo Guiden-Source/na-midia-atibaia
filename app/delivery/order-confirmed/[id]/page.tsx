@@ -19,7 +19,33 @@ export default async function OrderSuccessPage({ params }: { params: { id: strin
         notFound();
     }
 
-    const whatsappLink = `https://wa.me/5511914767026?text=Olá, gostaria de falar sobre o pedido #${order.order_number}`;
+    // Construir mensagem WhatsApp completa e pré-preenchida
+    const buildWhatsAppMessage = () => {
+        const items = order.items
+            ?.map(item => `• ${item.quantity}x ${item.product_name} - ${formatPrice(item.subtotal)}`)
+            .join('%0A') || '';
+
+        const message = [
+            `*Pedido #${order.order_number}*`,
+            '',
+            '*📦 Itens:*',
+            items,
+            '',
+            `*💰 Total:* ${formatPrice(order.total)}`,
+            '',
+            '*📍 Endereço de Entrega:*',
+            `${order.address_condominium}`,
+            `Torre ${order.address_block}, Apartamento ${order.address_apartment}`,
+            '',
+            `*💳 Pagamento:* ${order.payment_method}${order.change_for ? ` (Troco para ${formatPrice(order.change_for)})` : ''}`,
+            '',
+            '*Mensagem:*',
+        ].join('%0A');
+
+        return message;
+    };
+
+    const whatsappLink = `https://wa.me/5511914767026?text=${buildWhatsAppMessage()}`;
 
     return (
         <main className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 pt-24">
