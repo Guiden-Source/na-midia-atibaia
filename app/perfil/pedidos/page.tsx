@@ -55,8 +55,14 @@ export default async function PedidosPage({ searchParams }: PageProps) {
     .or(`user_id.eq.${user.id},user_phone.eq.${user.user_metadata.phone || user.email}`)
     .order('created_at', { ascending: false });
 
+  // Filtrar por status
   if (statusFilter) {
-    query = query.eq('status', statusFilter);
+    if (statusFilter === 'active') {
+      // "Ativos" = pending, confirmed, preparing, delivering
+      query = query.in('status', ['pending', 'confirmed', 'preparing', 'delivering']);
+    } else {
+      query = query.eq('status', statusFilter);
+    }
   }
 
   const { data: orders } = await query;
@@ -133,8 +139,8 @@ export default async function PedidosPage({ searchParams }: PageProps) {
             Todos ({allCount || 0})
           </Link>
           <Link
-            href="/perfil/pedidos?status=pending,confirmed,preparing,delivering"
-            className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter && ['pending', 'confirmed', 'preparing', 'delivering'].includes(statusFilter)
+            href="/perfil/pedidos?status=active"
+            className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'active'
               ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20 scale-[1.02]'
               : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
               }`}

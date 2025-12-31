@@ -92,64 +92,77 @@ export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
     }
 
     return (
-        <div className="w-full py-8">
-            <div className="relative flex justify-between">
-                {/* Progress Bar Background */}
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 dark:bg-gray-700 -translate-y-1/2 z-0" />
+        <div className="w-full space-y-3">
+            {STEPS.map((step, index) => {
+                const isActive = index <= currentStepIndex;
+                const isCurrent = index === currentStepIndex;
+                const Icon = step.icon;
+                const stepColor = STATUS_COLORS[step.status as keyof typeof STATUS_COLORS];
 
-                {/* Active Progress Bar */}
-                <motion.div
-                    style={{ backgroundColor: currentStepIndex >= 0 ? STATUS_COLORS[STEPS[currentStepIndex].status as keyof typeof STATUS_COLORS]?.bg : '#22c55e' }}
-                    className="absolute top-1/2 left-0 h-0.5 -translate-y-1/2 z-0"
-                    initial={{ width: '0%' }}
-                    animate={{ width: `${(currentStepIndex / (STEPS.length - 1)) * 100}%` }}
-                    transition={{ duration: 0.5 }}
-                />
+                return (
+                    <motion.div
+                        key={step.status}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className={cn(
+                            "flex items-center gap-4 p-4 rounded-xl transition-all duration-300",
+                            isCurrent 
+                                ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-500 shadow-lg shadow-green-500/20"
+                                : isActive
+                                ? "bg-gray-50 dark:bg-gray-800/50 border-2 border-gray-300 dark:border-gray-700"
+                                : "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 opacity-60"
+                        )}
+                    >
+                        {/* Icon */}
+                        <motion.div
+                            animate={{
+                                scale: isCurrent ? 1.1 : 1,
+                            }}
+                            style={{ 
+                                backgroundColor: isActive ? (stepColor?.bg || '#22c55e') : '#e5e7eb' 
+                            }}
+                            className={cn(
+                                "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300",
+                                isActive ? "text-white shadow-md" : "text-gray-400 dark:bg-gray-800"
+                            )}
+                        >
+                            <Icon size={24} />
+                        </motion.div>
 
-                {STEPS.map((step, index) => {
-                    const isActive = index <= currentStepIndex;
-                    const isCurrent = index === currentStepIndex;
-                    const Icon = step.icon;
-
-                    return (
-                        <div key={step.status} className="relative z-10 flex flex-col items-center">
-                            <motion.div
-                                initial={false}
-                                animate={{
-                                    scale: isCurrent ? 1.1 : 1,
-                                    backgroundColor: isActive ? STATUS_COLORS[step.status as keyof typeof STATUS_COLORS]?.bg || '#22c55e' : '#e5e7eb',
-                                }}
-                                className={cn(
-                                    "w-14 h-14 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-900 transition-all duration-300 shadow-lg",
-                                    isActive ? "text-white shadow-green-500/50" : "text-gray-400 dark:text-gray-600 dark:bg-gray-800"
-                                )}
-                            >
-                                <Icon size={28} />
-                            </motion.div>
-                            <span className={cn(
-                                "absolute top-16 text-xs md:text-sm font-bold whitespace-nowrap transition-colors duration-300",
-                                isActive ? "text-green-600 dark:text-green-400" : "text-gray-400 dark:text-gray-600"
+                        {/* Label + Status */}
+                        <div className="flex-1 min-w-0">
+                            <p className={cn(
+                                "font-bold text-base transition-colors duration-300",
+                                isCurrent 
+                                    ? "text-green-700 dark:text-green-400"
+                                    : isActive
+                                    ? "text-gray-700 dark:text-gray-300"
+                                    : "text-gray-400 dark:text-gray-600"
                             )}>
                                 {step.label}
-                            </span>
+                            </p>
+                            {isCurrent && ORDER_STATUS_MAP[status]?.description && (
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    {ORDER_STATUS_MAP[status]?.description}
+                                </p>
+                            )}
                         </div>
-                    );
-                })}
-            </div>
 
-            {/* Status Message */}
-            <div className="mt-12 text-center">
-                <motion.div
-                    key={status}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="inline-block px-6 py-3 rounded-full bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
-                >
-                    <p className="font-bold text-green-700 dark:text-green-400 flex items-center gap-2">
-                        {ORDER_STATUS_MAP[status]?.icon} {ORDER_STATUS_MAP[status]?.description}
-                    </p>
-                </motion.div>
-            </div>
+                        {/* Check Icon */}
+                        {isActive && !isCurrent && (
+                            <Check size={20} className="text-green-600 dark:text-green-400 flex-shrink-0" />
+                        )}
+                        {isCurrent && (
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                className="w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full flex-shrink-0"
+                            />
+                        )}
+                    </motion.div>
+                );
+            })}>
         </div>
     );
 }
