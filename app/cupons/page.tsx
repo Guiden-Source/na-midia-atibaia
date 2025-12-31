@@ -50,7 +50,7 @@ export default async function CuponsPage() {
     .eq("user_email", user.email || "");
 
   // Get user's DELIVERY coupons (progressive)
-  const deliveryCoupons = await getUserValidCoupons(user.email || "");
+  const deliveryCoupons = await getUserValidCoupons(user.email || "", supabase);
 
   const cuponsEvento = coupons || [];
   const cuponsDelivery = deliveryCoupons || [];

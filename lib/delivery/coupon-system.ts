@@ -186,8 +186,8 @@ export async function getUserOrderCount(userEmail: string): Promise<number> {
 /**
  * Busca cupons válidos do usuário
  */
-export async function getUserValidCoupons(userEmail: string): Promise<CouponProgressiveData[]> {
-    const supabase = createClient();
+export async function getUserValidCoupons(userEmail: string, supabaseInstance?: any): Promise<CouponProgressiveData[]> {
+    const supabase = supabaseInstance || createClient();
 
     const { data, error } = await supabase
         .from('delivery_coupons_progressive')
