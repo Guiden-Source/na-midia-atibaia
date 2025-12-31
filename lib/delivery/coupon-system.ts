@@ -6,14 +6,36 @@ import { generateCouponCode, COUPON_PROGRESSION, type CouponProgressiveData, typ
  * 1º pedido → 3% OFF próximo
  * 2º pedido → 5% OFF próximo
  * 3º+ pedidos → 7% OFF próximo
+ * 
+ * LIMITE: Máximo 3 cupons por mês por usuário
  */
 export async function generateProgressiveCoupon(
     userEmail: string,
     userId: string | null,
     orderNumber: number,
     orderTotal: number
-): Promise<CouponProgressiveData> {
+): Promise<CouponProgressiveData | null> {
     const supabase = createClient();
+
+    // Verificar limite mensal (3 cupons por mês)
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const { count, error: countError } = await supabase
+        .from('delivery_coupons_progressive')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_email', userEmail)
+        .gte('created_at', firstDayOfMonth.toISOString());
+
+    if (countError) {
+        console.error('Erro ao verificar limite de cupons:', countError);
+    }
+
+    // Se já atingiu limite mensal, não gerar novo cupom
+    if (count && count >= 3) {
+        console.log(`Usuário ${userEmail} atingiu limite mensal de cupons (${count}/3)`);
+        return null;
+    }
 
     // Determinar desconto baseado no número do pedido
     let discountPercentage: number;
