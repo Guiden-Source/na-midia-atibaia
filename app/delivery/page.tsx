@@ -3,7 +3,9 @@ import { ProductList } from '@/components/delivery/ProductList';
 import { CategoryCarousel } from '@/components/delivery/CategoryCarousel';
 import { HighlightsCarousel } from '@/components/delivery/HighlightsCarousel';
 import { FloatingCart } from '@/components/delivery/FloatingCart';
+import { ErrorFallback } from '@/components/delivery/ErrorFallback';
 import { getServerSession } from '@/lib/auth/server';
+import type { DeliveryProduct } from '@/lib/delivery/types';
 
 export const metadata = {
   title: 'Delivery - Na Mídia Atibaia',
@@ -19,22 +21,42 @@ export default async function DeliveryPage({
   const search = searchParams.search;
   const categorySlug = searchParams.category;
 
-  let products = [];
+  let products: DeliveryProduct[] = [];
   let title = "Destaques para você";
   let emptyMessage = "Nenhum produto encontrado nesta categoria";
+  let hasError = false;
+  let errorMessage = "";
 
-  if (search) {
-    products = await searchProducts(search);
-    title = `Resultados para "${search}"`;
-    emptyMessage = `Nenhum produto encontrado para "${search}"`;
-  } else if (categorySlug) {
-    products = await getProducts(categorySlug);
-    title = `Categoria: ${categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1)}`;
-  } else {
-    products = await getProducts();
+  try {
+    if (search) {
+      products = await searchProducts(search);
+      title = `Resultados para "${search}"`;
+      emptyMessage = `Nenhum produto encontrado para "${search}"`;
+    } else if (categorySlug) {
+      products = await getProducts(categorySlug);
+      title = `Categoria: ${categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1)}`;
+    } else {
+      products = await getProducts();
+    }
+  } catch (error) {
+    console.error('[Delivery Page] Erro ao carregar produtos:', error);
+    hasError = true;
+    errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
   }
 
   const userName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Visitante';
+
+  // Show error fallback if there was an error
+  if (hasError) {
+    return (
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-24">
+        <ErrorFallback
+          title="Ops! Não conseguimos carregar os produtos"
+          message="Estamos preparando os melhores produtos para você. Por favor, tente novamente em alguns momentos."
+        />
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-24">

@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { Sparkles, Gift, PartyPopper, Calendar, Zap, TrendingUp, ShoppingBag } from 'lucide-react';
 import { BlurFade } from '@/components/ui/blur-fade';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
+import { HowItWorksSection } from '@/components/HowItWorksSection';
 import { EventBentoGrid } from '@/components/EventBentoGrid';
 import { ModernHowItWorksSection } from '@/components/ModernHowItWorksSection';
 import { EventListSchema, OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
@@ -347,6 +348,11 @@ export default function HomePage() {
           />
         )}
       </div>
+
+      {/* How It Works Section */}
+      <BlurFade delay={0.25} inView>
+        <HowItWorksSection />
+      </BlurFade>
 
       {/* Testimonials Section */}
       <BlurFade delay={0.3} inView>

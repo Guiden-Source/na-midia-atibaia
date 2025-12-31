@@ -1,19 +1,31 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { Gift, Calendar, MapPin, Check, Clock, QrCode } from "lucide-react";
 import { LiquidGlassCard } from "@/components/ui/liquid-glass";
 import { CouponQRCode } from "@/components/CouponQRCode";
+import { LoginPromptPage } from "@/components/LoginPromptPage";
 import Image from "next/image";
 
 export default async function CuponsPage() {
   const supabase = createSupabaseServerClient(true);
-  
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Show login prompt for non-authenticated users
   if (!user) {
-    redirect("/login");
+    return (
+      <LoginPromptPage
+        title="Faça login para ver seus cupons"
+        message="Confirme presença em eventos e ganhe cupons de bebida grátis!"
+        benefits={[
+          "🍺 Cupons de bebida em eventos",
+          "✅ Confirmação de presença rápida",
+          "🔔 Notificações de novos eventos",
+        ]}
+        redirectUrl="/cupons"
+      />
+    );
   }
 
   // Get user's coupons
@@ -74,7 +86,7 @@ export default async function CuponsPage() {
             </h1>
 
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Aqui estão todos os seus cupons de bebida dos eventos que você confirmou presença. 
+              Aqui estão todos os seus cupons de bebida dos eventos que você confirmou presença.
               Apresente no bar após o evento para resgatar! 🍺
             </p>
           </div>
@@ -149,11 +161,10 @@ export default async function CuponsPage() {
                       </div>
 
                       {/* Cupom badge */}
-                      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-baloo2 font-semibold ${
-                        evento.is_used 
+                      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-baloo2 font-semibold ${evento.is_used
                           ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
                           : 'bg-gradient-to-r from-orange-500 to-pink-500 text-white'
-                      }`}>
+                        }`}>
                         <Check className="w-4 h-4" />
                         {evento.is_used ? 'Cupom Usado' : '1 Cupom de Bebida Válido'}
                       </div>
@@ -162,7 +173,7 @@ export default async function CuponsPage() {
                       <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
                         <Clock className="w-4 h-4 text-orange-500 mt-0.5" />
                         <p className="text-xs text-orange-900 dark:text-orange-100">
-                          <strong>Como usar:</strong> Apresente esta tela no bar após participar do evento. 
+                          <strong>Como usar:</strong> Apresente esta tela no bar após participar do evento.
                           Cupom válido por até 3 dias após o evento.
                         </p>
                       </div>
