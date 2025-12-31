@@ -169,6 +169,13 @@ export function OrdersManager() {
               onUpdateStatus={updateStatus}
             />
             <KanbanColumn
+              status="confirmed"
+              title="Confirmados"
+              orders={orders}
+              onSelectOrder={setSelectedOrder}
+              onUpdateStatus={updateStatus}
+            />
+            <KanbanColumn
               status="preparing"
               title="Em Preparo"
               orders={orders}
