@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Ticket, Calendar, MapPin, Check, QrCode, ChevronLeft } from "lucide-react";
+import { Ticket, Calendar, MapPin, Check, QrCode, ChevronLeft, Truck, Percent, Tag, Clock } from "lucide-react";
 import QRCode from "react-qr-code";
+import { getUserValidCoupons } from "@/lib/delivery/coupon-system";
 
 interface Coupon {
   id: string;
@@ -22,10 +23,20 @@ interface Coupon {
   };
 }
 
+interface DeliveryCoupon {
+  id: string;
+  code: string;
+  discount_percentage: number;
+  expires_at: string;
+  is_used: boolean;
+  created_at: string;
+}
+
 export default function CuponsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [cupons, setCupons] = useState<Coupon[]>([]);
+  const [cuponsDelivery, setCuponsDelivery] = useState<DeliveryCoupon[]>([]);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const [showQR, setShowQR] = useState(false);
 
@@ -42,6 +53,7 @@ export default function CuponsPage() {
 
       console.log('🎫 Cupons - Loading for user:', user.email);
 
+      // Buscar cupons de eventos
       const { data, error } = await supabase
         .from("coupons")
         .select(`
@@ -61,11 +73,19 @@ export default function CuponsPage() {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("🎫 Cupons - Error loading coupons:", error);
+        console.error("🎫 Cupons - Error loading event coupons:", error);
       } else {
-        console.log('🎫 Cupons - Loaded coupons:', data?.length || 0, 'cupons');
-        console.log('🎫 Cupons - Data:', data);
+        console.log('🎫 Cupons - Loaded event coupons:', data?.length || 0);
         setCupons((data as any) || []);
+      }
+
+      // Buscar cupons de delivery
+      try {
+        const deliveryCoupons = await getUserValidCoupons(user.email || "");
+        console.log('🎫 Cupons - Loaded delivery coupons:', deliveryCoupons.length);
+        setCuponsDelivery(deliveryCoupons);
+      } catch (error) {
+        console.error("🎫 Cupons - Error loading delivery coupons:", error);
       }
 
       setLoading(false);
@@ -101,6 +121,7 @@ export default function CuponsPage() {
 
   const disponíveis = cupons.filter(c => !c.used_at);
   const usados = cupons.filter(c => c.used_at);
+  const totalCupons = disponíveis.length + cuponsDelivery.length;
 
   if (loading) {
     return (
@@ -145,20 +166,83 @@ export default function CuponsPage() {
             </div>
           </div>
         </div>
-        {/* Cupons Disponíveis */}
+        {/* Cupons de Delivery */}
+        {cuponsDelivery.length > 0 && (
+          <div className="mb-8">
+            <h2 className="font-baloo2 text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Truck className="h-6 w-6 text-primary" />
+              Cupons de Delivery ({cuponsDelivery.length})
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {cuponsDelivery.map((cupom) => {
+                const expiresAt = new Date(cupom.expires_at);
+                const daysUntilExpiry = Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                const isExpiringSoon = daysUntilExpiry <= 7;
+
+                return (
+                  <div
+                    key={cupom.id}
+                    className="rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-green-500/50 dark:border-green-400/50 p-6 transition-all hover:scale-105 hover:shadow-xl"
+                  >
+                    {/* Badge disponível */}
+                    <div className="inline-flex items-center gap-1 rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 mb-4">
+                      <Percent className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      <span className="text-xs font-bold text-green-700 dark:text-green-300">
+                        {cupom.discount_percentage}% OFF
+                      </span>
+                    </div>
+
+                    <h3 className="font-baloo2 text-lg font-bold text-gray-900 dark:text-white mb-2">
+                      Desconto no Delivery
+                    </h3>
+
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      <Calendar className="h-4 w-4" />
+                      <span>
+                        Válido até {expiresAt.toLocaleDateString('pt-BR')}
+                        {isExpiringSoon && (
+                          <span className="text-orange-600 dark:text-orange-400 font-semibold ml-1">
+                            ({daysUntilExpiry} {daysUntilExpiry === 1 ? 'dia' : 'dias'})
+                          </span>
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 p-4 mb-4 text-center">
+                      <p className="text-xs text-white/80 mb-1">Código do cupom</p>
+                      <p className="font-mono text-lg font-bold text-white">
+                        {cupom.code}
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg bg-green-50 dark:bg-green-900/20 p-3 border border-green-200 dark:border-green-800">
+                      <p className="text-xs text-green-700 dark:text-green-300">
+                        <strong>Como usar:</strong> Copie o código e cole no campo "Cupom" durante o checkout.
+                        {isExpiringSoon && ' ⚠️ Expira em breve!'}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Cupons de Eventos - Disponíveis */}
         <div className="mb-8">
           <h2 className="font-baloo2 text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
             <Ticket className="h-6 w-6 text-primary" />
-            Disponíveis ({disponíveis.length})
+            Cupons de Eventos ({disponíveis.length})
           </h2>
 
           {disponíveis.length === 0 ? (
             <div className="rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 p-8 text-center">
               <Ticket className="h-12 w-12 mx-auto mb-4 text-gray-400" />
               <p className="text-gray-600 dark:text-gray-400">
-                Você ainda não tem cupons disponíveis.
+                Você ainda não tem cupons de eventos.
                 <br />
-                Confirme presença em eventos para ganhar cupons!
+                Confirme presença em eventos para ganhar cupons de bebida!
               </p>
               <Link
                 href="/"
