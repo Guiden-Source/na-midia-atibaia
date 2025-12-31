@@ -129,7 +129,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {process.env.NODE_ENV === 'development' && <AuthDebug />}
         </CartProvider>
 
-        <footer className="py-12 md:py-16 mb-20 md:mb-0 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+        <footer className="py-12 md:py-16 pb-32 md:pb-16 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
           <div className="container mx-auto px-5 sm:px-6 lg:px-8">
             {/* Footer Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-8">

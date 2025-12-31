@@ -53,16 +53,16 @@ export function AddToCartButton({ product, disabled = false, className = '' }: A
     }
 
     setIsAdding(true);
-    
+
     try {
       addToCart(product, quantity);
-      
+
       // Emitir evento customizado para atualizar contador do carrinho
       window.dispatchEvent(new Event('cartUpdated'));
-      
+
       // Feedback visual
       alert(`✓ ${product.name} adicionado ao carrinho!`);
-      
+
       // Reset quantity
       setQuantity(1);
     } catch (error) {
@@ -125,19 +125,19 @@ export function AddToCartButton({ product, disabled = false, className = '' }: A
         <button
           onClick={decrementQuantity}
           disabled={quantity <= 1}
-          className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 focus:ring-2 focus:ring-blue-500/50"
         >
           <Minus size={16} />
         </button>
-        
+
         <span className="w-12 text-center font-semibold text-gray-900 dark:text-white">
           {quantity}
         </span>
-        
+
         <button
           onClick={incrementQuantity}
           disabled={quantity >= product.stock}
-          className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 focus:ring-2 focus:ring-blue-500/ 50"
         >
           <Plus size={16} />
         </button>
@@ -147,7 +147,7 @@ export function AddToCartButton({ product, disabled = false, className = '' }: A
       <button
         onClick={handleAddToCart}
         disabled={isAdding || disabled}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-98 focus:ring-2 focus:ring-blue-500/50"
       >
         {isAdding ? (
           <>
