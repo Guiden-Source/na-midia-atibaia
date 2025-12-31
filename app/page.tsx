@@ -64,13 +64,13 @@ function HeroSection({ events }: { events: Event[] }) {
 
           {/* Heading */}
           <h1 className="mb-6 text-center font-baloo2 text-3xl font-extrabold leading-[1.15] tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-7xl">
-            Seu Guia Completo de <br />
-            <span className="bg-gradient-to-r from-primary via-orange-500 to-orange-600 bg-clip-text text-transparent">Atibaia</span>
+            Delivery Rápido e Fácil <br />
+            <span className="bg-gradient-to-r from-primary via-orange-500 to-orange-600 bg-clip-text text-transparent">No Seu Condomínio</span>
           </h1>
 
           {/* Subheading */}
           <p className="mx-auto mb-10 max-w-2xl text-center text-base sm:text-lg text-gray-700 dark:text-gray-200 lg:text-xl">
-            Eventos • Promoções • Cupons • Delivery — Tudo em um só lugar 🎉
+            Conectando você ao que precisa • Facilitando seu dia a dia • Direto no seu lar 🏠
           </p>
 
           {/* Event Suggestions */}
@@ -80,42 +80,42 @@ function HeroSection({ events }: { events: Event[] }) {
 
           {/* CTA Buttons */}
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-            <a
-              href="#eventos"
-              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 min-h-[52px] font-baloo2 text-base sm:text-lg font-bold text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl hover:bg-orange-600 active:scale-95"
-              aria-label="Ver todos os eventos disponíveis"
-            >
-              Descobrir Eventos 🎉
-              <Zap className="h-5 w-5 transition-transform group-hover:rotate-12" fill="currentColor" />
-            </a>
-
             <Link
               href="/delivery"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-primary bg-white/80 backdrop-blur-sm px-8 py-4 min-h-[52px] font-baloo2 text-base sm:text-lg font-semibold text-orange-700 transition-all hover:scale-105 hover:bg-white hover:shadow-xl active:scale-95 dark:bg-gray-800/80 dark:text-orange-400 dark:hover:bg-gray-800"
-              aria-label="Acessar delivery"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 min-h-[52px] font-baloo2 text-base sm:text-lg font-bold text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl hover:bg-orange-600 active:scale-95"
+              aria-label="Fazer pedido agora"
             >
-              <ShoppingBag className="h-5 w-5" />
-              Delivery
+              Fazer Pedido Agora
+              <ShoppingBag className="h-5 w-5 transition-transform group-hover:scale-110" />
             </Link>
+
+            <a
+              href="#eventos"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-primary bg-white/80 backdrop-blur-sm px-8 py-4 min-h-[52px] font-baloo2 text-base sm:text-lg font-semibold text-orange-700 transition-all hover:scale-105 hover:bg-white hover:shadow-xl active:scale-95 dark:bg-gray-800/80 dark:text-orange-400 dark:hover:bg-gray-800"
+              aria-label="Ver eventos"
+            >
+              <PartyPopper className="h-5 w-5" />
+              Eventos
+            </a>
           </div>
 
           {/* Quick Stats */}
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
             <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">100+</div>
-              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Eventos</div>
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">⚡</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Entrega Rápida</div>
             </div>
             <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">50+</div>
-              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Promoções</div>
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">🏠</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Sem Sair de Casa</div>
             </div>
             <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">1000+</div>
-              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Usuários</div>
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">💳</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Pagamento Fácil</div>
             </div>
             <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">24/7</div>
-              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Delivery</div>
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">📱</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Em Tempo Real</div>
             </div>
           </div>
         </div>
