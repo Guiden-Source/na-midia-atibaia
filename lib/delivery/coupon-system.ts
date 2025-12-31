@@ -3,9 +3,9 @@ import { generateCouponCode, COUPON_PROGRESSION, type CouponProgressiveData, typ
 
 /**
  * Gera cupom progressivo após um pedido bem-sucedido
- * 1º pedido → 10% OFF próximo
- * 2º pedido → 15% OFF próximo
- * 3º+ pedidos → 20% OFF próximo
+ * 1º pedido → 3% OFF próximo
+ * 2º pedido → 5% OFF próximo
+ * 3º+ pedidos → 7% OFF próximo
  */
 export async function generateProgressiveCoupon(
     userEmail: string,
@@ -18,11 +18,11 @@ export async function generateProgressiveCoupon(
     // Determinar desconto baseado no número do pedido
     let discountPercentage: number;
     if (orderNumber === 1) {
-        discountPercentage = COUPON_PROGRESSION.FIRST_ORDER; // 10%
+        discountPercentage = COUPON_PROGRESSION.FIRST_ORDER; // 3%
     } else if (orderNumber === 2) {
-        discountPercentage = COUPON_PROGRESSION.SECOND_ORDER; // 15%
+        discountPercentage = COUPON_PROGRESSION.SECOND_ORDER; // 5%
     } else {
-        discountPercentage = COUPON_PROGRESSION.THIRD_ORDER; // 20%
+        discountPercentage = COUPON_PROGRESSION.THIRD_ORDER; // 7%
     }
 
     // Gerar código único
