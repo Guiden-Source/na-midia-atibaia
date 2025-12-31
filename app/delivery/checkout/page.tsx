@@ -397,7 +397,7 @@ export default function CheckoutPage() {
                         autoCapitalize="characters"
                         value={formData.block}
                         onChange={handleInputChange}
-                        required
+                        
                         className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
                         placeholder="05"
                       />
@@ -413,7 +413,7 @@ export default function CheckoutPage() {
                         name="apartment"
                         value={formData.apartment}
                         onChange={handleInputChange}
-                        required
+                        
                         className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
                         placeholder="42"
                       />
