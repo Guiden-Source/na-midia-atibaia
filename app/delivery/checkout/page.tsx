@@ -12,6 +12,8 @@ import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useCart } from '@/lib/delivery/CartContext';
+import { CouponInput } from '@/components/delivery/CouponInput';
+import { validateCoupon, applyCouponToOrder, generateProgressiveCoupon, getUserOrderCount, markCouponAsUsed } from '@/lib/delivery/coupon-system';
 
 interface CheckoutFormData {
   // Dados mínimos necessários
@@ -23,6 +25,7 @@ interface CheckoutFormData {
   payment_method: 'pix' | 'dinheiro' | 'cartao';
   change_for?: number;
   notes?: string;
+  coupon_code?: string; // ← NOVO
 }
 
 export default function CheckoutPage() {
@@ -32,9 +35,18 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // ← NOVO: Estados do cupom
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState(0); // Percentual (10, 15, 20)
+  const [couponDiscountAmount, setCouponDiscountAmount] = useState(0); // Valor em R$
+  const [isCouponValid, setIsCouponValid] = useState(false);
+
   // Calculate subtotal and delivery fee based on context items
   const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const deliveryFee = 0; // Always free
+
+  // ← NOVO: Calcular total com desconto
+  const finalTotal = isCouponValid ? subtotal - couponDiscountAmount : subtotal;
 
   const [formData, setFormData] = useState<CheckoutFormData>({
     whatsapp: '',
@@ -45,6 +57,7 @@ export default function CheckoutPage() {
     payment_method: 'pix',
     change_for: undefined,
     notes: '',
+    coupon_code: '', // ← NOVO
   });
 
   useEffect(() => {
@@ -92,6 +105,47 @@ export default function CheckoutPage() {
         delete newErrors[name];
         return newErrors;
       });
+    }
+  };
+
+  // ← NOVO: Função para validar cupom
+  const handleValidateCoupon = async (code: string): Promise<{ valid: boolean; discount: number; error?: string }> => {
+    if (!code.trim()) {
+      return { valid: false, discount: 0, error: 'Digite um código de cupom' };
+    }
+
+    if (!user?.email) {
+      return { valid: false, discount: 0, error: 'Faça login para usar cupons' };
+    }
+
+    try {
+      const result = await validateCoupon(code.toUpperCase(), user.email);
+
+      if (result.valid) {
+        // Calcular desconto em reais
+        const discountAmount = (subtotal * result.discount) / 100;
+
+        // Atualizar estados
+        setCouponCode(code.toUpperCase());
+        setCouponDiscount(result.discount);
+        setCouponDiscountAmount(discountAmount);
+        setIsCouponValid(true);
+        setFormData(prev => ({ ...prev, coupon_code: code.toUpperCase() }));
+
+        return { valid: true, discount: result.discount };
+      } else {
+        // Limpar estados se inválido
+        setCouponCode('');
+        setCouponDiscount(0);
+        setCouponDiscountAmount(0);
+        setIsCouponValid(false);
+        setFormData(prev => ({ ...prev, coupon_code: '' }));
+
+        return { valid: false, discount: 0, error: result.error };
+      }
+    } catch (error: any) {
+      console.error('Erro ao validar cupom:', error);
+      return { valid: false, discount: 0, error: 'Erro ao validar cupom. Tente novamente.' };
     }
   };
 
@@ -158,9 +212,50 @@ export default function CheckoutPage() {
         cartItemsForOrder,
         subtotal,
         deliveryFee,
-        total,
+        finalTotal, // ← Usar total com desconto
         user?.id // Optional
       );
+
+      // ← NOVO: Marcar cupom como usado (se foi aplicado)
+      if (isCouponValid && couponCode) {
+        try {
+          await markCouponAsUsed(couponCode);
+          console.log('[Cupom] Marcado como usado:', couponCode);
+        } catch (error) {
+          console.error('[Cupom] Erro ao marcar como usado:', error);
+          // Não bloqueia o pedido se falhar
+        }
+      }
+
+      // ← NOVO: Gerar cupom progressivo para próximo pedido
+      if (user?.email && user?.id) {
+        try {
+          // Contar quantos pedidos o usuário já fez (incluindo este)
+          const orderCount = await getUserOrderCount(user.email);
+
+          // Gerar cupom para próximo pedido
+          const newCoupon = await generateProgressiveCoupon(
+            user.email,
+            user.id,
+            orderCount, // Número do pedido que acabou de fazer
+            finalTotal
+          );
+
+          console.log('[Cupom] Novo cupom gerado:', newCoupon.code, `(${newCoupon.discount_percentage}% OFF)`);
+
+          // Mostrar toast com o novo cupom
+          toast.success(
+            `Pedido confirmado! Ganhou ${newCoupon.discount_percentage}% OFF no próximo: ${newCoupon.code}`,
+            { duration: 6000 }
+          );
+        } catch (error) {
+          console.error('[Cupom] Erro ao gerar novo cupom:', error);
+          // Não bloqueia o pedido se falhar
+          toast.success('Pedido confirmado com sucesso!');
+        }
+      } else {
+        toast.success('Pedido confirmado com sucesso!');
+      }
 
       // Limpar carrinho usando contexto
       contextClearCart();
@@ -327,6 +422,16 @@ export default function CheckoutPage() {
                 </div>
               </LiquidGlass>
 
+              {/* ← NOVO: Cupom de Desconto */}
+              <LiquidGlass className="p-6">
+                <CouponInput
+                  value={couponCode}
+                  onChange={setCouponCode}
+                  onValidate={handleValidateCoupon}
+                  discountApplied={couponDiscount}
+                />
+              </LiquidGlass>
+
               {/* Pagamento */}
               <LiquidGlass className="p-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -480,10 +585,22 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
+                {/* ← NOVO: Mostrar desconto do cupom */}
+                {isCouponValid && couponDiscountAmount > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Cupom ({couponDiscount}% OFF)
+                    </span>
+                    <span className="font-bold text-green-600 dark:text-green-400">
+                      -{formatPrice(couponDiscountAmount)}
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between text-xl font-bold pt-3 border-t border-gray-200 dark:border-gray-700">
                   <span className="text-gray-900 dark:text-white font-baloo2">Total</span>
                   <span className="text-green-600 dark:text-green-400 font-baloo2">
-                    {formatPrice(total)}
+                    {formatPrice(finalTotal)}
                   </span>
                 </div>
               </div>
