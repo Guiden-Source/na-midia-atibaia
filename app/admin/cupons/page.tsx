@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { LiquidGlass } from "@/components/ui/liquid-glass";
 import { motion } from "framer-motion";
-import { Plus, Edit2, Trash2, Calendar, Ticket, Copy, Check } from "lucide-react";
+import { Plus, Edit2, Trash2, Calendar, Ticket, Copy, Check, Truck, Percent } from "lucide-react";
 import { StatsCard } from "@/components/admin/StatsCard";
 import toast from "react-hot-toast";
 
@@ -21,15 +21,29 @@ type Coupon = {
     };
 };
 
+type DeliveryCoupon = {
+    id: string;
+    code: string;
+    discount_percentage: number;
+    user_email: string;
+    is_used: boolean;
+    expires_at: string;
+    created_at: string;
+    order_number?: number;
+};
+
 export default function AdminCouponsPage() {
     const supabase = createClient();
     const [coupons, setCoupons] = useState<Coupon[]>([]);
+    const [deliveryCoupons, setDeliveryCoupons] = useState<DeliveryCoupon[]>([]);
     const [loading, setLoading] = useState(true);
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [filter, setFilter] = useState<"all" | "used" | "unused">("all");
 
     const fetchCoupons = async () => {
         setLoading(true);
+
+        // Buscar cupons de eventos
         const { data, error } = await supabase
             .from("coupons")
             .select(`
@@ -39,11 +53,25 @@ export default function AdminCouponsPage() {
             .order("created_at", { ascending: false });
 
         if (error) {
-            console.error("Error fetching coupons:", error);
-            toast.error("Erro ao carregar cupons");
+            console.error("Error fetching event coupons:", error);
+            toast.error("Erro ao carregar cupons de eventos");
         } else {
             setCoupons(data || []);
         }
+
+        // Buscar cupons de delivery
+        const { data: deliveryData, error: deliveryError } = await supabase
+            .from("delivery_coupons_progressive")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        if (deliveryError) {
+            console.error("Error fetching delivery coupons:", deliveryError);
+            toast.error("Erro ao carregar cupons de delivery");
+        } else {
+            setDeliveryCoupons(deliveryData || []);
+        }
+
         setLoading(false);
     };
 
@@ -79,9 +107,9 @@ export default function AdminCouponsPage() {
     });
 
     const stats = {
-        total: coupons.length,
-        used: coupons.filter((c) => c.used_at).length,
-        unused: coupons.filter((c) => !c.used_at).length,
+        total: coupons.length + deliveryCoupons.length,
+        used: coupons.filter((c) => c.used_at).length + deliveryCoupons.filter((c) => c.is_used).length,
+        unused: coupons.filter((c) => !c.used_at).length + deliveryCoupons.filter((c) => !c.is_used).length,
     };
 
     return (
@@ -165,6 +193,82 @@ export default function AdminCouponsPage() {
                 </LiquidGlass>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {/* Delivery Coupons */}
+                    {deliveryCoupons.map((coupon, index) => {
+                        const expiresAt = new Date(coupon.expires_at);
+                        const isExpired = expiresAt < new Date();
+                        const shouldShow =
+                            (filter === "all") ||
+                            (filter === "used" && coupon.is_used) ||
+                            (filter === "unused" && !coupon.is_used && !isExpired);
+
+                        if (!shouldShow) return null;
+
+                        return (
+                            <motion.div
+                                key={`delivery-${coupon.id}`}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.03 }}
+                            >
+                                <LiquidGlass className="p-5 hover:scale-[1.01] transition-transform border-l-4 border-green-500">
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <Truck className="h-5 w-5 text-green-500" />
+                                            <span className="font-mono text-lg font-bold text-gray-900 dark:text-white">
+                                                {coupon.code}
+                                            </span>
+                                            <span className="px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold">
+                                                {coupon.discount_percentage}% OFF
+                                            </span>
+                                        </div>
+                                        <button
+                                            onClick={() => handleCopyCode(coupon.code, `delivery-${coupon.id}`)}
+                                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                            title="Copiar código"
+                                        >
+                                            {copiedId === `delivery-${coupon.id}` ? (
+                                                <Check size={16} className="text-green-600" />
+                                            ) : (
+                                                <Copy size={16} className="text-gray-400" />
+                                            )}
+                                        </button>
+                                    </div>
+
+                                    <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+                                        <span className="font-medium">Tipo:</span> Cupom de Delivery (Progressivo)
+                                    </div>
+
+                                    {coupon.user_email && (
+                                        <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+                                            <span className="font-medium">Usuário:</span> {coupon.user_email}
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-2 mb-3 text-xs text-gray-500 dark:text-gray-400">
+                                        <Calendar size={14} />
+                                        Expira em {expiresAt.toLocaleDateString("pt-BR")}
+                                    </div>
+
+                                    {coupon.is_used ? (
+                                        <div className="px-3 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-400 text-sm font-bold text-center">
+                                            ✓ Usado
+                                        </div>
+                                    ) : isExpired ? (
+                                        <div className="px-3 py-1 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 text-sm font-bold text-center">
+                                            ✗ Expirado
+                                        </div>
+                                    ) : (
+                                        <div className="px-3 py-1 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-sm font-bold text-center">
+                                            Disponível
+                                        </div>
+                                    )}
+                                </LiquidGlass>
+                            </motion.div>
+                        );
+                    })}
+
+                    {/* Event Coupons */}
                     {filteredCoupons.map((coupon, index) => (
                         <motion.div
                             key={coupon.id}
