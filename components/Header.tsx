@@ -3,12 +3,13 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { CartBadge } from './delivery/CartBadge';
 import { Moon, Sun, Search, X, User, Menu, ShoppingBag, Gift, LogOut, Home } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname(); // ← Para menu ativo
   const [scrolled, setScrolled] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -64,7 +65,7 @@ export default function Header() {
   const userName = user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Usuário';
 
   return (
-    <header className="fixed left-0 right-0 top-2 md:top-4 z-40 px-3 md:px-4">
+    <header className="sticky top-0 z-50 px-3 md:px-4 pt-2 md:pt-4">
       <div className={`w-full md:container md:mx-auto px-4 md:px-6 py-3 md:py-3.5 rounded-2xl md:rounded-full border border-orange-200/30 dark:border-orange-900/30 backdrop-blur-xl transition-all duration-300 ${scrolled
         ? 'bg-white/98 dark:bg-gray-900/98 shadow-xl shadow-orange-500/5'
         : 'bg-white/90 dark:bg-gray-900/90 shadow-lg'
@@ -75,9 +76,9 @@ export default function Header() {
             <Image
               src="/logotiponamidiavetorizado.svg"
               alt="Na Mídia"
-              width={120}
-              height={40}
-              className="h-8 sm:h-10 w-auto dark:brightness-0 dark:invert"
+              width={140} {/* ← Aumentado de 120 */}
+              height={50}  {/* ← Aumentado de 40 */}
+              className="h-10 sm:h-12 w-auto dark:brightness-0 dark:invert" {/* ← h-10 mobile, h-12 desktop */}
               priority
             />
           </Link>
@@ -204,7 +205,10 @@ export default function Header() {
           <nav className="lg:hidden mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-1">
             <Link
               href="/"
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white font-medium transition-colors"
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all ${pathname === '/'
+                  ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                  : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
+                }`}
               onClick={() => setShowMobileMenu(false)}
             >
               <Home className="h-5 w-5 text-orange-600 dark:text-orange-400" />
@@ -212,7 +216,10 @@ export default function Header() {
             </Link>
             <Link
               href="/#eventos"
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white font-medium transition-colors"
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all ${pathname === '/#eventos' || pathname.includes('evento')
+                  ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                  : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
+                }`}
               onClick={() => setShowMobileMenu(false)}
             >
               <span className="text-xl">📅</span>
@@ -220,7 +227,10 @@ export default function Header() {
             </Link>
             <Link
               href="/delivery"
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white font-medium transition-colors"
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all ${pathname.startsWith('/delivery')
+                  ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                  : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
+                }`}
               onClick={() => setShowMobileMenu(false)}
             >
               <ShoppingBag className="h-5 w-5 text-orange-600 dark:text-orange-400" />
@@ -232,7 +242,10 @@ export default function Header() {
               <>
                 <Link
                   href="/perfil"
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white font-medium transition-colors"
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all ${pathname.startsWith('/perfil')
+                      ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                      : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
+                    }`}
                   onClick={() => setShowMobileMenu(false)}
                 >
                   <User className="h-5 w-5 text-orange-600 dark:text-orange-400" />
