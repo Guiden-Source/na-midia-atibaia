@@ -11,6 +11,7 @@ import { Sparkles, Gift, PartyPopper, Calendar, Zap, TrendingUp, ShoppingBag } f
 import { BlurFade } from '@/components/ui/blur-fade';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 import { HowItWorksSection } from '@/components/HowItWorksSection';
+import { FeaturedFAQs } from '@/components/FeaturedFAQs';
 import { EventBentoGrid } from '@/components/EventBentoGrid';
 import { ModernHowItWorksSection } from '@/components/ModernHowItWorksSection';
 import { EventListSchema, OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
@@ -84,7 +85,7 @@ function HeroSection({ events }: { events: Event[] }) {
               className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 min-h-[52px] font-baloo2 text-base sm:text-lg font-bold text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl hover:bg-orange-600 active:scale-95"
               aria-label="Ver todos os eventos disponíveis"
             >
-              Explorar Eventos
+              Descobrir Eventos 🎉
               <Zap className="h-5 w-5 transition-transform group-hover:rotate-12" fill="currentColor" />
             </a>
 
@@ -322,13 +323,25 @@ export default function HomePage() {
 
         {!loading && !hasAnyEvents && (
           <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-gray-200 bg-gray-50 py-20 sm:py-28 text-center dark:border-gray-700 dark:bg-gray-800/50">
-            <Calendar className="mb-4 h-16 w-16 text-gray-400" />
-            <h3 className="font-baloo2 text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-100 to-pink-100 dark:from-orange-900/20 dark:to-pink-900/20 flex items-center justify-center mb-6">
+              <Calendar className="h-10 w-10 text-orange-500" />
+            </div>
+            <h3 className="font-baloo2 text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
               Nenhum evento por aqui... ainda!
             </h3>
-            <p className="mt-2 text-base sm:text-lg text-gray-600 dark:text-gray-400">
-              Fique de olho, sempre tem novidade aparecendo 👀
+            <p className="mt-2 text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-md">
+              Ative notificações para ser o(a) primeiro(a) a saber dos próximos eventos em Atibaia 🔔
             </p>
+            <button
+              className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-baloo2 font-semibold hover:from-orange-600 hover:to-pink-600 transition-all hover:scale-105 shadow-lg"
+              onClick={() => {
+                // TODO: Implementar sistema de notificações
+                toast.success('Em breve você poderá ativar notificações! 🔔');
+              }}
+            >
+              <Sparkles className="w-4 h-4" />
+              Me Avisar
+            </button>
           </div>
         )}
 
@@ -356,7 +369,35 @@ export default function HomePage() {
 
       {/* Testimonials Section */}
       <BlurFade delay={0.3} inView>
-        <TestimonialsSection />
+        <div className="py-16 md:py-20">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="font-baloo2 text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+                Veja por que 1000+ usuários confiam na Na Mídia
+              </h2>
+            </div>
+            <TestimonialsSection />
+
+            {/* Mini CTA após depoimentos */}
+            <div className="text-center mt-12">
+              <p className="text-lg text-gray-700 dark:text-gray-300 mb-4 font-baloo2 font-semibold">
+                Vire você também um de nossos fãs 💪
+              </p>
+              <a
+                href="/login"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-baloo2 font-bold hover:from-orange-600 hover:to-pink-600 transition-all hover:scale-105 shadow-xl"
+              >
+                <Sparkles className="w-5 h-5" />
+                Começar Agora
+              </a>
+            </div>
+          </div>
+        </div>
+      </BlurFade>
+
+      {/* Featured FAQs */}
+      <BlurFade delay={0.35} inView>
+        <FeaturedFAQs />
       </BlurFade>
 
       {/* CTA Final */}
@@ -392,7 +433,7 @@ export default function HomePage() {
                   aria-label="Criar conta gratuita"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-orange-500 bg-white/80 backdrop-blur-sm px-10 py-5 min-h-[56px] font-baloo2 text-lg font-semibold text-orange-700 transition-all hover:scale-105 hover:bg-white hover:shadow-xl active:scale-95 dark:bg-gray-800/80 dark:text-orange-400 dark:hover:bg-gray-800"
                 >
-                  Criar Conta Grátis
+                  Criar Conta Grátis 🎁
                   <Sparkles className="h-6 w-6" />
                 </a>
               </div>
