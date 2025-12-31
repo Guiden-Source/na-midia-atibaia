@@ -92,7 +92,7 @@ export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
     }
 
     return (
-        <div className="w-full space-y-3">
+        <div className="w-full space-y-2">
             {STEPS.map((step, index) => {
                 const isActive = index <= currentStepIndex;
                 const isCurrent = index === currentStepIndex;
@@ -106,7 +106,7 @@ export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
                         className={cn(
-                            "flex items-center gap-4 p-4 rounded-xl transition-all duration-300",
+                            "flex items-center gap-3 p-3 rounded-xl transition-all duration-300",
                             isCurrent 
                                 ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-500 shadow-lg shadow-green-500/20"
                                 : isActive
@@ -123,17 +123,17 @@ export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
                                 backgroundColor: isActive ? (stepColor?.bg || '#22c55e') : '#e5e7eb' 
                             }}
                             className={cn(
-                                "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300",
+                                "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300",
                                 isActive ? "text-white shadow-md" : "text-gray-400 dark:bg-gray-800"
                             )}
                         >
-                            <Icon size={24} />
+                            <Icon size={20} />
                         </motion.div>
 
                         {/* Label + Status */}
                         <div className="flex-1 min-w-0">
                             <p className={cn(
-                                "font-bold text-base transition-colors duration-300",
+                                "font-bold text-sm transition-colors duration-300",
                                 isCurrent 
                                     ? "text-green-700 dark:text-green-400"
                                     : isActive
@@ -151,13 +151,13 @@ export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
 
                         {/* Check Icon */}
                         {isActive && !isCurrent && (
-                            <Check size={20} className="text-green-600 dark:text-green-400 flex-shrink-0" />
+                            <Check size={16} className="text-green-600 dark:text-green-400 flex-shrink-0" />
                         )}
                         {isCurrent && (
                             <motion.div
                                 animate={{ rotate: 360 }}
                                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                                className="w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full flex-shrink-0"
+                                className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full flex-shrink-0"
                             />
                         )}
                     </motion.div>

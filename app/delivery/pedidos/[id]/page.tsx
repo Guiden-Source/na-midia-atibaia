@@ -99,15 +99,13 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                     </div>
                 </div>
 
-                {/* Tracker - Sticky on Mobile */}
-                <div className="sticky top-16 md:top-20 z-30 mb-8">
-                    <LiquidGlass className="p-6">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 font-baloo2">
-                            Status do Pedido
-                        </h2>
-                        <OrderTracker orderId={order.id} initialStatus={order.status} />
-                    </LiquidGlass>
-                </div>
+                {/* Tracker - Sem Sticky */}
+                <LiquidGlass className="mb-8 p-6">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 font-baloo2">
+                        Status do Pedido
+                    </h2>
+                    <OrderTracker orderId={order.id} initialStatus={order.status} />
+                </LiquidGlass>
 
                 <div className="grid md:grid-cols-2 gap-8">
                     {/* Order Details */}
