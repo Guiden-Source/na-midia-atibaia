@@ -1,6 +1,6 @@
 import { Clock, CheckCircle, Truck, ChefHat, AlertCircle } from 'lucide-react';
 
-export type OrderStatus = 'pending' | 'preparing' | 'delivering' | 'completed' | 'cancelled';
+export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'delivering' | 'completed' | 'cancelled';
 
 export type Order = {
     id: string;
