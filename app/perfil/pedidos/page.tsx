@@ -128,10 +128,11 @@ export default async function PedidosPage({ searchParams }: PageProps) {
         </div>
 
         {/* Filtros */}
-        <LiquidGlass className="p-2 mb-8 grid grid-cols-2 sm:flex sm:flex-wrap gap-2" intensity={0.2}>
+        <LiquidGlass className="p-4 mb-8" intensity={0.2}>
+          <div className="flex flex-wrap gap-3">
           <Link
             href="/perfil/pedidos"
-            className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${!statusFilter
+            className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${!statusFilter
               ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 scale-[1.02]'
               : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
               }`}
@@ -140,7 +141,7 @@ export default async function PedidosPage({ searchParams }: PageProps) {
           </Link>
           <Link
             href="/perfil/pedidos?status=active"
-            className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'active'
+            className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${statusFilter === 'active'
               ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20 scale-[1.02]'
               : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
               }`}
@@ -149,7 +150,7 @@ export default async function PedidosPage({ searchParams }: PageProps) {
           </Link>
           <Link
             href="/perfil/pedidos?status=completed"
-            className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'completed'
+            className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${statusFilter === 'completed'
               ? 'bg-green-600 text-white shadow-lg shadow-green-600/20 scale-[1.02]'
               : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
               }`}
@@ -158,13 +159,14 @@ export default async function PedidosPage({ searchParams }: PageProps) {
           </Link>
           <Link
             href="/perfil/pedidos?status=cancelled"
-            className={`flex-1 min-w-[120px] px-4 py-3 rounded-xl font-baloo2 font-bold text-center transition-all ${statusFilter === 'cancelled'
+            className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${statusFilter === 'cancelled'
               ? 'bg-red-600 text-white shadow-lg shadow-red-600/20 scale-[1.02]'
               : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
               }`}
           >
             Cancelados ({cancelledCount || 0})
           </Link>
+          </div>
         </LiquidGlass>
 
         {/* Lista de Pedidos */}

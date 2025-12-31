@@ -354,6 +354,13 @@ export async function getOrderStats() {
     };
   } catch (error) {
     console.error('Erro ao buscar estatísticas:', error);
-    throw error;
+    // Retornar stats zerados em vez de throw
+    return {
+      totalOrders: 0,
+      pendingOrders: 0,
+      activeOrders: 0,
+      todayOrders: 0,
+      totalRevenue: 0,
+    };
   }
 }
