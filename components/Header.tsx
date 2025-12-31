@@ -76,9 +76,9 @@ export default function Header() {
             <Image
               src="/logotiponamidiavetorizado.svg"
               alt="Na Mídia"
-              width={140} {/* ← Aumentado de 120 */}
-              height={50}  {/* ← Aumentado de 40 */}
-              className="h-10 sm:h-12 w-auto dark:brightness-0 dark:invert" {/* ← h-10 mobile, h-12 desktop */}
+              width={140}
+              height={50}
+              className="h-10 sm:h-12 w-auto dark:brightness-0 dark:invert"
               priority
             />
           </Link>
