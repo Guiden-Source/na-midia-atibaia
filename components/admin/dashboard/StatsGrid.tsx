@@ -1,21 +1,21 @@
 import { motion } from 'framer-motion';
 import { Package, ShoppingCart, DollarSign, TrendingUp } from 'lucide-react';
-import { DashboardStats } from '@/hooks/useAdminStats';
+import { AdminStats } from '@/hooks/useAdminStats';
 import { StatsCard } from '@/components/admin/StatsCard';
 
 interface StatsGridProps {
-  stats: DashboardStats;
+  stats: AdminStats;
 }
 
 export function StatsGrid({ stats }: StatsGridProps) {
   const statsData = [
     {
       title: 'Produtos',
-      value: stats.totalProducts,
-      subtitle: `${stats.activeProducts} ativos`,
+      value: stats.activeProducts,
+      subtitle: `ativos agora`,
       icon: Package,
       color: 'blue' as const,
-      trend: '+12%',
+      trend: `Total cadastrados`,
       trendUp: true,
     },
     {
@@ -29,20 +29,20 @@ export function StatsGrid({ stats }: StatsGridProps) {
     },
     {
       title: 'Receita',
-      value: `R$ ${stats.totalRevenue.toFixed(2)}`,
-      subtitle: 'Completados',
+      value: `R$ ${stats.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      subtitle: 'Pedidos concluídos',
       icon: DollarSign,
       color: 'purple' as const,
-      trend: '+8.2%',
+      trend: 'Total acumulado',
       trendUp: true,
     },
     {
-      title: 'Conversão',
-      value: '68%',
-      subtitle: 'Últimos 30 dias',
+      title: 'Ticket Médio',
+      value: `R$ ${stats.averageTicket.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      subtitle: 'Por pedido',
       icon: TrendingUp,
       color: 'orange' as const,
-      trend: '+3.1%',
+      trend: 'Média geral',
       trendUp: true,
     },
   ];
