@@ -8,6 +8,14 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { getOrderStatus } from '@/app/delivery/actions';
 
+const STATUS_COLORS = {
+    pending: { bg: '#f97316', color: 'orange' },      // laranja
+    confirmed: { bg: '#3b82f6', color: 'blue' },      // azul  
+    preparing: { bg: '#a855f7', color: 'purple' },    // roxo
+    delivering: { bg: '#22c55e', color: 'green' },    // verde
+    completed: { bg: '#059669', color: 'emerald' },   // verde escuro
+};
+
 interface OrderTrackerProps {
     orderId: string;
     initialStatus: OrderStatus;
@@ -91,7 +99,8 @@ export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
 
                 {/* Active Progress Bar */}
                 <motion.div
-                    className="absolute top-1/2 left-0 h-0.5 bg-green-500 -translate-y-1/2 z-0"
+                    style={{ backgroundColor: currentStepIndex >= 0 ? STATUS_COLORS[STEPS[currentStepIndex].status as keyof typeof STATUS_COLORS]?.bg : '#22c55e' }}
+                    className="absolute top-1/2 left-0 h-0.5 -translate-y-1/2 z-0"
                     initial={{ width: '0%' }}
                     animate={{ width: `${(currentStepIndex / (STEPS.length - 1)) * 100}%` }}
                     transition={{ duration: 0.5 }}
@@ -108,7 +117,7 @@ export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
                                 initial={false}
                                 animate={{
                                     scale: isCurrent ? 1.1 : 1,
-                                    backgroundColor: isActive ? '#22c55e' : '#e5e7eb',
+                                    backgroundColor: isActive ? STATUS_COLORS[step.status as keyof typeof STATUS_COLORS]?.bg || '#22c55e' : '#e5e7eb',
                                 }}
                                 className={cn(
                                     "w-14 h-14 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-900 transition-all duration-300 shadow-lg",
