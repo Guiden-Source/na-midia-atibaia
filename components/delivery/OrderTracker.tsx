@@ -87,11 +87,11 @@ export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
         <div className="w-full py-8">
             <div className="relative flex justify-between">
                 {/* Progress Bar Background */}
-                <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700 -translate-y-1/2 z-0" />
+                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 dark:bg-gray-700 -translate-y-1/2 z-0" />
 
                 {/* Active Progress Bar */}
                 <motion.div
-                    className="absolute top-1/2 left-0 h-1 bg-green-500 -translate-y-1/2 z-0"
+                    className="absolute top-1/2 left-0 h-0.5 bg-green-500 -translate-y-1/2 z-0"
                     initial={{ width: '0%' }}
                     animate={{ width: `${(currentStepIndex / (STEPS.length - 1)) * 100}%` }}
                     transition={{ duration: 0.5 }}
@@ -107,18 +107,18 @@ export function OrderTracker({ orderId, initialStatus }: OrderTrackerProps) {
                             <motion.div
                                 initial={false}
                                 animate={{
-                                    scale: isCurrent ? 1.2 : 1,
-                                    backgroundColor: isActive ? '#22c55e' : '#e5e7eb', // green-500 or gray-200
+                                    scale: isCurrent ? 1.1 : 1,
+                                    backgroundColor: isActive ? '#22c55e' : '#e5e7eb',
                                 }}
                                 className={cn(
-                                    "w-10 h-10 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-900 transition-colors duration-300",
-                                    isActive ? "text-white" : "text-gray-400 dark:text-gray-600 dark:bg-gray-800"
+                                    "w-14 h-14 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-900 transition-all duration-300 shadow-lg",
+                                    isActive ? "text-white shadow-green-500/50" : "text-gray-400 dark:text-gray-600 dark:bg-gray-800"
                                 )}
                             >
-                                <Icon size={16} />
+                                <Icon size={28} />
                             </motion.div>
                             <span className={cn(
-                                "absolute top-12 text-xs font-bold whitespace-nowrap transition-colors duration-300",
+                                "absolute top-16 text-xs md:text-sm font-bold whitespace-nowrap transition-colors duration-300",
                                 isActive ? "text-green-600 dark:text-green-400" : "text-gray-400 dark:text-gray-600"
                             )}>
                                 {step.label}
