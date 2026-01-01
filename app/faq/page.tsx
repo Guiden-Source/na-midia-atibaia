@@ -69,7 +69,7 @@ export default function FAQPage() {
               <MessageCircle className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="font-baloo2 text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-600 to-pink-600 dark:from-orange-400 dark:to-pink-400 bg-clip-text text-transparent">
+              <h1 className="font-baloo2 text-4xl md:text-5xl font-bold text-orange-600 dark:text-orange-400">
                 Perguntas Frequentes
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-1">

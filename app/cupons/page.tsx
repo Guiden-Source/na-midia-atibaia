@@ -88,7 +88,7 @@ export default async function CuponsPage() {
               <span className="text-sm font-medium">{totalCupons} {totalCupons === 1 ? 'Cupom' : 'Cupons'} Disponíveis</span>
             </div>
 
-            <h1 className="font-baloo2 text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="font-baloo2 text-4xl md:text-5xl font-bold text-orange-600 dark:text-orange-400">
               Meus Cupons
             </h1>
 

@@ -28,7 +28,7 @@ export default function ValidarCupomPage() {
 
   const handleValidate = async (codeToValidate?: string) => {
     const validationCode = codeToValidate || code;
-    
+
     if (!validationCode.trim()) {
       toast.error('Digite o código do cupom');
       return;
@@ -39,7 +39,7 @@ export default function ValidarCupomPage() {
 
     try {
       const response = await validateCoupon(validationCode);
-      
+
       if (response.success) {
         setResult({
           success: true,
@@ -102,7 +102,7 @@ export default function ValidarCupomPage() {
               <span className="text-sm font-medium">Validação de Cupons</span>
             </div>
 
-            <h1 className="font-baloo2 text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="font-baloo2 text-4xl md:text-5xl font-bold text-orange-600 dark:text-orange-400">
               Validar Cupom
             </h1>
 
@@ -151,11 +151,10 @@ export default function ValidarCupomPage() {
             {/* Result */}
             {result && (
               <div
-                className={`p-4 rounded-lg border-2 flex items-start gap-3 ${
-                  result.success
+                className={`p-4 rounded-lg border-2 flex items-start gap-3 ${result.success
                     ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-900 dark:text-green-100'
                     : 'bg-red-50 dark:bg-red-900/20 border-red-500 text-red-900 dark:text-red-100'
-                }`}
+                  }`}
               >
                 {result.success ? (
                   <Check className="w-6 h-6 flex-shrink-0 mt-0.5" />
@@ -186,7 +185,7 @@ export default function ValidarCupomPage() {
           {/* Info Card */}
           <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4">
             <p className="text-sm text-orange-900 dark:text-orange-100">
-              <strong>💡 Dica:</strong> Para escanear QR Codes, use a câmera do seu celular ou um app de leitura de QR Code. 
+              <strong>💡 Dica:</strong> Para escanear QR Codes, use a câmera do seu celular ou um app de leitura de QR Code.
               O código será preenchido automaticamente.
             </p>
           </div>

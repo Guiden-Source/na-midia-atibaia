@@ -166,7 +166,7 @@ function FinalCTA() {
         <div className="max-w-3xl mx-auto space-y-6">
           <h2 className="font-baloo2 text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white">
             Pronto para facilitar sua vida com
-            <span className="bg-gradient-to-r from-primary via-orange-500 to-pink-600 bg-clip-text text-transparent"> Delivery Rápido</span>?
+            <span className="text-orange-600 dark:text-orange-400"> Delivery Rápido</span>?
           </h2>
 
           <p className="text-base sm:text-lg text-gray-700 dark:text-gray-200 max-w-2xl mx-auto">
