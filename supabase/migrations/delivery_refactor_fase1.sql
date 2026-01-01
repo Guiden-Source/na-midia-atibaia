@@ -79,7 +79,6 @@ SELECT
   name,
   description,
   price,
-  image,
   emoji,
   category_id,
   active,
@@ -87,6 +86,7 @@ SELECT
   order_count,
   is_new,
   discount_percentage,
+  created_at,
   CASE 
     WHEN order_count >= 20 THEN 'bestseller'
     WHEN is_new = true THEN 'new'
