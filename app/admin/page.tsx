@@ -1,32 +1,55 @@
 "use client";
 
 import { AdminHeader } from '@/components/admin/AdminHeader';
-import { useAdminStats } from '@/hooks/useAdminStats';
-import { StatsGrid } from '@/components/admin/dashboard/StatsGrid';
-import { QuickLinks } from '@/components/admin/dashboard/QuickLinks';
-import { RecentActivity } from '@/components/admin/dashboard/RecentActivity';
+import { QuickStats } from '@/components/admin/dashboard/QuickStats';
+import { SalesChart } from '@/components/admin/dashboard/SalesChart';
+import { TopProducts } from '@/components/admin/dashboard/TopProducts';
+import { HealthIndicator } from '@/components/admin/dashboard/HealthIndicator';
+import { LiquidGlass } from '@/components/ui/liquid-glass';
 
 export default function AdminDashboard() {
-  const { stats, recentOrders, loading } = useAdminStats();
-
-  if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-4 sm:p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <AdminHeader
         title="Dashboard"
-        description="Visão geral do sistema"
+        description="Visão completa do delivery"
       />
 
-      <StatsGrid stats={stats} />
-      <QuickLinks stats={stats} />
-      <RecentActivity orders={recentOrders} stats={stats} />
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+        {/* Quick Stats */}
+        <QuickStats />
+
+        {/* Main Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Sales Chart - 2/3 width */}
+          <div className="lg:col-span-2">
+            <LiquidGlass className="p-6">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                📈 Vendas (Últimos 7 Dias)
+              </h3>
+              <SalesChart />
+            </LiquidGlass>
+          </div>
+
+          {/* Health Status - 1/3 width */}
+          <div>
+            <LiquidGlass className="p-6">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                🏥 Status do Sistema
+              </h3>
+              <HealthIndicator />
+            </LiquidGlass>
+          </div>
+        </div>
+
+        {/* Top Products */}
+        <LiquidGlass className="p-6">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            🏆 Top 5 Produtos Mais Vendidos
+          </h3>
+          <TopProducts />
+        </LiquidGlass>
+      </div>
     </div>
   );
 }
