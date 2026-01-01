@@ -30,7 +30,7 @@ SET
   manual_created = false,
   is_global = false,
   max_uses = 1,
-  times_used = CASE WHEN used = true THEN 1 ELSE 0 END
+  times_used = 0
 WHERE manual_created IS NULL;
 
 -- Criar índices para performance
