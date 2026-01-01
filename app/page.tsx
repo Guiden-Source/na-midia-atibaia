@@ -12,7 +12,7 @@ function HeroSection() {
     <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       {/* Background decorations */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
-      <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl" />
+      <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl" />
       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300/20 rounded-full blur-3xl" />
 
       <div className="container relative mx-auto px-5 sm:px-6 lg:px-8 pt-32 pb-16 sm:pt-40 sm:pb-24 lg:pt-48 lg:pb-32">
@@ -44,7 +44,7 @@ function HeroSection() {
           <div className="flex flex-col items-center justify-center gap-3">
             <Link
               href="/delivery"
-              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-10 py-5 min-h-[56px] font-baloo2 text-lg sm:text-xl font-bold text-white shadow-2xl transition-all hover:scale-105 hover:shadow-3xl hover:bg-orange-600 active:scale-95"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-10 py-5 min-h-[56px] font-baloo2 text-lg sm:text-xl font-bold text-white shadow-2xl transition-all hover:scale-105 hover:shadow-3xl hover:bg-orange-600 active:scale-95"
               aria-label="Fazer pedido agora"
             >
               Fazer Pedido Agora
@@ -55,19 +55,19 @@ function HeroSection() {
           {/* Quick Stats */}
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
             <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">⚡</div>
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-orange-600 dark:text-orange-400">⚡</div>
               <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Entrega Rápida</div>
             </div>
             <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">🏠</div>
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-orange-600 dark:text-orange-400">🏠</div>
               <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Sem Sair de Casa</div>
             </div>
             <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">💳</div>
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-orange-600 dark:text-orange-400">💳</div>
               <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Pagamento Fácil</div>
             </div>
             <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-primary">📱</div>
+              <div className="text-2xl sm:text-3xl font-baloo2 font-bold text-orange-600 dark:text-orange-400">📱</div>
               <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Pelo WhatsApp</div>
             </div>
           </div>
