@@ -16,12 +16,12 @@ export function PWAInstaller() {
           .register('/sw.js')
           .then((registration) => {
             console.log('✅ Service Worker registered:', registration);
-            
+
             // Check for updates
             registration.addEventListener('updatefound', () => {
               const newWorker = registration.installing;
               console.log('🔄 Service Worker update found');
-              
+
               if (newWorker) {
                 newWorker.addEventListener('statechange', () => {
                   if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
@@ -40,7 +40,7 @@ export function PWAInstaller() {
     // Detectar iOS Safari
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     const isStandalone = ('standalone' in (window.navigator as any)) && ((window.navigator as any).standalone);
-    
+
     // Mostrar prompt para iOS se não estiver instalado
     if (isIOS && !isStandalone) {
       const hasSeenPrompt = localStorage.getItem('pwa-ios-prompt-seen');
@@ -55,7 +55,7 @@ export function PWAInstaller() {
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      
+
       const hasSeenPrompt = localStorage.getItem('pwa-android-prompt-seen');
       if (!hasSeenPrompt) {
         setTimeout(() => {
@@ -84,12 +84,12 @@ export function PWAInstaller() {
 
   const handleAndroidInstall = async () => {
     if (!deferredPrompt) return;
-    
+
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
+
     console.log(`Install prompt outcome: ${outcome}`);
-    
+
     setDeferredPrompt(null);
     setShowAndroidPrompt(false);
     localStorage.setItem('pwa-android-prompt-seen', 'true');
@@ -112,18 +112,18 @@ export function PWAInstaller() {
           >
             <X className="w-5 h-5" />
           </button>
-          
+
           <div className="flex items-start gap-4 pr-10">
             <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center flex-shrink-0">
               <Download className="w-6 h-6" />
             </div>
-            
+
             <div className="flex-1">
-              <h3 className="font-bold text-lg mb-1">Instalar Na Mídia</h3>
+              <h3 className="font-bold text-lg mb-1">Instalar Na Mídia Delivery</h3>
               <p className="text-sm text-white/90 mb-3">
-                Adicione o app à tela inicial para acesso rápido e notificações de eventos!
+                Adicione o app à tela inicial para pedir mais rápido direto do seu celular!
               </p>
-              
+
               <div className="flex items-center gap-2 text-sm bg-white/20 backdrop-blur rounded-lg p-3">
                 <span>1. Toque no botão</span>
                 <Share className="w-5 h-5 mx-1" />
@@ -148,18 +148,18 @@ export function PWAInstaller() {
           >
             <X className="w-5 h-5" />
           </button>
-          
+
           <div className="flex items-start gap-4 pr-10">
             <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center flex-shrink-0">
               <Download className="w-6 h-6" />
             </div>
-            
+
             <div className="flex-1">
-              <h3 className="font-bold text-lg mb-1">Instalar Na Mídia</h3>
+              <h3 className="font-bold text-lg mb-1">Instalar Na Mídia Delivery</h3>
               <p className="text-sm text-white/90 mb-3">
-                Instale nosso app para acesso rápido e receber notificações de novos eventos!
+                Instale nosso app para fazer pedidos mais rápido e acompanhar suas entregas!
               </p>
-              
+
               <button
                 onClick={handleAndroidInstall}
                 className="bg-white text-orange-600 font-bold px-6 py-2 rounded-full hover:bg-white/90 transition-colors"
