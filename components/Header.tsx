@@ -86,19 +86,12 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
             <Link
-              href="/#eventos"
-              className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all"
-            >
-              Eventos
-            </Link>
-            <Link
               href="/delivery"
               className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all inline-flex items-center gap-2"
             >
               <ShoppingBag className="h-4 w-4" />
-              Delivery
+              Cardápio
             </Link>
-            {/* Promoções removido temporariamente */}
           </nav>
 
           {/* Actions */}
