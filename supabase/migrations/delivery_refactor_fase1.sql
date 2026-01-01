@@ -80,7 +80,7 @@ SELECT
   description,
   price,
   category_id,
-  active,
+  is_active,
   stock,
   order_count,
   is_new,
@@ -93,7 +93,7 @@ SELECT
     ELSE NULL
   END as badge_type
 FROM delivery_products
-WHERE active = true
+WHERE is_active = true
   AND (order_count >= 10 OR is_new = true OR discount_percentage > 0)
 ORDER BY order_count DESC, is_new DESC, discount_percentage DESC
 LIMIT 10;
