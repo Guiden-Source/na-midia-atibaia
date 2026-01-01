@@ -15,8 +15,11 @@ ADD COLUMN IF NOT EXISTS discount_percentage INTEGER DEFAULT 0;
 -- Marcar alguns produtos como "novos"
 UPDATE delivery_products 
 SET is_new = true 
-WHERE created_at > NOW() - INTERVAL '7 days'
-LIMIT 3;
+WHERE id IN (
+  SELECT id FROM delivery_products 
+  WHERE created_at > NOW() - INTERVAL '7 days'
+  LIMIT 3
+);
 
 -- Simular produtos mais pedidos (order_count)
 UPDATE delivery_products 
@@ -34,13 +37,19 @@ WHERE name ILIKE '%água%';
 -- Adicionar descontos promocionais
 UPDATE delivery_products 
 SET discount_percentage = 20 
-WHERE name ILIKE '%combo%'
-LIMIT 2;
+WHERE id IN (
+  SELECT id FROM delivery_products 
+  WHERE name ILIKE '%combo%'
+  LIMIT 2
+);
 
 UPDATE delivery_products 
 SET discount_percentage = 10 
-WHERE name ILIKE '%cerveja lata%'
-LIMIT 1;
+WHERE id IN (
+  SELECT id FROM delivery_products 
+  WHERE name ILIKE '%cerveja lata%'
+  LIMIT 1
+);
 
 -- 3. Ajustar estoque de alguns produtos
 UPDATE delivery_products 
