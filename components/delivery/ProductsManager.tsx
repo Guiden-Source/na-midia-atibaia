@@ -61,7 +61,7 @@ export function ProductsManager() {
   const loadData = async () => {
     try {
       const [categoriesRes, productsRes] = await Promise.all([
-        supabase.from('delivery_categories').select('*').order('order_index'),
+        supabase.from('delivery_categories').select('*').order('name'),
         supabase.from('delivery_products').select('*, category:delivery_categories(name)').order('created_at', { ascending: false })
       ]);
 
