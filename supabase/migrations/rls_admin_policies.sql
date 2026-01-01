@@ -9,7 +9,7 @@ ON delivery_orders FOR SELECT
 TO public
 USING (
   auth.email() IN (
-    'seu-email-admin@gmail.com'
+    'guidjvb@gmail.com'
   )
 );
 
@@ -19,7 +19,7 @@ ON delivery_products FOR SELECT
 TO public
 USING (
   auth.email() IN (
-    'seu-email-admin@gmail.com'
+    'guidjvb@gmail.com'
   )
 );
 
@@ -29,7 +29,7 @@ ON delivery_products FOR SELECT
 TO public
 USING (
   is_active = true
-  OR auth.email() IN ('seu-email-admin@gmail.com')
+  OR auth.email() IN ('guidjvb@gmail.com')
 );
 
 -- 4. delivery_order_items - Já tem policy (fixada antes)
@@ -45,7 +45,7 @@ ON delivery_products FOR INSERT
 TO public
 WITH CHECK (
   auth.email() IN (
-    'seu-email-admin@gmail.com'
+    'guidjvb@gmail.com'
   )
 );
 
@@ -55,7 +55,7 @@ ON delivery_products FOR UPDATE
 TO public
 USING (
   auth.email() IN (
-    'seu-email-admin@gmail.com'
+    'guidjvb@gmail.com'
   )
 );
 
@@ -65,7 +65,7 @@ ON delivery_products FOR DELETE
 TO public
 USING (
   auth.email() IN (
-    'seu-email-admin@gmail.com'
+    'guidjvb@gmail.com'
   )
 );
 
