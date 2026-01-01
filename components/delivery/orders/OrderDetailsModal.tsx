@@ -55,23 +55,20 @@ export function OrderDetailsModal({ order, onClose, onUpdateStatus }: OrderDetai
                                 <p className="text-gray-600 dark:text-gray-300">{order.user_name}</p>
                                 <p className="text-gray-600 dark:text-gray-300">{order.user_phone}</p>
                             </div>
-                            <h4 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                📍 Endereço
-                            </h4>
-                            <div className="text-gray-600 dark:text-gray-300 space-y-1">
-                                <p className="font-medium">
-                                    {order.address_street}, {order.address_number}
-                                </p>
-                                {order.address_complement && (
-                                    <p className="text-gray-700 dark:text-gray-300">
-                                        {order.address_complement}
+                            <div className="space-y-2">
+                                <h4 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    📍 Endereço
+                                </h4>
+                                <div className="text-gray-600 dark:text-gray-300 space-y-1">
+                                    <p className="font-medium">
+                                        {order.address_street}, {order.address_number}
                                     </p>
-                                )}
-                                {order.address_reference && (
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        Ref: {order.address_reference}
-                                    </p>
-                                )}
+                                    {order.address_complement && (
+                                        <p className="text-gray-700 dark:text-gray-300">
+                                            {order.address_complement}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -143,7 +140,6 @@ export function OrderDetailsModal({ order, onClose, onUpdateStatus }: OrderDetai
                 )}
             </div>
         </motion.div>
-            </div >
         </AnimatePresence >
     );
 }
