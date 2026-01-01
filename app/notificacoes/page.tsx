@@ -29,7 +29,7 @@ export default function NotificationsPage() {
       await initOneSignal();
       const subscribed = await isUserSubscribed();
       setIsSubscribed(subscribed);
-      
+
       if (subscribed) {
         const id = await getPlayerId();
         setPlayerId(id);
@@ -87,7 +87,7 @@ export default function NotificationsPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-4xl mx-auto px-4 py-12">
-          <Link 
+          <Link
             href="/perfil"
             className="inline-flex items-center text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 transition-colors mb-6"
           >
@@ -112,7 +112,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-4xl mx-auto px-4 py-12">
-        <Link 
+        <Link
           href="/perfil"
           className="inline-flex items-center text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 transition-colors mb-6"
         >
@@ -120,7 +120,7 @@ export default function NotificationsPage() {
           Voltar ao Perfil
         </Link>
 
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent mb-8">
+        <h1 className="text-4xl font-bold text-orange-600 dark:text-orange-400 mb-8">
           Gerenciar Notificações
         </h1>
 
@@ -142,19 +142,18 @@ export default function NotificationsPage() {
                   {isSubscribed ? 'Notificações Ativas' : 'Notificações Desativadas'}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400">
-                  {isSubscribed 
-                    ? 'Você receberá avisos sobre novos eventos' 
+                  {isSubscribed
+                    ? 'Você receberá avisos sobre novos eventos'
                     : 'Ative para receber avisos de eventos'}
                 </p>
               </div>
             </div>
-            
+
             {!isLoading && (
-              <div className={`px-4 py-2 rounded-full text-sm font-bold ${
-                isSubscribed 
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+              <div className={`px-4 py-2 rounded-full text-sm font-bold ${isSubscribed
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                   : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400'
-              }`}>
+                }`}>
                 {isSubscribed ? 'ATIVO' : 'INATIVO'}
               </div>
             )}
@@ -168,11 +167,10 @@ export default function NotificationsPage() {
             <button
               onClick={isSubscribed ? handleDisableNotifications : handleEnableNotifications}
               disabled={isLoading}
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
-                isSubscribed
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${isSubscribed
                   ? 'bg-red-500 hover:bg-red-600 text-white'
                   : 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg'
-              }`}
+                }`}
             >
               {isSubscribed ? (
                 <>
