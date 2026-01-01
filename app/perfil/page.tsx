@@ -20,7 +20,6 @@ export default function PerfilPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [stats, setStats] = useState({
     cupons: 0,
-    eventos: 0,
     pedidos: 0,
     carrinho: 0,
     enderecos: 0,
@@ -40,9 +39,8 @@ export default function PerfilPage() {
       setIsAdmin(isUserAdmin(user));
 
       // Buscar estatísticas
-      const [cuponsCount, eventosCount, pedidosCount, enderecosCount] = await Promise.all([
+      const [cuponsCount, pedidosCount, enderecosCount] = await Promise.all([
         supabase.from("coupons").select("*", { count: "exact", head: true }).eq("user_email", user.email || "").is("used_at", null),
-        supabase.from("confirmations").select("*", { count: "exact", head: true }).eq("user_email", user.email || ""),
         supabase.from("delivery_orders").select("*", { count: "exact", head: true }).eq("user_email", user.email || ""),
         supabase.from("delivery_addresses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
       ]);
@@ -51,7 +49,6 @@ export default function PerfilPage() {
 
       setStats({
         cupons: cuponsCount.count || 0,
-        eventos: eventosCount.count || 0,
         pedidos: pedidosCount.count || 0,
         carrinho: cart.items.length || 0,
         enderecos: enderecosCount.count || 0,

@@ -7,7 +7,6 @@ import { LiquidGlass } from '@/components/ui/liquid-glass';
 
 interface ProfileStats {
     cupons: number;
-    eventos: number;
     pedidos: number;
     carrinho: number;
     enderecos: number;
