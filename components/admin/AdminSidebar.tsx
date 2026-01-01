@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Home,
   Gift,
-  Ticket
+  Ticket,
+  FolderTree
 } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
@@ -28,6 +29,11 @@ const menuItems = [
     title: 'Produtos',
     href: '/admin/produtos',
     icon: Package,
+  },
+  {
+    title: 'Categorias',
+    href: '/admin/categorias',
+    icon: FolderTree,
   },
   {
     title: 'Pedidos',
