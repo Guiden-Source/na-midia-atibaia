@@ -55,7 +55,7 @@ export function useAdminStats() {
       const { count: activeProducts } = await supabase
         .from('delivery_products')
         .select('*', { count: 'exact', head: true })
-        .eq('active', true);
+        .eq('is_active', true);
 
       // Receita total (apenas pedidos completed)
       const { data: completedOrders } = await supabase
