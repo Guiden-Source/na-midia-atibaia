@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { CheckCircle, AlertCircle, XCircle, RefreshCw, Clock } from 'lucide-react';
-import type { HealthReport, HealthCheck } from '@/lib/health-check';
+import { runHealthCheck, type HealthReport, type HealthCheck } from '@/lib/health-check';
 
 export default function HealthPage() {
     const [report, setReport] = useState<HealthReport | null>(null);
@@ -14,8 +14,7 @@ export default function HealthPage() {
     const runCheck = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/health');
-            const data = await res.json();
+            const data = await runHealthCheck();
             setReport(data);
             setLastCheck(new Date());
         } catch (error) {
