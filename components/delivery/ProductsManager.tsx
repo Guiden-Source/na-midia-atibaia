@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Plus, Package } from 'lucide-react';
+import { Plus, Package, Copy } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { ProductForm } from './products/ProductForm';
 import { ProductFilters } from './products/ProductFilters';
@@ -178,6 +178,23 @@ export function ProductsManager() {
     setShowForm(true);
   };
 
+  const handleDuplicate = (product: DeliveryProduct) => {
+    // Remember last category for future products
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lastCategoryId', product.category_id);
+    }
+
+    // Pre-fill form with product data (but create new, don't edit)
+    setEditingProduct({
+      ...product,
+      id: '', // Force new creation
+      name: `${product.name} (cópia)`,
+      active: true,
+      featured: false,
+    });
+    setShowForm(true);
+  };
+
   const resetForm = () => {
     setShowForm(false);
     setEditingProduct(null);
@@ -238,6 +255,7 @@ export function ProductsManager() {
       <ProductAdminList
         products={filteredProducts}
         onEdit={handleEdit}
+        onDuplicate={handleDuplicate}
         onDelete={handleDelete}
         onToggleActive={handleToggleActive}
         onToggleFeatured={handleToggleFeatured}

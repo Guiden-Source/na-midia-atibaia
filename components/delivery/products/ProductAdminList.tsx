@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, Trash2, Star, Eye, EyeOff } from 'lucide-react';
+import { Edit, Trash2, Star, Eye, EyeOff, Copy } from 'lucide-react';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { formatPrice } from '@/lib/delivery/cart';
 
@@ -21,6 +21,7 @@ interface Product {
 interface ProductAdminListProps {
     products: Product[];
     onEdit: (product: Product) => void;
+    onDuplicate: (product: Product) => void;
     onDelete: (id: string) => void;
     onToggleActive: (product: Product) => void;
     onToggleFeatured: (product: Product) => void;
@@ -29,6 +30,7 @@ interface ProductAdminListProps {
 export function ProductAdminList({
     products,
     onEdit,
+    onDuplicate,
     onDelete,
     onToggleActive,
     onToggleFeatured,
@@ -109,8 +111,8 @@ export function ProductAdminList({
                                 <button
                                     onClick={() => onToggleFeatured(product)}
                                     className={`p-2 rounded-lg transition-colors ${product.featured
-                                            ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
-                                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700'
+                                        ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
+                                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700'
                                         }`}
                                     title={product.featured ? 'Remover destaque' : 'Destacar'}
                                 >
@@ -120,8 +122,8 @@ export function ProductAdminList({
                                 <button
                                     onClick={() => onToggleActive(product)}
                                     className={`p-2 rounded-lg transition-colors ${product.active
-                                            ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700'
+                                        ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                                        : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700'
                                         }`}
                                     title={product.active ? 'Desativar' : 'Ativar'}
                                 >
@@ -134,6 +136,14 @@ export function ProductAdminList({
                                     title="Editar"
                                 >
                                     <Edit size={18} />
+                                </button>
+
+                                <button
+                                    onClick={() => onDuplicate(product)}
+                                    className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/40 transition-colors"
+                                    title="Duplicar produto"
+                                >
+                                    <Copy size={18} />
                                 </button>
 
                                 <button
