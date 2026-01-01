@@ -95,11 +95,11 @@ export default function NotFound() {
             </Link>
 
             <Link
-              href="/#eventos"
+              href="/delivery"
               className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-orange-500 bg-white/80 backdrop-blur-sm px-8 py-4 font-baloo2 text-lg font-semibold text-orange-700 transition-all hover:scale-105 hover:bg-white hover:shadow-xl active:scale-95 dark:bg-gray-800/80 dark:text-orange-400 dark:hover:bg-gray-800"
             >
               <Search className="h-5 w-5" />
-              Ver Eventos
+              Ver Cardápio
             </Link>
           </motion.div>
 
