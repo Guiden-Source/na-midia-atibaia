@@ -44,7 +44,7 @@ export async function searchProducts(query: string): Promise<ProductWithBadge[]>
     const { data, error } = await supabase
         .from('delivery_products')
         .select('*')
-        .eq('active', true)
+        .eq('is_active', true)
         .or(`name.ilike.${searchTerm},description.ilike.${searchTerm}`)
         .order('order_count', { ascending: false })
         .limit(5);
@@ -67,7 +67,7 @@ export async function getFeaturedProducts(): Promise<ProductWithBadge[]> {
     const { data, error } = await supabase
         .from('delivery_products')
         .select('*')
-        .eq('active', true)
+        .eq('is_active', true)
         .or('order_count.gte.10,is_new.eq.true,discount_percentage.gt.0')
         .order('order_count', { ascending: false })
         .limit(10);
@@ -101,7 +101,7 @@ export async function getProductsSorted(
     let query = supabase
         .from('delivery_products')
         .select('*')
-        .eq('active', true);
+        .eq('is_active', true);
 
     if (categoryId) {
         query = query.eq('category_id', categoryId);
