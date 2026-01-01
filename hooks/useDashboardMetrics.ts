@@ -139,15 +139,17 @@ export function useTodayStats() {
         async function fetchTodayStats() {
             const supabase = createClient();
 
-            // Início do dia
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            // Calcular Range do Dia (Local Time -> UTC)
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-            // Pedidos de hoje
+            // Pedidos de hoje (considerando timezone local)
             const { data: orders, error } = await supabase
                 .from('delivery_orders')
-                .select('total, coupon_code')
-                .gte('created_at', today.toISOString());
+                .select('total, coupon_code, created_at')
+                .gte('created_at', startOfDay.toISOString())
+                .lte('created_at', endOfDay.toISOString());
 
             if (error || !orders) {
                 setLoading(false);
