@@ -140,6 +140,7 @@ export function OrderDetailsModal({ order, onClose, onUpdateStatus }: OrderDetai
                 )}
             </div>
         </motion.div>
+            </div >
         </AnimatePresence >
     );
 }
