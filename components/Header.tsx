@@ -178,17 +178,6 @@ export default function Header() {
               Home
             </Link>
             <Link
-              href="/#eventos"
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all ${pathname === '/#eventos' || pathname.includes('evento')
-                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
-                : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
-                }`}
-              onClick={() => setShowMobileMenu(false)}
-            >
-              <span className="text-xl">📅</span>
-              Eventos
-            </Link>
-            <Link
               href="/delivery"
               className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all ${pathname.startsWith('/delivery')
                 ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
@@ -197,7 +186,7 @@ export default function Header() {
               onClick={() => setShowMobileMenu(false)}
             >
               <ShoppingBag className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-              Delivery
+              Cardápio
             </Link>
             {/* Promoções removido temporariamente */}
 
