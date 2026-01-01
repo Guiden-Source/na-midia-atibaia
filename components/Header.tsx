@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { CartBadge } from './delivery/CartBadge';
-import { Moon, Sun, Search, X, User, Menu, ShoppingBag, Gift, LogOut, Home } from 'lucide-react';
+import { Moon, Sun, User, Menu, ShoppingBag, Gift, LogOut, Home } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
@@ -78,7 +78,7 @@ export default function Header() {
               alt="Na Mídia"
               width={140}
               height={50}
-              className="h-10 sm:h-12 w-auto dark:brightness-0 dark:invert"
+              className="h-10 sm:h-12 w-auto"
               priority
             />
           </Link>
@@ -103,14 +103,6 @@ export default function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            {/* Search Button */}
-            <button
-              onClick={() => setShowSearch((s) => !s)}
-              className="hidden lg:block p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all"
-              aria-label="Buscar"
-            >
-              <Search className="h-5 w-5" />
-            </button>
 
             {/* Dark Mode Toggle */}
             <button
@@ -176,29 +168,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Search Bar */}
-        {showSearch && (
-          <form onSubmit={onSearch} className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <div className="relative">
-              <input
-                className="w-full rounded-xl px-4 py-2.5 pl-10 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-base text-gray-900 dark:text-white placeholder:text-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                placeholder="Buscar eventos, produtos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 h-4 w-4" />
-              <button
-                type="button"
-                onClick={() => { setShowSearch(false); setSearchQuery(''); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-                aria-label="Fechar busca"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-          </form>
-        )}
+
 
         {/* Mobile Menu */}
         {showMobileMenu && (
@@ -206,8 +176,8 @@ export default function Header() {
             <Link
               href="/"
               className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all ${pathname === '/'
-                  ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
-                  : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
+                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
                 }`}
               onClick={() => setShowMobileMenu(false)}
             >
@@ -217,8 +187,8 @@ export default function Header() {
             <Link
               href="/#eventos"
               className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all ${pathname === '/#eventos' || pathname.includes('evento')
-                  ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
-                  : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
+                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
                 }`}
               onClick={() => setShowMobileMenu(false)}
             >
@@ -228,8 +198,8 @@ export default function Header() {
             <Link
               href="/delivery"
               className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all ${pathname.startsWith('/delivery')
-                  ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
-                  : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
+                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
                 }`}
               onClick={() => setShowMobileMenu(false)}
             >
@@ -243,8 +213,8 @@ export default function Header() {
                 <Link
                   href="/perfil"
                   className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all ${pathname.startsWith('/perfil')
-                      ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
-                      : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
+                    ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                    : 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-gray-900 dark:text-white'
                     }`}
                   onClick={() => setShowMobileMenu(false)}
                 >
