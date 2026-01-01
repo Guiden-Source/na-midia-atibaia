@@ -32,7 +32,7 @@ function HeroSection() {
           {/* Heading */}
           <h1 className="mb-6 text-center font-baloo2 text-3xl font-extrabold leading-[1.15] tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-7xl">
             Delivery Rápido e Fácil <br />
-            <span className="bg-gradient-to-r from-primary via-orange-500 to-orange-600 bg-clip-text text-transparent">No Seu Condomínio</span>
+            <span className="text-orange-600 dark:text-orange-400">No Seu Condomínio</span>
           </h1>
 
           {/* Subheading */}
