@@ -79,7 +79,6 @@ SELECT
   name,
   description,
   price,
-  emoji,
   category_id,
   active,
   stock,
