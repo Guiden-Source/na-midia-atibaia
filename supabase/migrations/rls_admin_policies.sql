@@ -1,88 +1,57 @@
 -- ================================================
--- RLS POLICIES FOR ADMIN STATISTICS
+-- RLS POLICIES FOR ADMIN STATISTICS & PRODUCTS
 -- ================================================
--- Permitir admin fazer COUNT queries para estatísticas
+-- Execute este SQL no Supabase SQL Editor
+-- ANTES: Substitua 'seu-email-admin@gmail.com' pelo seu email real!
 
--- 1. delivery_orders - Admin pode contar todos os pedidos
-CREATE POLICY IF NOT EXISTS "Admin can count all orders"
-ON delivery_orders FOR SELECT
-TO public
-USING (
-  auth.email() IN (
-    'guidjvb@gmail.com'
-  )
-);
+-- Nota: Se policies já existirem, você verá erro "already exists" - pode ignorar
 
--- 2. delivery_products - Admin pode contar produtos
-CREATE POLICY IF NOT EXISTS "Admin can count all products"  
+-- ================================================
+-- DELIVERY_PRODUCTS POLICIES
+-- ================================================
+
+-- Admin pode ver todos os produtos (para estatísticas e gerenciamento)
+CREATE POLICY "Admin can view all products"
 ON delivery_products FOR SELECT
 TO public
 USING (
-  auth.email() IN (
-    'guidjvb@gmail.com'
-  )
+  auth.email() IN ('seu-email-admin@gmail.com')
 );
 
--- 3. delivery_products - Users podem ver apenas ativos
-CREATE POLICY IF NOT EXISTS "Users can view active products"
+-- Users podem ver apenas produtos ativos
+CREATE POLICY "Users can view active products only"
 ON delivery_products FOR SELECT
 TO public
 USING (
   is_active = true
-  OR auth.email() IN ('guidjvb@gmail.com')
 );
 
--- 4. delivery_order_items - Já tem policy (fixada antes)
--- Verificar se existe, senão criar
-
--- ================================================
--- POLICIES PARA ADMIN GERENCIAR PRODUTOS
--- ================================================
-
--- INSERT
-CREATE POLICY IF NOT EXISTS "Admin can insert products"
+-- Admin pode criar produtos
+CREATE POLICY "Admin can insert products"
 ON delivery_products FOR INSERT
 TO public
 WITH CHECK (
-  auth.email() IN (
-    'guidjvb@gmail.com'
-  )
+  auth.email() IN ('seu-email-admin@gmail.com')
 );
 
--- UPDATE  
-CREATE POLICY IF NOT EXISTS "Admin can update products"
+-- Admin pode atualizar produtos
+CREATE POLICY "Admin can update products"
 ON delivery_products FOR UPDATE
 TO public
 USING (
-  auth.email() IN (
-    'guidjvb@gmail.com'
-  )
+  auth.email() IN ('seu-email-admin@gmail.com')
 );
 
--- DELETE
-CREATE POLICY IF NOT EXISTS "Admin can delete products"
+-- Admin pode deletar produtos
+CREATE POLICY "Admin can delete products"
 ON delivery_products FOR DELETE
 TO public
 USING (
-  auth.email() IN (
-    'guidjvb@gmail.com'
-  )
+  auth.email() IN ('seu-email-admin@gmail.com')
 );
 
 -- ================================================
--- RESUMO DAS POLICIES
+-- FIM
 -- ================================================
--- delivery_orders:
---   ✅ Admin vê todos (SELECT)
---   ✅ Admin atualiza todos (UPDATE - já existe)
---   ✅ Users criam (INSERT - já existe)
---   ✅ Users veem próprios (SELECT - já existe)
-
--- delivery_order_items:
---   ✅ Admin vê todos (SELECT - criada antes)
---   ✅ Users criam (INSERT - já existe)
---   ✅ Users veem itens próprios (SELECT - já existe)
-
--- delivery_products:
---   ✅ Admin full access (SELECT, INSERT, UPDATE, DELETE)
---   ✅ Users veem apenas is_active=true
+-- Policies para delivery_orders e delivery_order_items já foram criadas anteriormente
+-- Estatísticas devem funcionar após executar este SQL
