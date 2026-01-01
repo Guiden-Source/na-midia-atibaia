@@ -12,12 +12,12 @@ const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], 
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://namidia.com.br'),
-  title: 'Na Mídia - Eventos em Atibaia | Ganhe Cupons de Bebida',
-  description: 'Descubra os melhores eventos em Atibaia. Confirme presença, veja as bebidas disponíveis e ganhe cupons de desconto. Grátis e fácil!',
-  keywords: ['eventos atibaia', 'festas atibaia', 'bebidas grátis', 'cupons', 'rolê atibaia', 'na mídia', 'eventos'],
-  authors: [{ name: 'Na Mídia' }],
-  creator: 'Na Mídia',
-  publisher: 'Na Mídia',
+  title: 'Na Mídia Delivery - Entrega Grátis em 30min | Jerônimo de Camargo',
+  description: 'Delivery rápido e fácil direto no seu apartamento! Receba em até 30 minutos no Jerônimo de Camargo 1 e 2. Peça pelo celular e receba em casa. 🏠📱',
+  keywords: ['delivery atibaia', 'delivery jerônimo de camargo', 'entrega grátis', 'mercado delivery', 'atibaia delivery', 'pedido online', 'na mídia delivery'],
+  authors: [{ name: 'Na Mídia Delivery' }],
+  creator: 'Na Mídia Delivery',
+  publisher: 'Na Mídia Delivery',
   manifest: '/manifest.json',
   icons: {
     icon: [
@@ -35,28 +35,28 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Na Mídia'
+    title: 'Na Mídia Delivery'
   },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
     url: 'https://namidia.com.br',
-    title: 'Na Mídia - Eventos em Atibaia | Ganhe Cupons de Bebida',
-    description: 'Descubra eventos em Atibaia, veja as bebidas disponíveis e ganhe cupons de desconto. Simples, rápido e gratuito!',
-    siteName: 'Na Mídia',
+    title: '🛒 Na Mídia Delivery - Entrega em 30min no Jerônimo de Camargo',
+    description: '📱 Peça pelo celular e receba em casa!\n🏠 Jerônimo de Camargo 1 e 2\n⚡ Entrega rápida em até 30 minutos\n💳 Pagamento fácil (PIX, dinheiro, cartão)',
+    siteName: 'Na Mídia Delivery',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Na Mídia - Eventos + Bebidas Grátis',
+        alt: 'Na Mídia Delivery - Receba em 30 minutos',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Na Mídia - Eventos em Atibaia | Ganhe Cupons de Bebida',
-    description: 'Descubra eventos e ganhe cupons de desconto em bebidas!',
+    title: 'Na Mídia Delivery - Entrega Grátis em 30min',
+    description: 'Peça pelo celular e receba em casa no Jerônimo de Camargo!',
     images: ['/og-image.png'],
   },
   robots: {
@@ -142,7 +142,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   className="h-10 w-auto"
                 />
                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                  Descubra os melhores eventos em Atibaia e ganhe cupons de desconto em bebidas.
+                  Delivery rápido e fácil no Jerônimo de Camargo 1 e 2. Peça pelo celular e receba em até 30 minutos!
                 </p>
               </div>
 
@@ -153,18 +153,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 </h3>
                 <ul className="space-y-2">
                   <li>
-                    <a href="/" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
-                      Eventos
+                    <a href="/delivery" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                      Cardápio
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/perfil" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                      Meus Pedidos
                     </a>
                   </li>
                   <li>
                     <a href="/cupons" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
                       Meus Cupons
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/#como-funciona" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
-                      Como Funciona
                     </a>
                   </li>
                 </ul>
