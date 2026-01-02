@@ -11,6 +11,7 @@ import type {
   CheckoutFormData,
   CartItem,
 } from './types';
+import { getEffectivePrice } from './cart-logic';
 
 // =====================================================
 // CATEGORIAS
@@ -130,14 +131,17 @@ export async function createOrder(
 ): Promise<DeliveryOrder> {
   try {
     // Preparar itens para o RPC
-    const itemsJson = cartItems.map((item) => ({
-      product_id: item.product.id,
-      product_name: item.product.name,
-      product_image: item.product.image_url,
-      price: item.product.price,
-      quantity: item.quantity,
-      subtotal: item.product.price * item.quantity,
-    }));
+    const itemsJson = cartItems.map((item) => {
+      const effectivePrice = getEffectivePrice(item.product);
+      return {
+        product_id: item.product.id,
+        product_name: item.product.name,
+        product_image: item.product.image_url,
+        price: effectivePrice,
+        quantity: item.quantity,
+        subtotal: effectivePrice * item.quantity,
+      };
+    });
 
     // Chamar RPC atômico
     const { data, error } = await supabase.rpc('create_delivery_order_complete', {
