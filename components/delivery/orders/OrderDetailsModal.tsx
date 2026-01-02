@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, MessageCircle } from 'lucide-react';
 import { formatPrice } from '@/lib/delivery/cart';
 import { STATUS_CONFIG, Order, OrderStatus } from './types';
 
@@ -72,6 +72,19 @@ export function OrderDetailsModal({ order, onClose, onUpdateStatus }: OrderDetai
                                 )}
                             </div>
                         </div>
+
+                        {/* Observações */}
+                        {order.notes && (
+                            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4">
+                                <h4 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <MessageCircle className="text-orange-500" size={20} />
+                                    Observações do Cliente
+                                </h4>
+                                <p className="text-gray-700 dark:text-gray-300 italic">
+                                    "{order.notes}"
+                                </p>
+                            </div>
+                        )}
 
                         {/* Items */}
                         <div>
