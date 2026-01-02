@@ -6,7 +6,7 @@ import { Plus, Package, Copy } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { ProductForm } from './products/ProductForm';
 import { ProductFilters } from './products/ProductFilters';
-import { ProductAdminList } from './products/ProductAdminList';
+import { ProductAdminTable } from './products/ProductAdminTable';
 
 // Types
 type Category = {
@@ -255,7 +255,7 @@ export function ProductsManager() {
         categories={categories}
       />
 
-      <ProductAdminList
+      <ProductAdminTable
         products={filteredProducts}
         onEdit={handleEdit}
         onDuplicate={handleDuplicate}
