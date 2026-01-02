@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { clearCart, formatPrice, validateCart } from '@/lib/delivery/cart';
+import { clearCart, validateCart } from '@/lib/delivery/cart';
 import { createOrder } from '@/lib/delivery/queries';
 import { ALLOWED_CONDOMINIUMS, PAYMENT_METHODS } from '@/lib/delivery/types';
 import { ArrowLeft, AlertCircle, User, MapPin, CreditCard } from 'lucide-react';
 import Link from 'next/link';
+import { formatPrice } from '@/lib/delivery/cart';
+import { getEffectivePrice } from '@/lib/delivery/cart-logic';
 import { useUser } from '@/lib/auth/hooks';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { motion } from 'framer-motion';
@@ -331,7 +333,7 @@ export default function CheckoutPage() {
                       required
                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all ${errors.whatsapp ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
                         }`}
-                      placeholder="(11) 99999-9999"
+                      placeholder="Coloque seu WhatsApp com DDD"
                     />
                     {errors.whatsapp && (
                       <p className="text-red-500 text-sm mt-1">{errors.whatsapp}</p>
@@ -350,7 +352,7 @@ export default function CheckoutPage() {
                       required
                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all ${errors.receiver_name ? 'border-red-500' : 'border-gray-200 dark:border-gray-700'
                         }`}
-                      placeholder="João da Silva"
+                      placeholder="Coloque o nome de quem vai receber"
                     />
                     {errors.receiver_name && (
                       <p className="text-red-500 text-sm mt-1">{errors.receiver_name}</p>
@@ -378,9 +380,8 @@ export default function CheckoutPage() {
                       value={formData.condominium}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
                     >
-                      <option value="">Selecione o condomínio</option>
+                      <option value="">Selecione o seu condomínio</option>
                       {ALLOWED_CONDOMINIUMS.map((cond) => (
                         <option key={cond} value={cond}>
                           {cond}
@@ -402,7 +403,7 @@ export default function CheckoutPage() {
                         onChange={handleInputChange}
 
                         className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
-                        placeholder="05"
+                        placeholder="Coloque o bloco"
                       />
                     </div>
 
@@ -418,7 +419,7 @@ export default function CheckoutPage() {
                         onChange={handleInputChange}
 
                         className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
-                        placeholder="42"
+                        placeholder="Coloque o número do apartamento"
                       />
                     </div>
                   </div>
@@ -499,7 +500,7 @@ export default function CheckoutPage() {
                   onChange={handleInputChange}
                   rows={4}
                   className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none outline-none transition-all"
-                  placeholder="Alguma observação sobre o pedido? Ex: Deixar na portaria, tocar interfone, etc."
+                  placeholder="Escreva aqui observações importantes para a entrega (Ex: tocar interfone)"
                 />
               </LiquidGlass>
 
@@ -567,7 +568,7 @@ export default function CheckoutPage() {
                       {item.name} x{item.quantity}
                     </span>
                     <span className="font-bold text-gray-900 dark:text-white">
-                      {formatPrice(item.price * item.quantity)}
+                      {formatPrice(getEffectivePrice(item) * item.quantity)}
                     </span>
                   </div>
                 ))}
