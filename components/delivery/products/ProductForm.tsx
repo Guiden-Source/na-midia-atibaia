@@ -64,9 +64,11 @@ export function ProductForm({
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-0 md:p-6">
-            <div className="bg-white dark:bg-gray-900 rounded-none md:rounded-2xl shadow-2xl w-full h-full md:w-[90%] md:max-w-6xl md:h-[90vh] flex flex-col">
-                {/* Header */}
-                <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between">
+            {/* CONTAINER PRINCIPAL - COM FLEX FLEX-COL */}
+            <div className="bg-white dark:bg-gray-900 rounded-none md:rounded-2xl shadow-2xl w-full h-full md:w-[90%] md:max-w-6xl md:h-[90vh] flex flex-col overflow-hidden">
+
+                {/* HEADER - STICKY NO TOPO */}
+                <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between flex-shrink-0 z-10">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                         {isEditing ? 'Editar Produto' : 'Novo Produto'}
                     </h2>
@@ -78,8 +80,11 @@ export function ProductForm({
                     </button>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                {/* FORM CONTENT - SCROLLÁVEL */}
+                <form
+                    onSubmit={handleSubmit}
+                    className="flex-1 overflow-y-auto px-6 py-6 space-y-4"
+                >
                     {/* Nome */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -205,34 +210,38 @@ export function ProductForm({
                         </label>
                     </div>
 
-                    {/* Buttons */}
-                    <div className="flex gap-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            className="flex-1 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="flex-1 px-6 py-3 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    Salvando...
-                                </>
-                            ) : (
-                                <>
-                                    <Check size={20} />
-                                    {isEditing ? 'Atualizar' : 'Criar Produto'}
-                                </>
-                            )}
-                        </button>
-                    </div>
+                    {/* Padding extra para evitar que botões sobreponham o conteúdo */}
+                    <div className="h-24" />
                 </form>
+
+                {/* FOOTER COM BOTÕES - STICKY NO RODAPÉ */}
+                <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-6 py-4 flex gap-3 flex-shrink-0">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="flex-1 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        onClick={handleSubmit}
+                        className="flex-1 px-6 py-3 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Salvando...
+                            </>
+                        ) : (
+                            <>
+                                <Check size={20} />
+                                {isEditing ? 'Atualizar' : 'Criar Produto'}
+                            </>
+                        )}
+                    </button>
+                </div>
             </div>
         </div>
     );
