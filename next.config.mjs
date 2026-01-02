@@ -15,6 +15,10 @@ const nextConfig = {
       { protocol: 'https', hostname: 'picsum.photos' },
       // Supabase Storage (substitua pelo seu projeto)
       { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: 'i.imgur.com' },
+      { protocol: 'https', hostname: 'imgur.com' },
+      { protocol: 'https', hostname: '*.vtexassets.com' },
+      { protocol: 'https', hostname: 'http2.mlstatic.com' }, // Mercado Livre
     ],
   },
 };

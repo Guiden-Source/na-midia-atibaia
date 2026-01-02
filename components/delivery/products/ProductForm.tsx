@@ -12,6 +12,7 @@ interface ProductFormData {
     image_url: string;
     is_active: boolean;
     is_featured: boolean;
+    stock: number;
 }
 
 interface Category {
@@ -43,6 +44,7 @@ export function ProductForm({
         image_url: '',
         is_active: true,
         is_featured: false,
+        stock: 10,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -140,6 +142,22 @@ export function ProductForm({
                                 placeholder="0.00"
                             />
                         </div>
+                    </div>
+
+                    {/* Estoque */}
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
+                            Estoque Atual
+                        </label>
+                        <input
+                            type="number"
+                            min="0"
+                            required
+                            value={formData.stock}
+                            onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            placeholder="Ex: 50"
+                        />
                     </div>
 
                     {/* Categoria */}

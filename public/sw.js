@@ -14,21 +14,21 @@ const STATIC_ASSETS = [
 // Install Service Worker
 self.addEventListener('install', (event) => {
   console.log('[ServiceWorker] Installing...');
-  
+
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
       console.log('[ServiceWorker] Caching static assets');
       return cache.addAll(STATIC_ASSETS);
     })
   );
-  
+
   self.skipWaiting();
 });
 
 // Activate Service Worker
 self.addEventListener('activate', (event) => {
   console.log('[ServiceWorker] Activating...');
-  
+
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -41,19 +41,19 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
-  
+
   return self.clients.claim();
 });
 
 // Fetch Strategy: Network First, fallback to Cache
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  
+
   // Skip non-GET requests
   if (request.method !== 'GET') {
     return;
   }
-  
+
   // Skip API calls and Supabase requests (always fresh)
   if (
     request.url.includes('/api/') ||
@@ -62,20 +62,25 @@ self.addEventListener('fetch', (event) => {
   ) {
     return;
   }
-  
+
+  // Skip unsupported schemes (chrome-extension, etc)
+  if (!request.url.startsWith('http')) {
+    return;
+  }
+
   event.respondWith(
     fetch(request)
       .then((response) => {
         // Clone response for cache
         const responseClone = response.clone();
-        
+
         // Cache successful responses
         if (response.status === 200) {
           caches.open(DYNAMIC_CACHE).then((cache) => {
             cache.put(request, responseClone);
           });
         }
-        
+
         return response;
       })
       .catch(() => {
@@ -84,7 +89,7 @@ self.addEventListener('fetch', (event) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          
+
           // Return offline page if available
           return caches.match('/');
         });
@@ -95,7 +100,7 @@ self.addEventListener('fetch', (event) => {
 // Background Sync for offline actions
 self.addEventListener('sync', (event) => {
   console.log('[ServiceWorker] Background sync:', event.tag);
-  
+
   if (event.tag === 'sync-confirmations') {
     event.waitUntil(
       // Sync confirmation data when back online
@@ -107,10 +112,10 @@ self.addEventListener('sync', (event) => {
 // Push Notifications (OneSignal will handle this, but we can intercept)
 self.addEventListener('push', (event) => {
   console.log('[ServiceWorker] Push received');
-  
+
   if (event.data) {
     const data = event.data.json();
-    
+
     const options = {
       body: data.body || 'Novo evento disponível!',
       icon: '/icon-192.png',
@@ -120,7 +125,7 @@ self.addEventListener('push', (event) => {
         url: data.url || '/',
       },
     };
-    
+
     event.waitUntil(
       self.registration.showNotification(data.title || 'Na Mídia', options)
     );
@@ -130,11 +135,11 @@ self.addEventListener('push', (event) => {
 // Notification Click Handler
 self.addEventListener('notificationclick', (event) => {
   console.log('[ServiceWorker] Notification clicked');
-  
+
   event.notification.close();
-  
+
   const urlToOpen = event.notification.data?.url || '/';
-  
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       // Check if there's already a window open
@@ -143,7 +148,7 @@ self.addEventListener('notificationclick', (event) => {
           return client.focus();
         }
       }
-      
+
       // Open new window
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);

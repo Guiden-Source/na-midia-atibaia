@@ -21,12 +21,12 @@ type DeliveryProduct = {
   name: string;
   description: string;
   price: number;
-  price: number;
   promotional_price?: number;
   image_url?: string;
   category_id: string;
   is_active: boolean;
   is_featured: boolean;
+  stock: number;
   category?: { name: string };
 };
 
@@ -39,6 +39,7 @@ type ProductFormData = {
   image_url: string;
   is_active: boolean;
   is_featured: boolean;
+  stock: number;
 };
 
 export function ProductsManager() {
@@ -90,6 +91,7 @@ export function ProductsManager() {
         image_url: formData.image_url || null,
         is_active: formData.is_active,
         is_featured: formData.is_featured,
+        stock: formData.stock,
       };
 
       if (editingProduct) {
@@ -273,6 +275,7 @@ export function ProductsManager() {
             image_url: editingProduct.image_url || '',
             is_active: editingProduct.is_active,
             is_featured: editingProduct.is_featured,
+            stock: editingProduct.stock || 0,
           } : undefined}
           categories={categories}
           onSubmit={handleSubmit}
