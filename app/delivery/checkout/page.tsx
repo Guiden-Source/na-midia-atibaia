@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { clearCart, validateCart } from '@/lib/delivery/cart';
 import { createOrder } from '@/lib/delivery/queries';
+import { supabase } from '@/lib/supabase';
 import { ALLOWED_CONDOMINIUMS, PAYMENT_METHODS } from '@/lib/delivery/types';
 import { ArrowLeft, AlertCircle, User, MapPin, CreditCard, Ticket } from 'lucide-react';
 import Link from 'next/link';
@@ -60,8 +61,38 @@ export default function CheckoutPage() {
     payment_method: 'pix',
     change_for: undefined,
     notes: '',
-    coupon_code: '', // ← NOVO
+    notes: '',
+    coupon_code: '',
   });
+
+  // Carregar dados do perfil
+  useEffect(() => {
+    async function loadProfile() {
+      if (!user) return;
+
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profile) {
+          setFormData(prev => ({
+            ...prev,
+            whatsapp: profile.whatsapp || prev.whatsapp,
+            condominium: profile.address_condominium || prev.condominium,
+            block: profile.address_block || prev.block,
+            apartment: profile.address_apartment || prev.apartment,
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    }
+
+    loadProfile();
+  }, [user]);
 
   useEffect(() => {
     // Verificar se carrinho está vazio (apenas se não estiver submetendo)
@@ -219,6 +250,21 @@ export default function CheckoutPage() {
         user?.id // Optional
       );
 
+
+
+      // ← NOVO: Atualizar perfil com dados novos (Silent Update)
+      if (user) {
+        supabase.from('profiles').update({
+          whatsapp: formData.whatsapp,
+          address_condominium: formData.condominium,
+          address_block: formData.block,
+          address_apartment: formData.apartment,
+          updated_at: new Date().toISOString(),
+        }).eq('id', user.id).then(({ error }) => {
+          if (error) console.error('Erro ao atualizar perfil:', error);
+        });
+      }
+
       // ← NOVO: Marcar cupom como usado (se foi aplicado)
       if (isCouponValid && couponCode) {
         try {
@@ -236,7 +282,7 @@ export default function CheckoutPage() {
         try {
           // Contar quantos pedidos o usuário já fez (incluindo este)
           const orderCount = await getUserOrderCount(user.email);
-
+  
           // Gerar cupom para próximo pedido
           const newCoupon = await generateProgressiveCoupon(
             user.email,
@@ -244,9 +290,9 @@ export default function CheckoutPage() {
             orderCount, // Número do pedido que acabou de fazer
             finalTotal
           );
-
+  
           console.log('[Cupom] Novo cupom gerado:', newCoupon.code, `(${newCoupon.discount_percentage}% OFF)`);
-
+  
           // Mostrar toast com o novo cupom
           toast.success(
             `Pedido confirmado! Ganhou ${newCoupon.discount_percentage}% OFF no próximo: ${newCoupon.code}`,

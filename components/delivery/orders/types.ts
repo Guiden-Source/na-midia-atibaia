@@ -17,6 +17,8 @@ export type Order = {
     address_condominium: string;
     address_block?: string;
     address_apartment?: string;
+    notes?: string;
+    change_for?: number;
     items: any[]; // JSONB
 };
 
