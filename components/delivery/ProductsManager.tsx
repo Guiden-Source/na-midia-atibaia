@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Plus, Package, Copy } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { ProductForm } from './products/ProductForm';
+import { useRouter } from 'next/navigation';
 import { ProductFilters } from './products/ProductFilters';
 import { ProductAdminTable } from './products/ProductAdminTable';
 
@@ -43,11 +43,10 @@ type ProductFormData = {
 };
 
 export function ProductsManager() {
+  const router = useRouter();
   const [products, setProducts] = useState<DeliveryProduct[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<DeliveryProduct | null>(null);
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,44 +79,7 @@ export function ProductsManager() {
     }
   };
 
-  const handleSubmit = async (formData: ProductFormData) => {
-    try {
-      const productData = {
-        name: formData.name,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        promotional_price: formData.promotional_price ? parseFloat(formData.promotional_price) : null,
-        category_id: formData.category_id,
-        image_url: formData.image_url || null,
-        is_active: formData.is_active,
-        is_featured: formData.is_featured,
-        stock: formData.stock,
-      };
 
-      if (editingProduct && editingProduct.id) {
-        const { error } = await supabase
-          .from('delivery_products')
-          .update(productData)
-          .eq('id', editingProduct.id);
-
-        if (error) throw error;
-        toast.success('Produto atualizado com sucesso!');
-      } else {
-        const { error } = await supabase
-          .from('delivery_products')
-          .insert([productData]);
-
-        if (error) throw error;
-        toast.success('Produto criado com sucesso!');
-      }
-
-      await loadData();
-      resetForm();
-    } catch (error) {
-      console.error('Error saving product:', error);
-      toast.error('Erro ao salvar produto');
-    }
-  };
 
   const handleDelete = async (productId: string) => {
     if (!confirm('Tem certeza que deseja excluir este produto?')) return;
@@ -177,30 +139,14 @@ export function ProductsManager() {
   };
 
   const handleEdit = (product: DeliveryProduct) => {
-    setEditingProduct(product);
-    setShowForm(true);
+    router.push(`/admin/produtos/editar/${product.id}`);
   };
 
   const handleDuplicate = (product: DeliveryProduct) => {
-    // Remember last category for future products
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lastCategoryId', product.category_id);
-    }
-
-    // Pre-fill form with product data (but create new, don't edit)
-    setEditingProduct({
-      ...product,
-      id: '', // Force new creation
-      name: `${product.name} (cópia)`,
-      is_active: true,
-      is_featured: false,
-    });
-    setShowForm(true);
-  };
-
-  const resetForm = () => {
-    setShowForm(false);
-    setEditingProduct(null);
+    // For now, simpler duplicate just redirects to new page. 
+    // In future we can pass ID via query param to prefill.
+    // router.push(`/admin/produtos/novo?duplicate=${product.id}`);
+    toast('Função de duplicar em manutenção', { icon: '🚧' });
   };
 
   const filteredProducts = products.filter(product => {
@@ -237,7 +183,7 @@ export function ProductsManager() {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => router.push('/admin/produtos/novo')}
           className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
         >
           <Plus size={20} />
@@ -264,25 +210,7 @@ export function ProductsManager() {
         onToggleFeatured={handleToggleFeatured}
       />
 
-      {showForm && (
-        <ProductForm
-          initialData={editingProduct ? {
-            name: editingProduct.name,
-            description: editingProduct.description,
-            price: editingProduct.price.toString(),
-            promotional_price: editingProduct.promotional_price?.toString() || '',
-            category_id: editingProduct.category_id,
-            image_url: editingProduct.image_url || '',
-            is_active: editingProduct.is_active,
-            is_featured: editingProduct.is_featured,
-            stock: editingProduct.stock || 0,
-          } : undefined}
-          categories={categories}
-          onSubmit={handleSubmit}
-          onCancel={resetForm}
-          isEditing={!!editingProduct}
-        />
-      )}
+
     </div>
   );
 }
