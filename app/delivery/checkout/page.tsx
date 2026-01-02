@@ -346,7 +346,7 @@ export default function CheckoutPage() {
           total: formatPrice(finalTotal),
           items: items.map(i => ({ name: i.name, quantity: i.quantity, price: getEffectivePrice(i) })),
           address: `Residencial Jerônimo, ${formData.block} - ${formData.apartment}`,
-          toEmail: 'gui_brandao@icloud.com' // Hardcoded admin email
+          toEmail: 'guidjvb@gmail.com' // Hardcoded admin email
         }),
       }).catch(console.error);
 

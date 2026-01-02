@@ -9,7 +9,7 @@ export async function POST(request: Request) {
 
         const { data, error } = await resend.emails.send({
             from: 'Delivery Na Mídia <onboarding@resend.dev>', // Change to your verified domain later
-            to: [toEmail || 'gui_brandao@icloud.com'], // Hardcoded for now per request "email to me"
+            to: [toEmail || 'guidjvb@gmail.com'], // Hardcoded for now per request "email to me"
             subject: `Novo Pedido #${orderId.slice(0, 8)} - ${customerName}`,
             react: OrderEmail({ orderId, customerName, total, items, address }),
         });
