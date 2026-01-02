@@ -96,7 +96,7 @@ export function useTopProducts() {
 
             const { data: products, error } = await supabase
                 .from('delivery_products')
-                .select('id, name, order_count')
+                .select('id, name, order_count, price')
                 .order('order_count', { ascending: false })
                 .limit(5);
 
@@ -110,7 +110,7 @@ export function useTopProducts() {
                 id: p.id,
                 name: p.name,
                 sales: p.order_count || 0,
-                revenue: 0, // TODO: calcular receita real do histórico
+                revenue: (p.order_count || 0) * (p.price || 0),
             }));
 
             setData(topProducts);

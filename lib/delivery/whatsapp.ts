@@ -9,7 +9,7 @@ import { formatPhone } from './validation';
  * Número do WhatsApp do estabelecimento
  * IMPORTANTE: Substituir pelo número real (formato: 5511999999999)
  */
-const WHATSAPP_NUMBER = '5511999999999'; // TODO: Substituir pelo número real
+const WHATSAPP_NUMBER = '5511914767026';
 
 /**
  * Formata mensagem do pedido para envio via WhatsApp
@@ -17,7 +17,7 @@ const WHATSAPP_NUMBER = '5511999999999'; // TODO: Substituir pelo número real
 export function formatOrderMessage(order: DeliveryOrder): string {
   const orderNumber = order.order_number || order.id.slice(0, 8);
   const createdAt = new Date(order.created_at).toLocaleString('pt-BR');
-  
+
   // Formatar itens do pedido
   const itemsText = order.items
     ?.map((item) => {
@@ -25,7 +25,7 @@ export function formatOrderMessage(order: DeliveryOrder): string {
       return `• ${item.product_name} x${item.quantity} - R$ ${itemTotal.toFixed(2)}`;
     })
     .join('\n') || 'Sem itens';
-  
+
   // Formatar endereço
   const addressParts = [
     order.address_street,
@@ -35,12 +35,12 @@ export function formatOrderMessage(order: DeliveryOrder): string {
     order.address_block ? `Bloco ${order.address_block}` : '',
     order.address_apartment ? `Apt ${order.address_apartment}` : '',
   ].filter(Boolean);
-  
+
   const addressText = addressParts.join(', ');
-  
+
   // Formatar pagamento
   const paymentText = formatPaymentMethod(order.payment_method, order.change_for);
-  
+
   // Montar mensagem
   const message = `
 🛒 *NOVO PEDIDO #${orderNumber}*
@@ -65,7 +65,7 @@ ${order.notes ? `\n📝 *Observações:* ${order.notes}` : ''}
 _Pedido realizado em ${createdAt}_
 _Via plataforma Na Mídia - Atibaia_
   `.trim();
-  
+
   return message;
 }
 
@@ -94,7 +94,7 @@ function formatPaymentMethod(method: PaymentMethod, changeFor?: number): string 
 export function generateWhatsAppLink(order: DeliveryOrder): string {
   const message = formatOrderMessage(order);
   const encodedMessage = encodeURIComponent(message);
-  
+
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
 }
 
@@ -111,7 +111,7 @@ export function openWhatsApp(order: DeliveryOrder): void {
  */
 export function generateShareOrderLink(order: DeliveryOrder): string {
   const orderNumber = order.order_number || order.id.slice(0, 8);
-  
+
   const message = `
 🎉 *Acabei de fazer um pedido na Na Mídia!*
 
@@ -122,9 +122,9 @@ export function generateShareOrderLink(order: DeliveryOrder): string {
 Você também pode pedir! É super fácil e rápido:
 🔗 https://namidia.com.br/delivery
   `.trim();
-  
+
   const encodedMessage = encodeURIComponent(message);
-  
+
   return `https://wa.me/?text=${encodedMessage}`;
 }
 

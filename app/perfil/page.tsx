@@ -24,6 +24,7 @@ export default function PerfilPage() {
     carrinho: 0,
     enderecos: 0,
   });
+  const [lastOrder, setLastOrder] = useState<any>(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -38,11 +39,12 @@ export default function PerfilPage() {
       setUser(user);
       setIsAdmin(isUserAdmin(user));
 
-      // Buscar estatísticas
-      const [cuponsCount, pedidosCount, enderecosCount] = await Promise.all([
+      // Buscar estatísticas e último pedido
+      const [cuponsCount, pedidosCount, enderecosCount, lastOrderRes] = await Promise.all([
         supabase.from("coupons").select("*", { count: "exact", head: true }).eq("user_email", user.email || "").is("used_at", null),
         supabase.from("delivery_orders").select("*", { count: "exact", head: true }).eq("user_email", user.email || ""),
         supabase.from("delivery_addresses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("delivery_orders").select("*").eq("user_email", user.email || "").order("created_at", { ascending: false }).limit(1).single(),
       ]);
 
       const cart = getCart();
@@ -53,6 +55,10 @@ export default function PerfilPage() {
         carrinho: cart.items.length || 0,
         enderecos: enderecosCount.count || 0,
       });
+
+      if (lastOrderRes.data) {
+        setLastOrder(lastOrderRes.data);
+      }
 
       setLoading(false);
     };
@@ -107,6 +113,53 @@ export default function PerfilPage() {
                 <ChevronRight className="h-6 w-6 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
               </LiquidGlass>
             </Link>
+          )}
+
+          {/* Último Pedido Card */}
+          {lastOrder && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white font-baloo2 px-1">
+                Último Pedido
+              </h2>
+              <Link href="/perfil/pedidos">
+                <LiquidGlass className="p-6 hover:border-orange-500/30 transition-all group">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${lastOrder.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                          lastOrder.status === 'cancelled' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                            'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                        }`}>
+                        {lastOrder.status === 'pending' ? 'Recebido' :
+                          lastOrder.status === 'preparing' ? 'Preparando' :
+                            lastOrder.status === 'delivering' ? 'A Caminho' :
+                              lastOrder.status === 'completed' ? 'Entregue' :
+                                lastOrder.status === 'cancelled' ? 'Cancelado' : lastOrder.status}
+                      </div>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {new Date(lastOrder.created_at).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                    <span className="font-mono font-bold text-gray-900 dark:text-white">
+                      #{lastOrder.order_number}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-lg text-gray-900 dark:text-white">
+                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(lastOrder.total)}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {lastOrder.delivery_method === 'delivery' ? 'Entrega' : 'Retirada'}
+                      </p>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                      <ChevronRight size={20} />
+                    </div>
+                  </div>
+                </LiquidGlass>
+              </Link>
+            </div>
           )}
 
           {/* Quick Links Grid */}
