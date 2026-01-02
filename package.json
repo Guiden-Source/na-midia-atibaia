@@ -11,6 +11,7 @@
     "generate-icons": "node generate-icons.js"
   },
   "dependencies": {
+    "@react-email/components": "^1.0.3",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.4.0",
     "@supabase/ssr": "^0.7.0",
@@ -29,6 +30,7 @@
     "react-onesignal": "^3.4.0",
     "react-qr-code": "^2.0.18",
     "recharts": "^3.3.0",
+    "resend": "^6.6.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.181.0",

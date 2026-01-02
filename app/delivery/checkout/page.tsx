@@ -334,6 +334,23 @@ export default function CheckoutPage() {
       */
       toast.success('Pedido confirmado com sucesso!');
 
+      // Enviar email de notificação (Fire and forget)
+      fetch('/api/emails/new-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: order.id,
+          customerName: formData.receiver_name,
+          total: formatPrice(finalTotal),
+          items: items.map(i => ({ name: i.name, quantity: i.quantity, price: getEffectivePrice(i) })),
+          address: `Residencial Jerônimo, ${formData.block} - ${formData.apartment}`,
+          toEmail: 'gui_brandao@icloud.com' // Hardcoded admin email
+        }),
+      }).catch(console.error);
+
+
       // Limpar carrinho usando contexto
       contextClearCart();
 

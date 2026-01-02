@@ -19,11 +19,8 @@ interface ProfileQuickLinksProps {
 export function ProfileQuickLinks({ stats }: ProfileQuickLinksProps) {
     const quickLinks = [
         { icon: ShoppingBag, label: "Novo Pedido", href: "/delivery", color: "orange", desc: "Faça um novo pedido" },
-        { icon: Package, label: "Pedidos", href: "/perfil/pedidos", color: "blue", desc: `${stats.pedidos} pedidos` },
-        { icon: ShoppingCart, label: "Carrinho", href: "/delivery/cart", color: "green", desc: `${stats.carrinho} itens` },
-        { icon: MapPin, label: "Endereços", href: "/perfil/enderecos", color: "pink", desc: `${stats.enderecos} salvos` },
+        { icon: Package, label: "Meus Pedidos", href: "/perfil/pedidos", color: "blue", desc: `${stats.pedidos} pedidos` },
         { icon: Ticket, label: "Cupons", href: "/perfil/cupons", color: "purple", desc: `${stats.cupons} disponíveis` },
-        { icon: Calendar, label: "Eventos", href: "/perfil/eventos", color: "indigo", desc: `${stats.eventos} confirmados` },
     ];
 
     return (
@@ -55,26 +52,7 @@ export function ProfileQuickLinks({ stats }: ProfileQuickLinksProps) {
             ))}
 
             {/* Amigos - Coming Soon */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-            >
-                <LiquidGlass className="p-5 opacity-60 cursor-not-allowed h-full">
-                    <div className="flex items-start gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 shrink-0">
-                            <Users className="h-6 w-6" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="font-baloo2 font-bold text-gray-900 dark:text-white mb-1">Amigos</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">Em breve</p>
-                        </div>
-                        <div className="px-2 py-1 rounded text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-500 shrink-0">
-                            BREVE
-                        </div>
-                    </div>
-                </LiquidGlass>
-            </motion.div>
+
         </div>
     );
 }
