@@ -48,6 +48,7 @@ export function useWeeklySales() {
                 .from('delivery_orders')
                 .select('created_at, total')
                 .gte('created_at', sevenDaysAgo.toISOString())
+                .neq('status', 'cancelled')
                 .order('created_at', { ascending: true });
 
             if (error || !orders) {
@@ -149,7 +150,8 @@ export function useTodayStats() {
                 .from('delivery_orders')
                 .select('total, coupon_code, created_at')
                 .gte('created_at', startOfDay.toISOString())
-                .lte('created_at', endOfDay.toISOString());
+                .lte('created_at', endOfDay.toISOString())
+                .neq('status', 'cancelled');
 
             if (error || !orders) {
                 setLoading(false);
