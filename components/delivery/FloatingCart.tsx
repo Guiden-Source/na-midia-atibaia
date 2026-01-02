@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useCart } from '@/lib/delivery/CartContext';
+import { getEffectivePrice } from '@/lib/delivery/cart-logic';
 import { ShoppingCart, X, Trash2, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
@@ -15,13 +16,12 @@ export function FloatingCart() {
     const [isOpen, setIsOpen] = useState(false);
 
     // Calculate subtotal and discount
-    const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const subtotal = items.reduce((acc, item) => acc + (getEffectivePrice(item) * item.quantity), 0);
 
     const totalDiscount = items.reduce((acc, item) => {
-        if (item.discount_percentage) {
-            const originalPrice = item.price / (1 - (item.discount_percentage / 100));
-            const discount = (originalPrice - item.price) * item.quantity;
-            return acc + discount;
+        const effectivePrice = getEffectivePrice(item);
+        if (effectivePrice < item.price) {
+            return acc + (item.price - effectivePrice) * item.quantity;
         }
         return acc;
     }, 0);
@@ -136,7 +136,7 @@ export function FloatingCart() {
                                                     {item.name}
                                                 </h3>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    {formatPrice(item.price)} / {item.unit}
+                                                    {formatPrice(getEffectivePrice(item))} / {item.unit}
                                                 </p>
 
                                                 {/* Quantity Controls */}
@@ -170,7 +170,7 @@ export function FloatingCart() {
                                             {/* Price */}
                                             <div className="text-right">
                                                 <p className="font-bold text-gray-900 dark:text-white">
-                                                    {formatPrice(item.price * item.quantity)}
+                                                    {formatPrice(getEffectivePrice(item) * item.quantity)}
                                                 </p>
                                             </div>
                                         </div>

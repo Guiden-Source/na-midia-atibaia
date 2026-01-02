@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Cart as CartType } from '@/lib/delivery/types';
 import { getCart, removeFromCart, updateCartItemQuantity, clearCart, formatPrice } from '@/lib/delivery/cart';
+import { getEffectivePrice } from '@/lib/delivery/cart-logic';
 import { Trash2, Plus, Minus, ShoppingBag, Clock, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -113,7 +114,7 @@ export function Cart() {
                 {item.name}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                {formatPrice(item.price)} / {item.unit}
+                {formatPrice(getEffectivePrice(item))} / {item.unit}
               </p>
 
               {/* Controles de quantidade */}
@@ -143,7 +144,7 @@ export function Cart() {
             {/* Subtotal e remover */}
             <div className="flex flex-col items-end gap-3">
               <div className="text-lg font-bold text-gray-900 dark:text-white">
-                {formatPrice(item.price * item.quantity)}
+                {formatPrice(getEffectivePrice(item) * item.quantity)}
               </div>
               <button
                 onClick={() => handleRemoveItem(item.id)}

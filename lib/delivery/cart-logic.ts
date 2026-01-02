@@ -4,6 +4,13 @@ export interface CartItem extends DeliveryProduct {
     quantity: number;
 }
 
+export const getEffectivePrice = (product: DeliveryProduct): number => {
+    if (product.promotional_price && product.promotional_price > 0 && product.promotional_price < product.price) {
+        return product.promotional_price;
+    }
+    return product.price;
+};
+
 export const cartLogic = {
     addItem: (items: CartItem[], product: DeliveryProduct): CartItem[] => {
         const existing = items.find((i) => i.id === product.id);
@@ -27,6 +34,6 @@ export const cartLogic = {
     },
 
     calculateTotal: (items: CartItem[]): number => {
-        return items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+        return items.reduce((acc, item) => acc + getEffectivePrice(item) * item.quantity, 0);
     }
 };
