@@ -7,7 +7,6 @@ import { createOrder } from '@/lib/delivery/queries';
 import { ALLOWED_CONDOMINIUMS, PAYMENT_METHODS } from '@/lib/delivery/types';
 import { ArrowLeft, AlertCircle, User, MapPin, CreditCard, Ticket } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth } from '@/components/auth/AuthProvider';
 import { formatPrice } from '@/lib/delivery/cart';
 import { getEffectivePrice } from '@/lib/delivery/cart-logic';
 import { useUser } from '@/lib/auth/hooks';
@@ -508,7 +507,7 @@ export default function CheckoutPage() {
                         value={couponCode}
                         onChange={setCouponCode}
                         onValidate={handleValidateCoupon}
-                        discountApplied={couponDiscount}
+                        discountApplied={couponDiscount || 0}
                       />
                     </LiquidGlass>
                   </div>
