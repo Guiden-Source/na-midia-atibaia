@@ -94,7 +94,7 @@ export function ProductsManager() {
         stock: formData.stock,
       };
 
-      if (editingProduct) {
+      if (editingProduct && editingProduct.id) {
         const { error } = await supabase
           .from('delivery_products')
           .update(productData)
