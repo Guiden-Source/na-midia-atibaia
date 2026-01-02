@@ -23,7 +23,7 @@ export default async function OrderSuccessPage({ params }: { params: { id: strin
     const buildWhatsAppMessage = () => {
         const items = order.items
             ?.map(item => `• ${item.quantity}x ${item.product_name} - ${formatPrice(item.subtotal)}`)
-            .join('%0A') || '';
+            .join('\n') || '';
 
         const message = [
             `*Pedido #${order.order_number}*`,
@@ -35,14 +35,14 @@ export default async function OrderSuccessPage({ params }: { params: { id: strin
             '',
             '*📍 Endereço de Entrega:*',
             `${order.address_condominium}`,
-            `Torre ${order.address_block}, Apartamento ${order.address_apartment}`,
+            `Torre/Bloco ${order.address_block}, Apartamento ${order.address_apartment}`,
             '',
             `*💳 Pagamento:* ${order.payment_method}${order.change_for ? ` (Troco para ${formatPrice(order.change_for)})` : ''}`,
             '',
             '*Mensagem:*',
-        ].join('%0A');
+        ].join('\n');
 
-        return message;
+        return encodeURIComponent(message);
     };
 
     const whatsappLink = `https://wa.me/5511914767026?text=${buildWhatsAppMessage()}`;
