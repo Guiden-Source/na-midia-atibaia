@@ -27,8 +27,15 @@ export function ProductCardList({ product }: ProductCardListProps) {
         });
     };
 
-    const hasDiscount = product.discount_percentage && product.discount_percentage > 0;
-    const originalPrice = hasDiscount ? product.price / (1 - (product.discount_percentage! / 100)) : null;
+    const promoPrice = product.promotional_price;
+    const regularPrice = product.price;
+    const hasDiscount = promoPrice && promoPrice > 0 && promoPrice < regularPrice;
+
+    const displayPrice = hasDiscount ? promoPrice : regularPrice;
+    const originalPrice = hasDiscount ? regularPrice : null;
+    const discountPercent = hasDiscount && originalPrice
+        ? Math.round(((originalPrice - displayPrice!) / originalPrice) * 100)
+        : 0;
 
     return (
         <Link href={`/delivery/produto/${product.id}`} className="block w-full">
@@ -56,11 +63,11 @@ export function ProductCardList({ product }: ProductCardListProps) {
                             )}
                             <div className="flex items-center gap-2">
                                 <span className="font-bold text-green-600 dark:text-green-400">
-                                    {formatPrice(product.price)}
+                                    {formatPrice(displayPrice!)}
                                 </span>
                                 {hasDiscount && (
                                     <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                                        -{product.discount_percentage}%
+                                        -{discountPercent}%
                                     </span>
                                 )}
                             </div>

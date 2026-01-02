@@ -48,8 +48,15 @@ export function ProductCardModern({ product }: ProductCardProps) {
         });
     };
 
-    const hasDiscount = product.discount_percentage && product.discount_percentage > 0;
-    const originalPrice = hasDiscount ? product.price / (1 - (product.discount_percentage! / 100)) : null;
+    const promoPrice = product.promotional_price;
+    const regularPrice = product.price;
+    const hasDiscount = promoPrice && promoPrice > 0 && promoPrice < regularPrice;
+
+    const displayPrice = hasDiscount ? promoPrice : regularPrice;
+    const originalPrice = hasDiscount ? regularPrice : null;
+    const discountPercent = hasDiscount && originalPrice
+        ? Math.round(((originalPrice - displayPrice!) / originalPrice) * 100)
+        : 0;
 
     return (
         <Link href={`/delivery/produto/${product.id}`}>
@@ -76,7 +83,7 @@ export function ProductCardModern({ product }: ProductCardProps) {
                     <div className="absolute top-2 left-2 flex flex-col gap-1">
                         {hasDiscount && (
                             <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm backdrop-blur-md bg-opacity-90">
-                                -{product.discount_percentage}% OFF
+                                -{discountPercent}% OFF
                             </span>
                         )}
                         {!!product.is_featured && (
@@ -121,7 +128,7 @@ export function ProductCardModern({ product }: ProductCardProps) {
                         )}
                         <div className="flex items-baseline gap-1">
                             <span className="text-lg md:text-xl font-bold text-orange-600 dark:text-orange-400">
-                                {formatPrice(product.price)}
+                                {formatPrice(displayPrice!)}
                             </span>
                             <span className="text-xs text-gray-500">/un</span>
                         </div>
