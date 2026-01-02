@@ -41,18 +41,22 @@ export function CompleteProfileModal({ isOpen, onClose, onSuccess }: CompletePro
         try {
             const { error } = await supabase
                 .from('profiles')
-                .update({
+                .upsert({
+                    id: user.id,
                     whatsapp: formData.whatsapp,
                     address_condominium: formData.condominium,
                     address_block: formData.block,
                     address_apartment: formData.apartment,
                     updated_at: new Date().toISOString(),
-                })
-                .eq('id', user.id);
+                });
 
             if (error) throw error;
 
             toast.success('Perfil atualizado com sucesso!');
+
+            // Notificar outros componentes que o perfil mudou
+            window.dispatchEvent(new Event('profile-updated'));
+
             onSuccess();
             onClose();
         } catch (error) {

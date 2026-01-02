@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, MapPin, ChevronDown, Filter, Star, X } from 'lucide-react';
+import { Search, MapPin, ChevronDown, Filter, Star, X, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDebounce } from 'use-debounce';
@@ -60,6 +60,14 @@ export function DeliveryHeader() {
                                         <ChevronDown className="h-3 w-3 text-orange-500" />
                                     </div>
                                 </div>
+                            </button>
+
+                            {/* User Profile Link */}
+                            <button
+                                onClick={() => router.push('/delivery/perfil')}
+                                className="p-2 text-gray-600 dark:text-gray-300 hover:text-orange-500 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-xl transition-colors"
+                            >
+                                <User size={24} />
                             </button>
                         </div>
 

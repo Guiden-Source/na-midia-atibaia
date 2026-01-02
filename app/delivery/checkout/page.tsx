@@ -6,7 +6,7 @@ import { clearCart, validateCart } from '@/lib/delivery/cart';
 import { createOrder } from '@/lib/delivery/queries';
 import { supabase } from '@/lib/supabase';
 import { ALLOWED_CONDOMINIUMS, PAYMENT_METHODS } from '@/lib/delivery/types';
-import { ArrowLeft, AlertCircle, User, MapPin, CreditCard, Ticket } from 'lucide-react';
+import { ArrowLeft, AlertCircle, User, MapPin, CreditCard, Ticket, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/delivery/cart';
 import { getEffectivePrice } from '@/lib/delivery/cart-logic';
@@ -40,10 +40,10 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // ← NOVO: Estados do cupom
+  // ← NOVO: Estados do cupom
   const [couponCode, setCouponCode] = useState('');
   const [couponDiscount, setCouponDiscount] = useState<number | null>(null);
   const [showCouponInput, setShowCouponInput] = useState(false); // Percentual (10, 15, 20)
-  const [couponDiscountAmount, setCouponDiscountAmount] = useState(0); // Valor em R$
   const [couponDiscountAmount, setCouponDiscountAmount] = useState(0); // Valor em R$
   const [isCouponValid, setIsCouponValid] = useState(false);
   const [isSchedulingModalOpen, setIsSchedulingModalOpen] = useState(false);
@@ -67,7 +67,7 @@ export default function CheckoutPage() {
     coupon_code: '',
   });
 
-  // Carregar dados do perfil
+  // Carregar dados do perfil de forma robusta
   useEffect(() => {
     async function loadProfile() {
       if (!user) return;
@@ -93,7 +93,20 @@ export default function CheckoutPage() {
       }
     }
 
+    // Carregar inicialmente
     loadProfile();
+
+    // Ouvir atualizações de perfil (vindo do Modal ou outra aba)
+    const handleProfileUpdate = () => {
+      console.log('Evento profile-updated recebido, recarregando...');
+      loadProfile();
+    };
+
+    window.addEventListener('profile-updated', handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener('profile-updated', handleProfileUpdate);
+    };
   }, [user]);
 
   useEffect(() => {
@@ -285,7 +298,7 @@ export default function CheckoutPage() {
         try {
           // Contar quantos pedidos o usuário já fez (incluindo este)
           const orderCount = await getUserOrderCount(user.email);
-  
+   
           // Gerar cupom para próximo pedido
           const newCoupon = await generateProgressiveCoupon(
             user.email,
@@ -293,9 +306,9 @@ export default function CheckoutPage() {
             orderCount, // Número do pedido que acabou de fazer
             finalTotal
           );
-  
+   
           console.log('[Cupom] Novo cupom gerado:', newCoupon.code, `(${newCoupon.discount_percentage}% OFF)`);
-  
+   
           // Mostrar toast com o novo cupom
           toast.success(
             `Pedido confirmado! Ganhou ${newCoupon.discount_percentage}% OFF no próximo: ${newCoupon.code}`,
