@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, Trash2, Star, Eye, EyeOff, Copy } from 'lucide-react';
+import { Edit, Trash2, Star, Eye, EyeOff, Copy, Package } from 'lucide-react';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { formatPrice } from '@/lib/delivery/cart';
 
