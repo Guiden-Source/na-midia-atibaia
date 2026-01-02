@@ -66,32 +66,33 @@ export function KanbanColumn({ status, title, orders, onSelectOrder, onUpdateSta
                                 </span>
 
                                 {/* Quick Actions */}
-                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {/* Quick Actions - Always Visible for Touch/Usability */}
+                                <div className="flex gap-2">
                                     {status === 'pending' && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); onUpdateStatus(order.id, 'preparing'); }}
-                                            className="p-1.5 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200"
-                                            title="Mover para Preparo"
+                                            className="p-2 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-lg hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-colors"
+                                            title="Aceitar / Preparar"
                                         >
-                                            <ChefHat size={14} />
+                                            <ChefHat size={16} />
                                         </button>
                                     )}
                                     {status === 'preparing' && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); onUpdateStatus(order.id, 'delivering'); }}
-                                            className="p-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
-                                            title="Mover para Entrega"
+                                            className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                                            title="Enviar para Entrega"
                                         >
-                                            <Truck size={14} />
+                                            <Truck size={16} />
                                         </button>
                                     )}
                                     {status === 'delivering' && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); onUpdateStatus(order.id, 'completed'); }}
-                                            className="p-1.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200"
+                                            className="p-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
                                             title="Concluir Entrega"
                                         >
-                                            <CheckCircle size={14} />
+                                            <CheckCircle size={16} />
                                         </button>
                                     )}
                                 </div>
