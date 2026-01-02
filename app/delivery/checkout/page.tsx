@@ -256,13 +256,22 @@ export default function CheckoutPage() {
         quantity: item.quantity
       }));
 
+      // Formatar scheduledTime para Timestamp completo (Data de Hoje + Horário)
+      let formattedScheduledAt = null;
+      if (scheduledTime) {
+        const [hours, minutes] = scheduledTime.split(':').map(Number);
+        const date = new Date();
+        date.setHours(hours, minutes, 0, 0);
+        formattedScheduledAt = date.toISOString();
+      }
+
       const order = await createOrder(
         orderData,
         cartItemsForOrder,
         subtotal,
         deliveryFee,
         finalTotal, // ← Usar total com desconto
-        scheduledTime, // ← Novo parâmetro
+        formattedScheduledAt, // ← Passar timestamp completo
         user?.id // Optional
       );
 
