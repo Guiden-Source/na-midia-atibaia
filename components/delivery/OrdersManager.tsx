@@ -197,21 +197,21 @@ export function OrdersManager() {
             <button
               onClick={() => setActiveTab('active')}
               className={`flex items-center gap-2 px-4 py-2 font-bold rounded-t-lg transition-all ${activeTab === 'active'
-                  ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50 dark:bg-orange-900/10'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50 dark:bg-orange-900/10'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                 }`}
             >
               <LayoutDashboard size={18} />
               Quadro Ativo
               <span className="bg-orange-100 text-orange-700 text-xs px-2 rounded-full">
-                {orders.filter(o => ['pending', 'confirmed', 'preparing', 'delivering'].includes(o.status)).length}
+                {orders.filter(o => ['pending', 'preparing', 'delivering'].includes(o.status)).length}
               </span>
             </button>
             <button
               onClick={() => setActiveTab('history')}
               className={`flex items-center gap-2 px-4 py-2 font-bold rounded-t-lg transition-all ${activeTab === 'history'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50 dark:bg-blue-900/10'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50 dark:bg-blue-900/10'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                 }`}
             >
               <History size={18} />
@@ -229,13 +229,6 @@ export function OrdersManager() {
                 <KanbanColumn
                   status="pending"
                   title="Recebidos"
-                  orders={filteredOrders}
-                  onSelectOrder={setSelectedOrder}
-                  onUpdateStatus={updateStatus}
-                />
-                <KanbanColumn
-                  status="confirmed"
-                  title="Confirmados"
                   orders={filteredOrders}
                   onSelectOrder={setSelectedOrder}
                   onUpdateStatus={updateStatus}
