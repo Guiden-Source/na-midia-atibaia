@@ -58,7 +58,7 @@ export function CategoryCarousel() {
 
             <div
                 ref={scrollRef}
-                className="flex gap-6 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x"
+                className="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x"
             >
                 {categories.map((cat) => {
                     const isActive = currentCategory === cat.slug;

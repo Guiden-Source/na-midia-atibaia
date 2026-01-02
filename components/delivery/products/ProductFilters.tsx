@@ -38,7 +38,7 @@ export function ProductFilters({
                 </div>
 
                 {/* Filters */}
-                <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+                <div className="flex gap-4 overflow-x-auto pb-2 md:pb-0">
                     <div className="relative min-w-[150px]">
                         <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <select
