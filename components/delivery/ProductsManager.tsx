@@ -21,6 +21,7 @@ type DeliveryProduct = {
   name: string;
   description: string;
   price: number;
+  price: number;
   promotional_price?: number;
   image_url?: string;
   category_id: string;

@@ -10,6 +10,7 @@ interface Product {
     name: string;
     description: string;
     price: number;
+    price: number;
     promotional_price?: number;
     image_url?: string;
     category_id: string;
@@ -54,8 +55,8 @@ export function ProductAdminList({
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
                         className={`bg-white dark:bg-gray-800 rounded-xl p-6 border-2 ${product.is_active
-                                ? 'border-gray-100 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-900/30'
-                                : 'border-gray-100 dark:border-gray-700 opacity-60'
+                            ? 'border-gray-100 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-900/30'
+                            : 'border-gray-100 dark:border-gray-700 opacity-60'
                             } shadow-sm hover:shadow-lg transition-all flex flex-col`}
                     >
                         {/* Header: Image & Status */}
@@ -132,8 +133,8 @@ export function ProductAdminList({
                             <button
                                 onClick={() => onToggleActive(product)}
                                 className={`p-2 rounded-lg transition-colors ${product.is_active
-                                        ? 'bg-gray-50 dark:bg-gray-800 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                                        : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100'
+                                    ? 'bg-gray-50 dark:bg-gray-800 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100'
                                     }`}
                                 title={product.is_active ? 'Desativar' : 'Ativar'}
                             >
@@ -143,8 +144,8 @@ export function ProductAdminList({
                             <button
                                 onClick={() => onToggleFeatured(product)}
                                 className={`p-2 rounded-lg transition-colors ${product.is_featured
-                                        ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-100'
-                                        : 'bg-gray-50 dark:bg-gray-800 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-100'
+                                    : 'bg-gray-50 dark:bg-gray-800 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                                     }`}
                                 title={product.is_featured ? 'Remover destaque' : 'Destacar'}
                             >
