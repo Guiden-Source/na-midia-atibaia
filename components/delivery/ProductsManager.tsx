@@ -24,8 +24,8 @@ type DeliveryProduct = {
   promotional_price?: number;
   image_url?: string;
   category_id: string;
-  active: boolean;
-  featured: boolean;
+  is_active: boolean;
+  is_featured: boolean;
   category?: { name: string };
 };
 
@@ -36,8 +36,8 @@ type ProductFormData = {
   promotional_price: string;
   category_id: string;
   image_url: string;
-  active: boolean;
-  featured: boolean;
+  is_active: boolean;
+  is_featured: boolean;
 };
 
 export function ProductsManager() {
@@ -87,8 +87,8 @@ export function ProductsManager() {
         promotional_price: formData.promotional_price ? parseFloat(formData.promotional_price) : null,
         category_id: formData.category_id,
         image_url: formData.image_url || null,
-        active: formData.active,
-        featured: formData.featured,
+        is_active: formData.is_active,
+        is_featured: formData.is_featured,
       };
 
       if (editingProduct) {
@@ -139,15 +139,15 @@ export function ProductsManager() {
     try {
       const { error } = await supabase
         .from('delivery_products')
-        .update({ active: !product.active })
+        .update({ is_active: !product.is_active })
         .eq('id', product.id);
 
       if (error) throw error;
 
       setProducts(products.map(p =>
-        p.id === product.id ? { ...p, active: !p.active } : p
+        p.id === product.id ? { ...p, is_active: !p.is_active } : p
       ));
-      toast.success(`Produto ${!product.active ? 'ativado' : 'desativado'}!`);
+      toast.success(`Produto ${!product.is_active ? 'ativado' : 'desativado'}!`);
     } catch (error) {
       console.error('Error toggling status:', error);
       toast.error('Erro ao atualizar status');
@@ -158,15 +158,15 @@ export function ProductsManager() {
     try {
       const { error } = await supabase
         .from('delivery_products')
-        .update({ featured: !product.featured })
+        .update({ is_featured: !product.is_featured })
         .eq('id', product.id);
 
       if (error) throw error;
 
       setProducts(products.map(p =>
-        p.id === product.id ? { ...p, featured: !p.featured } : p
+        p.id === product.id ? { ...p, is_featured: !p.is_featured } : p
       ));
-      toast.success(`Destaque ${!product.featured ? 'adicionado' : 'removido'}!`);
+      toast.success(`Destaque ${!product.is_featured ? 'adicionado' : 'removido'}!`);
     } catch (error) {
       console.error('Error toggling featured:', error);
       toast.error('Erro ao atualizar destaque');
@@ -189,8 +189,8 @@ export function ProductsManager() {
       ...product,
       id: '', // Force new creation
       name: `${product.name} (cópia)`,
-      active: true,
-      featured: false,
+      is_active: true,
+      is_featured: false,
     });
     setShowForm(true);
   };
@@ -205,9 +205,9 @@ export function ProductsManager() {
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
     const matchesStatus = statusFilter === 'all' ||
-      (statusFilter === 'active' && product.active) ||
-      (statusFilter === 'inactive' && !product.active) ||
-      (statusFilter === 'featured' && product.featured);
+      (statusFilter === 'active' && product.is_active) ||
+      (statusFilter === 'inactive' && !product.is_active) ||
+      (statusFilter === 'featured' && product.is_featured);
 
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -270,8 +270,8 @@ export function ProductsManager() {
             promotional_price: editingProduct.promotional_price?.toString() || '',
             category_id: editingProduct.category_id,
             image_url: editingProduct.image_url || '',
-            active: editingProduct.active,
-            featured: editingProduct.featured,
+            is_active: editingProduct.is_active,
+            is_featured: editingProduct.is_featured,
           } : undefined}
           categories={categories}
           onSubmit={handleSubmit}

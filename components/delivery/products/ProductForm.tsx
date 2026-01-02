@@ -10,8 +10,8 @@ interface ProductFormData {
     promotional_price: string;
     category_id: string;
     image_url: string;
-    active: boolean;
-    featured: boolean;
+    is_active: boolean;
+    is_featured: boolean;
 }
 
 interface Category {
@@ -41,8 +41,8 @@ export function ProductForm({
         promotional_price: '',
         category_id: categories[0]?.id || '',
         image_url: '',
-        active: true,
-        featured: false,
+        is_active: true,
+        is_featured: false,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -183,8 +183,8 @@ export function ProductForm({
                         <label className="flex items-center gap-3 cursor-pointer">
                             <input
                                 type="checkbox"
-                                checked={formData.active}
-                                onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                                checked={formData.is_active}
+                                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                                 className="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-2 focus:ring-orange-500"
                             />
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -195,8 +195,8 @@ export function ProductForm({
                         <label className="flex items-center gap-3 cursor-pointer">
                             <input
                                 type="checkbox"
-                                checked={formData.featured}
-                                onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                                checked={formData.is_featured}
+                                onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
                                 className="w-5 h-5 rounded border-gray-300 text-orange-500 focus:ring-2 focus:ring-orange-500"
                             />
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">

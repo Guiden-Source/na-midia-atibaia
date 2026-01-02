@@ -81,7 +81,7 @@ export function ProductAdminList({
                                             Destaque
                                         </span>
                                     )}
-                                    {!product.active && (
+                                    {!product.is_active && (
                                         <span className="px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-[10px] font-bold uppercase">
                                             Inativo
                                         </span>
