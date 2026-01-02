@@ -8,6 +8,7 @@ import { DeliveryProduct } from '@/lib/delivery/types';
 import { supabase } from '@/lib/supabase';
 import { useCart } from '@/lib/delivery/CartContext';
 import { formatPrice } from '@/lib/delivery/cart';
+import { getEffectivePrice } from '@/lib/delivery/cart-logic';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { toast } from 'react-hot-toast';
 
@@ -64,9 +65,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         return null;
     }
 
-    const hasDiscount = product.original_price && product.original_price > product.price;
+    const effectivePrice = getEffectivePrice(product);
+    const hasDiscount = product.promotional_price && product.promotional_price > 0 && product.promotional_price < product.price;
     const discountPercentage = hasDiscount
-        ? Math.round(((product.original_price! - product.price) / product.original_price!) * 100)
+        ? Math.round(((product.price - product.promotional_price!) / product.price) * 100)
         : 0;
 
     return (
@@ -116,7 +118,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                             {hasDiscount && (
                                 <div className="flex items-center gap-3">
                                     <span className="text-sm text-gray-400 line-through">
-                                        {formatPrice(product.original_price!)}
+                                        {formatPrice(product.price)}
                                     </span>
                                     <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full font-bold">
                                         {discountPercentage}% OFF
@@ -125,7 +127,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                             )}
                             <div className="flex items-baseline gap-2">
                                 <span className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                                    {formatPrice(product.price)}
+                                    {formatPrice(effectivePrice)}
                                 </span>
                                 <span className="text-sm text-gray-500 dark:text-gray-400">/un</span>
                             </div>
@@ -191,7 +193,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                     >
                         <ShoppingCart size={20} />
                         {product.stock > 0 ? (
-                            <span>Adicionar por {formatPrice(product.price * quantity)}</span>
+                            <span>Adicionar por {formatPrice(effectivePrice * quantity)}</span>
                         ) : (
                             <span>Produto Esgotado</span>
                         )}
