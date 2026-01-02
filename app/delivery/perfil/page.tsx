@@ -175,65 +175,7 @@ export default function ProfilePage() {
                         </div>
                     </LiquidGlass>
 
-                    {/* Endereço Padrão */}
-                    <LiquidGlass className="p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <MapPin className="text-orange-500" size={24} />
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white font-baloo2">
-                                Endereço Padrão
-                            </h2>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
-                                    Condomínio
-                                </label>
-                                <select
-                                    name="condominium"
-                                    value={formData.condominium}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
-                                >
-                                    <option value="">Selecione...</option>
-                                    {ALLOWED_CONDOMINIUMS.map((cond) => (
-                                        <option key={cond} value={cond}>
-                                            {cond}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
-                                        Bloco/Torre
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="block"
-                                        value={formData.block}
-                                        onChange={handleInputChange}
-                                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
-                                        placeholder="Ex: 4A"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
-                                        Apartamento
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="apartment"
-                                        value={formData.apartment}
-                                        onChange={handleInputChange}
-                                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
-                                        placeholder="Ex: 402"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </LiquidGlass>
+                    {/* Endereço Removido por simplificação UX - O endereço é gerido no Checkout */}
 
                     <button
                         type="submit"
