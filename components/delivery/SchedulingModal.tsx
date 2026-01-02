@@ -57,8 +57,8 @@ export function SchedulingModal({ isOpen, onClose }: SchedulingModalProps) {
                         <button
                             onClick={() => setMode('now')}
                             className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${mode === 'now'
-                                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                                    : 'border-gray-200 dark:border-gray-700 hover:border-orange-200'
+                                ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
+                                : 'border-gray-200 dark:border-gray-700 hover:border-orange-200'
                                 }`}
                         >
                             <div className="flex items-center gap-3">
@@ -77,8 +77,8 @@ export function SchedulingModal({ isOpen, onClose }: SchedulingModalProps) {
                         <button
                             onClick={() => setMode('schedule')}
                             className={`w-full p-4 rounded-xl border-2 transition-all flex flex-col gap-4 ${mode === 'schedule'
-                                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                                    : 'border-gray-200 dark:border-gray-700 hover:border-orange-200'
+                                ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
+                                : 'border-gray-200 dark:border-gray-700 hover:border-orange-200'
                                 }`}
                         >
                             <div className="flex items-center gap-3 w-full">
@@ -87,7 +87,7 @@ export function SchedulingModal({ isOpen, onClose }: SchedulingModalProps) {
                                     {mode === 'schedule' && <div className="w-2.5 h-2.5 rounded-full bg-orange-500" />}
                                 </div>
                                 <div className="text-left">
-                                    <p className="font-bold text-gray-900 dark:text-white">Agendar para Jantar</p>
+                                    <p className="font-bold text-gray-900 dark:text-white">Agendar para receber mais tarde</p>
                                     <p className="text-sm text-gray-500">Escolha um horário</p>
                                 </div>
                             </div>
@@ -106,8 +106,8 @@ export function SchedulingModal({ isOpen, onClose }: SchedulingModalProps) {
                                                 setSelectedTime(time);
                                             }}
                                             className={`py-2 px-1 rounded-lg text-sm font-bold transition-colors ${selectedTime === time
-                                                    ? 'bg-orange-500 text-white shadow-md'
-                                                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-orange-100 dark:hover:bg-orange-900/30'
+                                                ? 'bg-orange-500 text-white shadow-md'
+                                                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-orange-100 dark:hover:bg-orange-900/30'
                                                 }`}
                                         >
                                             {time}

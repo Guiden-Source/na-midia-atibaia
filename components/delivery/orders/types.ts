@@ -20,6 +20,7 @@ export type Order = {
     notes?: string;
     change_for?: number;
     items: any[]; // JSONB
+    scheduled_at?: string; // ← NOVO
 };
 
 export const STATUS_CONFIG = {

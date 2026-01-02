@@ -127,6 +127,7 @@ export async function createOrder(
   subtotal: number,
   deliveryFee: number,
   total: number,
+  scheduledAt: string | null,
   userId?: string
 ): Promise<DeliveryOrder> {
   try {
@@ -162,7 +163,8 @@ export async function createOrder(
       p_delivery_fee: deliveryFee,
       p_total: total,
       p_notes: checkoutData.notes || null,
-      p_items: itemsJson
+      p_items: itemsJson,
+      p_scheduled_at: scheduledAt || null
     });
 
     if (error) throw error;

@@ -38,6 +38,11 @@ export function OrderDetailsModal({ order, onClose, onUpdateStatus }: OrderDetai
                             <p className="text-sm text-gray-500">
                                 {new Date(order.created_at).toLocaleString()}
                             </p>
+                            {order.scheduled_at && (
+                                <p className="text-sm font-bold text-orange-500 mt-1 flex items-center gap-1">
+                                    🕒 Agendado: {new Date(order.scheduled_at).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}
+                                </p>
+                            )}
                         </div>
                         <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                             <X size={24} />

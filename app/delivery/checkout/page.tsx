@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useCart } from '@/lib/delivery/CartContext';
 import { CouponInput } from '@/components/delivery/CouponInput';
+import { SchedulingModal } from '@/components/delivery/SchedulingModal';
 import { validateCoupon, applyCouponToOrder, generateProgressiveCoupon, getUserOrderCount, markCouponAsUsed } from '@/lib/delivery/coupon-system';
 
 interface CheckoutFormData {
@@ -43,10 +44,12 @@ export default function CheckoutPage() {
   const [couponDiscount, setCouponDiscount] = useState<number | null>(null);
   const [showCouponInput, setShowCouponInput] = useState(false); // Percentual (10, 15, 20)
   const [couponDiscountAmount, setCouponDiscountAmount] = useState(0); // Valor em R$
+  const [couponDiscountAmount, setCouponDiscountAmount] = useState(0); // Valor em R$
   const [isCouponValid, setIsCouponValid] = useState(false);
+  const [isSchedulingModalOpen, setIsSchedulingModalOpen] = useState(false);
 
   // Calculate subtotal and delivery fee based on context items
-  const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const subtotal = items.reduce((acc, item) => acc + (getEffectivePrice(item) * item.quantity), 0);
   const deliveryFee = 0; // Always free
 
   // ← NOVO: Calcular total com desconto
@@ -60,7 +63,6 @@ export default function CheckoutPage() {
     apartment: '',
     payment_method: 'pix',
     change_for: undefined,
-    notes: '',
     notes: '',
     coupon_code: '',
   });
@@ -247,6 +249,7 @@ export default function CheckoutPage() {
         subtotal,
         deliveryFee,
         finalTotal, // ← Usar total com desconto
+        scheduledTime, // ← Novo parâmetro
         user?.id // Optional
       );
 
@@ -358,6 +361,57 @@ export default function CheckoutPage() {
           {/* Formulário */}
           <div className="lg:col-span-2">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Tempo de Entrega */}
+              <LiquidGlass className="p-6">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Clock className="text-orange-500" size={24} />
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white font-baloo2">
+                      Tempo de Entrega
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsSchedulingModalOpen(true)}
+                    className="text-sm font-bold text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 transition-colors"
+                  >
+                    Alterar
+                  </button>
+                </div>
+
+                <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-200 dark:border-orange-800 flex items-center gap-3">
+                  {scheduledTime ? (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-800 flex items-center justify-center text-orange-600 dark:text-orange-300">
+                        <Clock size={20} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-900 dark:text-white">
+                          Agendado para hoje às {scheduledTime}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Previsão de entrega no horário escolhido
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-800 flex items-center justify-center text-green-600 dark:text-green-300">
+                        <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-900 dark:text-white">
+                          Receber Agora (30-45 min)
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Entrega padrão imediata
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </LiquidGlass>
+
               {/* Dados de Contato */}
               <LiquidGlass className="p-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -683,6 +737,11 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      <SchedulingModal
+        isOpen={isSchedulingModalOpen}
+        onClose={() => setIsSchedulingModalOpen(false)}
+      />
     </div>
   );
 }

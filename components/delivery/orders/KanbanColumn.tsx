@@ -49,6 +49,13 @@ export function KanbanColumn({ status, title, orders, onSelectOrder, onUpdateSta
                                 </span>
                             </div>
 
+                            {order.scheduled_at && (
+                                <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 px-2 py-1.5 rounded-lg mb-2 w-fit">
+                                    <Clock size={12} />
+                                    Agendado: {new Date(order.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                            )}
+
                             <h4 className="font-bold text-gray-900 dark:text-white mb-1 truncate">
                                 {order.user_name}
                             </h4>
