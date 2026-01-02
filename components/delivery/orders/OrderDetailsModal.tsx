@@ -62,6 +62,11 @@ export function OrderDetailsModal({ order, onClose, onUpdateStatus }: OrderDetai
                                 <p className="text-gray-600 dark:text-gray-300">
                                     {order.address_street}, {order.address_number}
                                 </p>
+                                <p className="font-medium text-gray-800 dark:text-gray-200">
+                                    {order.address_condominium}
+                                    {order.address_block && ` - Bloco ${order.address_block}`}
+                                    {order.address_apartment && ` - Apto ${order.address_apartment}`}
+                                </p>
                                 {order.address_complement && (
                                     <p className="text-gray-700 dark:text-gray-300">{order.address_complement}</p>
                                 )}
@@ -135,7 +140,7 @@ export function OrderDetailsModal({ order, onClose, onUpdateStatus }: OrderDetai
                         )}
                     </div>
                 </motion.div>
-            </div>
-        </AnimatePresence>
+            </div >
+        </AnimatePresence >
     );
 }

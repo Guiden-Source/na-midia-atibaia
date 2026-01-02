@@ -13,7 +13,12 @@ export type Order = {
     created_at: string;
     address_street: string;
     address_number: string;
+    address_street: string;
+    address_number: string;
     address_complement?: string;
+    address_condominium: string;
+    address_block?: string;
+    address_apartment?: string;
     items: any[]; // JSONB
 };
 
