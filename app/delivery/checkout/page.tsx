@@ -227,7 +227,8 @@ export default function CheckoutPage() {
         }
       }
 
-      // ← NOVO: Gerar cupom progressivo para próximo pedido
+      // ← NOVO: Gerar cupom progressivo para próximo pedido (DISABLED)
+      /*
       if (user?.email && user?.id) {
         try {
           // Contar quantos pedidos o usuário já fez (incluindo este)
@@ -256,6 +257,8 @@ export default function CheckoutPage() {
       } else {
         toast.success('Pedido confirmado com sucesso!');
       }
+      */
+      toast.success('Pedido confirmado com sucesso!');
 
       // Limpar carrinho usando contexto
       contextClearCart();
@@ -397,7 +400,7 @@ export default function CheckoutPage() {
                         autoCapitalize="characters"
                         value={formData.block}
                         onChange={handleInputChange}
-                        
+
                         className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
                         placeholder="05"
                       />
@@ -413,7 +416,7 @@ export default function CheckoutPage() {
                         name="apartment"
                         value={formData.apartment}
                         onChange={handleInputChange}
-                        
+
                         className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
                         placeholder="42"
                       />

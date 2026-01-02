@@ -80,18 +80,7 @@ export function ProductCardModern({ product }: ProductCardProps) {
                     )}
 
                     {/* Badges */}
-                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                        {hasDiscount && (
-                            <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm backdrop-blur-md bg-opacity-90">
-                                -{discountPercent}% OFF
-                            </span>
-                        )}
-                        {!!product.is_featured && (
-                            <span className="bg-gradient-to-r from-orange-500 to-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm backdrop-blur-md bg-opacity-90">
-                                ⭐ Destaque
-                            </span>
-                        )}
-                    </div>
+                    {/* Badges moved to content area */}
 
                     {/* Stock Badge - Desktop only */}
                     {product.stock < 10 && product.stock > 0 && (
@@ -107,6 +96,19 @@ export function ProductCardModern({ product }: ProductCardProps) {
                 <div className="flex-1 flex flex-col order-1 md:order-2 min-w-0">
                     {/* Title & Description */}
                     <div className="flex-1 space-y-1 mb-3">
+                        {/* Badges (New Position) */}
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {hasDiscount && (
+                                <span className="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-green-200 dark:border-green-800">
+                                    {discountPercent}% OFF
+                                </span>
+                            )}
+                            {!!product.is_featured && (
+                                <span className="bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-orange-200 dark:border-orange-800 flex items-center gap-1">
+                                    ⭐ Destaque
+                                </span>
+                            )}
+                        </div>
                         <h3 className="font-bold text-sm md:text-base text-gray-900 dark:text-white line-clamp-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
                             {product.name}
                         </h3>
