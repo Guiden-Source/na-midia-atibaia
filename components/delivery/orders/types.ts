@@ -30,6 +30,12 @@ export const STATUS_CONFIG = {
         color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
         borderColor: 'border-yellow-200 dark:border-yellow-800',
     },
+    confirmed: {
+        label: 'Confirmado',
+        icon: CheckCircle,
+        color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400',
+        borderColor: 'border-indigo-200 dark:border-indigo-800',
+    },
     preparing: {
         label: 'Em Preparo',
         icon: ChefHat,
@@ -47,5 +53,11 @@ export const STATUS_CONFIG = {
         icon: CheckCircle,
         color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
         borderColor: 'border-green-200 dark:border-green-800',
+    },
+    cancelled: {
+        label: 'Cancelado',
+        icon: AlertCircle,
+        color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+        borderColor: 'border-red-200 dark:border-red-800',
     },
 };

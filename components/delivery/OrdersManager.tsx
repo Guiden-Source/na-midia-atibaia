@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Clock, Search, XCircle } from 'lucide-react';
+import { Clock, Search, LayoutDashboard, History, Smartphone, Calculator, AlertCircle, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Order, OrderStatus, STATUS_CONFIG } from './orders/types';
 import { KanbanColumn } from './orders/KanbanColumn';
@@ -10,6 +10,7 @@ import { OrderDetailsModal } from './orders/OrderDetailsModal';
 
 export function OrdersManager() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -190,54 +191,139 @@ export function OrdersManager() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
         </div>
       ) : (
-        <div className="flex-1 overflow-x-auto pb-4">
-          <div className="flex gap-4 min-w-max px-1">
-            <KanbanColumn
-              status="pending"
-              title="Recebidos"
-              orders={filteredOrders}
-              onSelectOrder={setSelectedOrder}
-              onUpdateStatus={updateStatus}
-            />
-            <KanbanColumn
-              status="confirmed"
-              title="Confirmados"
-              orders={filteredOrders}
-              onSelectOrder={setSelectedOrder}
-              onUpdateStatus={updateStatus}
-            />
-            <KanbanColumn
-              status="preparing"
-              title="Em Preparo"
-              orders={filteredOrders}
-              onSelectOrder={setSelectedOrder}
-              onUpdateStatus={updateStatus}
-            />
-            <KanbanColumn
-              status="delivering"
-              title="Saiu p/ Entrega"
-              orders={filteredOrders}
-              onSelectOrder={setSelectedOrder}
-              onUpdateStatus={updateStatus}
-            />
-            <KanbanColumn
-              status="completed"
-              title="Concluídos"
-              orders={filteredOrders}
-              onSelectOrder={setSelectedOrder}
-              onUpdateStatus={updateStatus}
-            />
-            {/* New Cancelled Column */}
-            <KanbanColumn
-              status="cancelled"
-              title="Cancelados"
-              orders={filteredOrders}
-              onSelectOrder={setSelectedOrder}
-              onUpdateStatus={updateStatus}
-            />
+        <div className="flex-1 overflow-hidden flex flex-col">
+          {/* Tabs Control */}
+          <div className="flex gap-2 mb-4 border-b border-gray-200 dark:border-gray-700 pb-1">
+            <button
+              onClick={() => setActiveTab('active')}
+              className={`flex items-center gap-2 px-4 py-2 font-bold rounded-t-lg transition-all ${activeTab === 'active'
+                  ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50 dark:bg-orange-900/10'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                }`}
+            >
+              <LayoutDashboard size={18} />
+              Quadro Ativo
+              <span className="bg-orange-100 text-orange-700 text-xs px-2 rounded-full">
+                {orders.filter(o => ['pending', 'confirmed', 'preparing', 'delivering'].includes(o.status)).length}
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`flex items-center gap-2 px-4 py-2 font-bold rounded-t-lg transition-all ${activeTab === 'history'
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50 dark:bg-blue-900/10'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                }`}
+            >
+              <History size={18} />
+              Histórico
+              <span className="bg-gray-100 text-gray-700 text-xs px-2 rounded-full">
+                {orders.filter(o => ['completed', 'cancelled'].includes(o.status)).length}
+              </span>
+            </button>
           </div>
-        </div>
-      )}
+
+          {activeTab === 'active' ? (
+            /* ACTIVE BOARD (KANBAN) */
+            <div className="flex-1 overflow-x-auto pb-4">
+              <div className="flex gap-4 min-w-max px-1 h-full">
+                <KanbanColumn
+                  status="pending"
+                  title="Recebidos"
+                  orders={filteredOrders}
+                  onSelectOrder={setSelectedOrder}
+                  onUpdateStatus={updateStatus}
+                />
+                <KanbanColumn
+                  status="confirmed"
+                  title="Confirmados"
+                  orders={filteredOrders}
+                  onSelectOrder={setSelectedOrder}
+                  onUpdateStatus={updateStatus}
+                />
+                <KanbanColumn
+                  status="preparing"
+                  title="Em Preparo"
+                  orders={filteredOrders}
+                  onSelectOrder={setSelectedOrder}
+                  onUpdateStatus={updateStatus}
+                />
+                <KanbanColumn
+                  status="delivering"
+                  title="Saiu p/ Entrega"
+                  orders={filteredOrders}
+                  onSelectOrder={setSelectedOrder}
+                  onUpdateStatus={updateStatus}
+                />
+              </div>
+            </div>
+          ) : (
+            /* HISTORY LIST (TABLE) */
+            <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-gray-50 dark:bg-gray-700/50 sticky top-0 z-10 w-full">
+                  <tr>
+                    <th className="p-4 font-bold text-gray-700 dark:text-gray-300">Nº Pedido</th>
+                    <th className="p-4 font-bold text-gray-700 dark:text-gray-300">Cliente</th>
+                    <th className="p-4 font-bold text-gray-700 dark:text-gray-300">Data</th>
+                    <th className="p-4 font-bold text-gray-700 dark:text-gray-300">Status</th>
+                    <th className="p-4 font-bold text-gray-700 dark:text-gray-300">Total</th>
+                    <th className="p-4 font-bold text-gray-700 dark:text-gray-300 text-right">Ação</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                  {filteredOrders
+                    .filter(o => ['completed', 'cancelled'].includes(o.status))
+                    .map((order) => {
+                      const StatusConfig = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG];
+                      const StatusIcon = StatusConfig?.icon || AlertCircle;
+                      return (
+                        <tr
+                          key={order.id}
+                          onClick={() => setSelectedOrder(order)}
+                          className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"
+                        >
+                          <td className="p-4 font-mono font-bold text-gray-600 dark:text-gray-400">
+                            #{order.order_number}
+                          </td>
+                          <td className="p-4">
+                            <div className="font-bold text-gray-900 dark:text-white">{order.user_name}</div>
+                            <div className="text-xs text-gray-500">{order.user_phone}</div>
+                          </td>
+                          <td className="p-4 text-gray-500">
+                            {new Date(order.created_at).toLocaleString('pt-BR')}
+                          </td>
+                          <td className="p-4">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${StatusConfig?.color}`}>
+                              <StatusIcon size={14} />
+                              {StatusConfig?.label || order.status}
+                            </span>
+                          </td>
+                          <td className="p-4 font-bold text-green-600 dark:text-green-400">
+                            {order.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          </td>
+                          <td className="p-4 text-right">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setSelectedOrder(order); }}
+                              className="text-gray-400 hover:text-orange-500 transition-colors"
+                            >
+                              <Eye size={20} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  {filteredOrders.filter(o => ['completed', 'cancelled'].includes(o.status)).length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-gray-400 italic">
+                        Nenhum pedido no histórico
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>)}
 
       {/* Order Details Modal */}
       <OrderDetailsModal
