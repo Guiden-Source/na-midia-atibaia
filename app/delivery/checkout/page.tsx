@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { clearCart, validateCart } from '@/lib/delivery/cart';
 import { createOrder } from '@/lib/delivery/queries';
 import { ALLOWED_CONDOMINIUMS, PAYMENT_METHODS } from '@/lib/delivery/types';
-import { ArrowLeft, AlertCircle, User, MapPin, CreditCard } from 'lucide-react';
+import { ArrowLeft, AlertCircle, User, MapPin, CreditCard, Ticket } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { formatPrice } from '@/lib/delivery/cart';
 import { getEffectivePrice } from '@/lib/delivery/cart-logic';
 import { useUser } from '@/lib/auth/hooks';
@@ -39,7 +40,8 @@ export default function CheckoutPage() {
 
   // ← NOVO: Estados do cupom
   const [couponCode, setCouponCode] = useState('');
-  const [couponDiscount, setCouponDiscount] = useState(0); // Percentual (10, 15, 20)
+  const [couponDiscount, setCouponDiscount] = useState<number | null>(null);
+  const [showCouponInput, setShowCouponInput] = useState(false); // Percentual (10, 15, 20)
   const [couponDiscountAmount, setCouponDiscountAmount] = useState(0); // Valor em R$
   const [isCouponValid, setIsCouponValid] = useState(false);
 
@@ -393,7 +395,7 @@ export default function CheckoutPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
-                        Bloco *
+                        Torre/Bloco *
                       </label>
                       <input
                         type="text"
@@ -403,7 +405,7 @@ export default function CheckoutPage() {
                         onChange={handleInputChange}
 
                         className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-orange-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white outline-none transition-all"
-                        placeholder="Coloque o bloco"
+                        placeholder="Torre e/ou Bloco"
                       />
                     </div>
 
@@ -426,15 +428,7 @@ export default function CheckoutPage() {
                 </div>
               </LiquidGlass>
 
-              {/* ← NOVO: Cupom de Desconto */}
-              <LiquidGlass className="p-6">
-                <CouponInput
-                  value={couponCode}
-                  onChange={setCouponCode}
-                  onValidate={handleValidateCoupon}
-                  discountApplied={couponDiscount}
-                />
-              </LiquidGlass>
+              {/* Cupom Moved to Bottom */}
 
               {/* Pagamento */}
               <LiquidGlass className="p-6">
@@ -488,6 +482,38 @@ export default function CheckoutPage() {
                   </div>
                 )}
               </LiquidGlass>
+
+              {/* Cupom de Desconto Collapsible */}
+              <div className="flex flex-col items-center justify-center">
+                {!showCouponInput ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowCouponInput(true)}
+                    className="text-sm font-bold text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 flex items-center gap-2 py-2 transition-colors"
+                  >
+                    <Ticket size={18} />
+                    Possui um cupom de desconto?
+                  </button>
+                ) : (
+                  <div className="w-full">
+                    <LiquidGlass className="p-6 relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowCouponInput(false)}
+                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                      >
+                        <span className="text-xs font-bold">FECHAR</span>
+                      </button>
+                      <CouponInput
+                        value={couponCode}
+                        onChange={setCouponCode}
+                        onValidate={handleValidateCoupon}
+                        discountApplied={couponDiscount}
+                      />
+                    </LiquidGlass>
+                  </div>
+                )}
+              </div>
 
               {/* Observações */}
               <LiquidGlass className="p-6">
