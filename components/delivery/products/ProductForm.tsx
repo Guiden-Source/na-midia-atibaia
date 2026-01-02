@@ -79,7 +79,7 @@ export function ProductForm({
                 </div>
 
                 {/* Form */}
-                <div className="p-6 overflow-y-auto flex-1 space-y-6">
+                <div className="p-6 flex-1 overflow-y-auto space-y-6">
                     {/* Nome */}
                     <div>
                         <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
