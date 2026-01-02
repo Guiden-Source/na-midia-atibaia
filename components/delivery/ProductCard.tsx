@@ -11,9 +11,15 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const hasDiscount = product.original_price && product.original_price > product.price;
-  const discountPercentage = hasDiscount 
-    ? calculateDiscount(product.original_price!, product.price)
+  const promoPrice = product.promotional_price;
+  const regularPrice = product.price;
+  const hasDiscount = promoPrice && promoPrice > 0 && promoPrice < regularPrice;
+
+  const displayPrice = hasDiscount ? promoPrice : regularPrice;
+  const originalPrice = hasDiscount ? regularPrice : null;
+
+  const discountPercentage = hasDiscount && originalPrice
+    ? calculateDiscount(originalPrice, displayPrice)
     : 0;
 
   return (
@@ -95,12 +101,12 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="mb-3">
           {hasDiscount && (
             <div className="text-sm text-gray-500 dark:text-gray-400 line-through">
-              {formatPrice(product.original_price!)}
+              {formatPrice(originalPrice!)}
             </div>
           )}
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {formatPrice(product.price)}
+              {formatPrice(displayPrice!)}
             </span>
             <span className="text-sm text-gray-500 dark:text-gray-400">
               /{product.unit}
@@ -109,8 +115,8 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Botão adicionar ao carrinho */}
-        <AddToCartButton 
-          product={product} 
+        <AddToCartButton
+          product={product}
           disabled={product.stock === 0}
           className="w-full"
         />

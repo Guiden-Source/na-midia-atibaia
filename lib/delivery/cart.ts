@@ -14,13 +14,13 @@ export function getCart(): Cart {
   if (typeof window === 'undefined') {
     return { items: [], subtotal: 0, delivery_fee: DELIVERY_FEE, total: 0 };
   }
-  
+
   try {
     const cartData = localStorage.getItem(CART_STORAGE_KEY);
     if (!cartData) {
       return { items: [], subtotal: 0, delivery_fee: DELIVERY_FEE, total: 0 };
     }
-    
+
     const items: CartItem[] = JSON.parse(cartData);
     return calculateCart(items);
   } catch (error) {
@@ -36,7 +36,7 @@ export function saveCart(items: CartItem[]): Cart {
   if (typeof window === 'undefined') {
     return { items: [], subtotal: 0, delivery_fee: DELIVERY_FEE, total: 0 };
   }
-  
+
   try {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
     return calculateCart(items);
@@ -52,9 +52,9 @@ export function saveCart(items: CartItem[]): Cart {
 export function addToCart(product: DeliveryProduct, quantity: number = 1): Cart {
   const cart = getCart();
   const existingItem = cart.items.find((item) => item.product.id === product.id);
-  
+
   let newItems: CartItem[];
-  
+
   if (existingItem) {
     // Atualiza quantidade do item existente
     newItems = cart.items.map((item) =>
@@ -66,7 +66,7 @@ export function addToCart(product: DeliveryProduct, quantity: number = 1): Cart 
     // Adiciona novo item
     newItems = [...cart.items, { product, quantity }];
   }
-  
+
   return saveCart(newItems);
 }
 
@@ -84,15 +84,15 @@ export function removeFromCart(productId: string): Cart {
  */
 export function updateCartItemQuantity(productId: string, quantity: number): Cart {
   const cart = getCart();
-  
+
   if (quantity <= 0) {
     return removeFromCart(productId);
   }
-  
+
   const newItems = cart.items.map((item) =>
     item.product.id === productId ? { ...item, quantity } : item
   );
-  
+
   return saveCart(newItems);
 }
 
@@ -108,13 +108,18 @@ export function clearCart(): Cart {
  */
 export function calculateCart(items: CartItem[]): Cart {
   const subtotal = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => {
+      const price = (item.product.promotional_price && item.product.promotional_price > 0 && item.product.promotional_price < item.product.price)
+        ? item.product.promotional_price
+        : item.product.price;
+      return sum + price * item.quantity;
+    },
     0
   );
-  
+
   const delivery_fee = DELIVERY_FEE;
   const total = subtotal + delivery_fee;
-  
+
   return {
     items,
     subtotal,
@@ -157,22 +162,22 @@ export function validateCart(): {
 } {
   const cart = getCart();
   const errors: string[] = [];
-  
+
   if (cart.items.length === 0) {
     errors.push('Carrinho vazio');
   }
-  
+
   // Validar estoque dos produtos
   cart.items.forEach((item) => {
     if (item.product.stock < item.quantity) {
       errors.push(`${item.product.name}: estoque insuficiente (disponível: ${item.product.stock})`);
     }
-    
+
     if (!item.product.is_active) {
       errors.push(`${item.product.name}: produto indisponível`);
     }
   });
-  
+
   return {
     isValid: errors.length === 0,
     errors,

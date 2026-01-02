@@ -2,7 +2,7 @@
 // DELIVERY SYSTEM - TYPESCRIPT TYPES
 // =====================================================
 
-export type OrderStatus = 
+export type OrderStatus =
   | 'pending'      // Aguardando confirmação
   | 'confirmed'    // Pedido confirmado
   | 'preparing'    // Preparando pedido
@@ -10,12 +10,12 @@ export type OrderStatus =
   | 'completed'    // Entregue
   | 'cancelled';   // Cancelado
 
-export type PaymentMethod = 
+export type PaymentMethod =
   | 'pix'
   | 'dinheiro'
   | 'cartao';
 
-export type PaymentStatus = 
+export type PaymentStatus =
   | 'pending'
   | 'paid';
 
@@ -43,6 +43,7 @@ export interface DeliveryProduct {
   description?: string;
   image_url?: string;
   price: number;
+  promotional_price?: number | null; // Preço promocional (se houver)
   original_price?: number; // Para calcular desconto
   discount_percentage?: number; // Percentual de desconto
   stock: number;
@@ -51,7 +52,7 @@ export interface DeliveryProduct {
   unit: string; // 'un', 'kg', 'L', etc
   created_at: string;
   updated_at: string;
-  
+
   // Relações (opcional)
   category?: DeliveryCategory;
 }
@@ -66,7 +67,7 @@ export interface DeliveryOrder {
   user_name: string;
   user_phone: string;
   user_email?: string;
-  
+
   // Endereço
   address_street: string;
   address_number: string;
@@ -75,31 +76,31 @@ export interface DeliveryOrder {
   address_block?: string;
   address_apartment?: string;
   address_reference?: string;
-  
+
   // Pagamento
   payment_method: PaymentMethod;
   payment_status: PaymentStatus;
   change_for?: number; // Troco para quanto?
-  
+
   // Valores
   subtotal: number;
   delivery_fee: number;
   total: number;
   notes?: string;
-  
+
   // Status
   status: OrderStatus;
-  
+
   // Timestamps
   created_at: string;
   confirmed_at?: string;
   delivered_at?: string;
   cancelled_at?: string;
-  
+
   // WhatsApp
   whatsapp_sent: boolean;
   whatsapp_sent_at?: string;
-  
+
   // Relações (opcional)
   items?: DeliveryOrderItem[];
 }
@@ -117,7 +118,7 @@ export interface DeliveryOrderItem {
   quantity: number;
   subtotal: number;
   created_at: string;
-  
+
   // Relações (opcional)
   product?: DeliveryProduct;
 }
@@ -145,7 +146,7 @@ export interface CheckoutFormData {
   user_name: string;
   user_phone: string;
   user_email?: string;
-  
+
   // Endereço
   address_street: string;
   address_number: string;
@@ -154,11 +155,11 @@ export interface CheckoutFormData {
   address_block?: string;
   address_apartment?: string;
   address_reference?: string;
-  
+
   // Pagamento
   payment_method: PaymentMethod;
   change_for?: number;
-  
+
   // Observações
   notes?: string;
 }
