@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { ArrowLeft, Upload, Download, Trash2, PowerOff, Power, FileSpreadsheet, CheckSquare, Square } from 'lucide-react';
+import { Upload, Trash2, PowerOff, Power, CheckSquare, Square } from 'lucide-react';
 import Link from 'next/link';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { AdminHeader } from '@/components/admin/AdminHeader';
-import Papa from 'papaparse';
 import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/delivery/cart';
 
@@ -353,8 +352,8 @@ export default function GerenciarProdutosPage() {
                                     <td className="px-4 py-3">{product.stock ?? '-'}</td>
                                     <td className="px-4 py-3">
                                         <span className={`px-2 py-1 rounded-full text-xs font-bold ${product.is_active
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-gray-100 text-gray-600'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-gray-100 text-gray-600'
                                             }`}>
                                             {product.is_active ? 'Ativo' : 'Inativo'}
                                         </span>
