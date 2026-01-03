@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { clearCart, validateCart } from '@/lib/delivery/cart';
 import { createOrder } from '@/lib/delivery/queries';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { ALLOWED_CONDOMINIUMS, PAYMENT_METHODS } from '@/lib/delivery/types';
 import { ArrowLeft, AlertCircle, User, MapPin, CreditCard, Ticket, Clock } from 'lucide-react';
 import Link from 'next/link';
@@ -33,6 +33,7 @@ interface CheckoutFormData {
 }
 
 export default function CheckoutPage() {
+  const supabase = createClient();
   const router = useRouter();
   const { user, loading: authLoading } = useUser();
   const { items, total, scheduledTime, clearCart: contextClearCart } = useCart();

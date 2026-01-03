@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, User, Phone, Save, ShieldCheck } from 'lucide-react';
 import { useUser } from '@/lib/auth/hooks';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import toast from 'react-hot-toast';
 
 export default function ProfileDataPage() {
+    const supabase = createClient();
     const router = useRouter();
     const { user, loading: authLoading } = useUser();
     const [isLoading, setIsLoading] = useState(true);
