@@ -47,6 +47,7 @@ export function ProductsManager() {
   const [products, setProducts] = useState<DeliveryProduct[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isImporting, setIsImporting] = useState(false);
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -172,23 +173,34 @@ export function ProductsManager() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-baloo2 flex items-center gap-2">
-            <Package className="text-orange-500" />
-            Gerenciar Produtos
+          <h2 className="text-2xl font-bold font-baloo2 text-gray-900 dark:text-white">
+            Produtos
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
-            {products.length} produtos cadastrados
+          <p className="text-gray-500 dark:text-gray-400">
+            Gerencie o catálogo do delivery
           </p>
         </div>
-        <button
-          onClick={() => router.push('/admin/produtos/novo')}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
-        >
-          <Plus size={20} />
-          Novo Produto
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setIsImporting(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:border-orange-500 hover:text-orange-500 transition-colors"
+          >
+            <FileSpreadsheet size={20} />
+            <span className="hidden sm:inline">Importar CSV</span>
+          </button>
+          <button
+            onClick={() => {
+              setSelectedProduct(undefined);
+              setIsEditing(true);
+            }}
+            className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            <Plus size={20} />
+            Novo Produto
+          </button>
+        </div>
       </div>
 
       <ProductFilters
@@ -211,6 +223,16 @@ export function ProductsManager() {
       />
 
 
+      {isImporting && (
+        <ProductImportModal
+          isOpen={isImporting}
+          onClose={() => setIsImporting(false)}
+          onSuccess={() => {
+            mutate();
+            setIsImporting(false);
+          }}
+        />
+      )}
     </div>
   );
 }
