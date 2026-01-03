@@ -45,13 +45,12 @@ export default function CatalogoPage() {
 
         try {
             const canvas = await html2canvas(catalogRef.current, {
-                scale: 2, // Higher quality
+                scale: 2,
                 backgroundColor: '#ffffff',
                 logging: false,
                 useCORS: true,
             });
 
-            // Convert to blob and download
             canvas.toBlob((blob) => {
                 if (!blob) {
                     throw new Error('Failed to generate image');
@@ -87,7 +86,6 @@ export default function CatalogoPage() {
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-6xl">
-            {/* Header */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-baloo2 mb-2">
                     📸 Gerador de Catálogo
@@ -97,7 +95,6 @@ export default function CatalogoPage() {
                 </p>
             </div>
 
-            {/* Controls */}
             <div className="flex gap-4 mb-8">
                 <button
                     onClick={handleDownload}
@@ -126,7 +123,6 @@ export default function CatalogoPage() {
                 </button>
             </div>
 
-            {/* Preview */}
             {products.length === 0 ? (
                 <LiquidGlass className="p-12 text-center">
                     <ImageIcon size={48} className="mx-auto text-gray-400 mb-4" />
@@ -143,13 +139,11 @@ export default function CatalogoPage() {
                         📱 Preview (a imagem final terá melhor qualidade)
                     </div>
 
-                    {/* Catalog Content (will be converted to image) */}
                     <div
                         ref={catalogRef}
                         className="bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 p-8 rounded-2xl"
                         style={{ width: '1200px', margin: '0 auto' }}
                     >
-                        {/* Header */}
                         <div className="text-center mb-8">
                             <h2 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500 mb-2 font-baloo2">
                                 🛒 NA MÍDIA DELIVERY
@@ -159,20 +153,18 @@ export default function CatalogoPage() {
                             </div>
                         </div>
 
-                        {/* Products Grid */}
                         <div className="grid grid-cols-3 gap-6 mb-8">
                             {products.slice(0, 12).map((product) => (
                                 <div
                                     key={product.id}
                                     className="bg-white rounded-2xl shadow-lg overflow-hidden border-4 border-orange-200"
                                 >
-                                    {/* Product Image */}
                                     {product.image_url ? (
-                                        <div className="relative h-48 bg-gray-100">
+                                        <div className="relative h-48 bg-gray-100 overflow-hidden">
                                             <img
                                                 src={product.image_url}
                                                 alt={product.name}
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-contain"
                                             />
                                         </div>
                                     ) : (
@@ -181,13 +173,11 @@ export default function CatalogoPage() {
                                         </div>
                                     )}
 
-                                    {/* Product Info */}
                                     <div className="p-4">
                                         <h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem]">
                                             {product.name}
                                         </h3>
 
-                                        {/* Prices */}
                                         <div className="space-y-1">
                                             <div className="text-gray-500 line-through text-lg">
                                                 De: {formatPrice(product.price)}
@@ -206,13 +196,12 @@ export default function CatalogoPage() {
                             ))}
                         </div>
 
-                        {/* Footer */}
                         <div className="bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-2xl p-6 text-center">
                             <div className="text-3xl font-black mb-2">
-                                📲 Peça já pelo site!
+                                📲 Faça o seu pedido!
                             </div>
-                            <div className="text-2xl font-bold">
-                                na-midia-atibaia.vercel.app
+                            <div className="text-xl font-bold">
+                                Pelo nosso site ou via WhatsApp
                             </div>
                             <div className="text-lg mt-2 opacity-90">
                                 Entrega Grátis • Jerônimo de Camargo 1 e 2
@@ -222,7 +211,6 @@ export default function CatalogoPage() {
                 </LiquidGlass>
             )}
 
-            {/* Tips */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <LiquidGlass className="p-4">
                     <div className="text-2xl mb-2">💡</div>

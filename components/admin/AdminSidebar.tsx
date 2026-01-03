@@ -3,18 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Calendar,
-  BarChart3,
-  ChevronLeft,
-  ChevronRight,
-  Home,
-  Gift,
-  Ticket,
-  FolderTree
-} from 'lucide-react';
+import { Home, ShoppingCart, Package, Ticket, BarChart, Activity, LogOut, Menu, X, Layers, Image as ImageIcon } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
@@ -49,6 +38,11 @@ const menuItems = [
     title: 'Cupons',
     href: '/admin/cupons',
     icon: Ticket,
+  },
+  {
+    title: 'Catálogo',
+    href: '/admin/catalogo',
+    icon: ImageIcon,
   },
   {
     title: 'Criar Evento',
