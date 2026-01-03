@@ -67,16 +67,19 @@ export default function ProfileDataPage() {
         setIsSaving(true);
 
         try {
-            const { error } = await supabase
-                .from('profiles')
-                .upsert({
-                    id: user?.id,
+            const response = await fetch('/api/profile/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     full_name: formData.full_name,
                     whatsapp: formData.whatsapp,
-                    updated_at: new Date().toISOString(),
-                });
+                }),
+            });
 
-            if (error) throw error;
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || 'Failed to update');
+            }
 
             toast.success('Perfil atualizado com sucesso!');
             router.push('/perfil');
