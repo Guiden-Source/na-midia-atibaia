@@ -96,8 +96,8 @@ export function ProductImportModal({ isOpen, onClose, onSuccess }: ProductImport
                             promotional_price: promoPrice,
                             category_id: categoryId,
                             is_active: row.ativo ? row.ativo.toLowerCase() === 'sim' || row.ativo === 'true' : true,
-                            stock_quantity: row.estoque ? parseInt(row.estoque) : null,
-                            image_url: null // Upload de imagem em massa é complexo via CSV simples
+                            stock: row.estoque ? parseInt(row.estoque) : null,
+                            image_url: null
                         });
 
                         if (prodError) {
