@@ -49,8 +49,7 @@ export default function ImportarProdutosPage() {
                             .from('delivery_categories')
                             .insert({
                                 name: catName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-                                slug: catName.replace(/ /g, '-').replace(/[^\w-]+/g, ''),
-                                order_index: 99
+                                slug: catName.replace(/ /g, '-').replace(/[^\w-]+/g, '')
                             })
                             .select()
                             .single();
@@ -74,8 +73,22 @@ export default function ImportarProdutosPage() {
                         continue;
                     }
 
-                    const price = parseFloat(row.preco.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
-                    const promoPrice = row.promocao ? parseFloat(row.promocao.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) : null;
+                    // Fix price parsing: "13,99" should be 13.99, not 1399
+                    let priceStr = row.preco.replace('R$', '').trim();
+                    // If it has a comma (Brazilian format), remove thousand separators and replace comma with dot
+                    if (priceStr.includes(',')) {
+                        priceStr = priceStr.replace(/\./g, '').replace(',', '.');
+                    }
+                    const price = parseFloat(priceStr);
+
+                    let promoPrice = null;
+                    if (row.promocao) {
+                        let promoStr = row.promocao.replace('R$', '').trim();
+                        if (promoStr.includes(',')) {
+                            promoStr = promoStr.replace(/\./g, '').replace(',', '.');
+                        }
+                        promoPrice = parseFloat(promoStr);
+                    }
 
                     if (isNaN(price)) {
                         errors.push(`Linha ${rowNum}: Preço inválido "${row.preco}"`);
@@ -166,8 +179,8 @@ export default function ImportarProdutosPage() {
                             onDragLeave={() => setIsDragging(false)}
                             onDrop={handleDrop}
                             className={`border-3 border-dashed rounded-2xl p-12 text-center transition-all ${isDragging
-                                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/10'
-                                    : 'border-gray-300 dark:border-gray-700 hover:border-orange-400'
+                                ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/10'
+                                : 'border-gray-300 dark:border-gray-700 hover:border-orange-400'
                                 }`}
                         >
                             {isProcessing ? (
