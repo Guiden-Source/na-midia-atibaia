@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Plus, Package, Copy } from 'lucide-react';
+import { Plus, Package, Copy, FileSpreadsheet } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { ProductFilters } from './products/ProductFilters';
 import { ProductAdminTable } from './products/ProductAdminTable';
+import { ProductImportModal } from '@/components/admin/ProductImportModal';
 
 // Types
 type Category = {
@@ -191,10 +192,7 @@ export function ProductsManager() {
             <span className="hidden sm:inline">Importar CSV</span>
           </button>
           <button
-            onClick={() => {
-              setSelectedProduct(undefined);
-              setIsEditing(true);
-            }}
+            onClick={() => router.push('/admin/produtos/novo')}
             className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
           >
             <Plus size={20} />
@@ -228,7 +226,7 @@ export function ProductsManager() {
           isOpen={isImporting}
           onClose={() => setIsImporting(false)}
           onSuccess={() => {
-            mutate();
+            loadData();
             setIsImporting(false);
           }}
         />
