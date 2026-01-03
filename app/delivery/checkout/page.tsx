@@ -341,12 +341,26 @@ export default function CheckoutPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          orderId: order.id,
+          orderId: order.order_number ? `#${order.order_number}` : `#${order.id.slice(0, 8)}`,
           customerName: formData.receiver_name,
+          customerPhone: formData.whatsapp, // New
           total: formatPrice(finalTotal),
+          subtotal: formatPrice(subtotal), // New
+          deliveryFee: 'Grátis', // New
           items: items.map(i => ({ name: i.name, quantity: i.quantity, price: getEffectivePrice(i) })),
-          address: `Residencial Jerônimo, ${formData.block} - ${formData.apartment}`,
-          toEmail: 'guidjvb@gmail.com' // Hardcoded admin email
+          address: {
+            street: 'Residencial Jerônimo de Camargo', // Fixed
+            number: formData.apartment,
+            complement: `Bloco ${formData.block}`,
+            condominium: formData.condominium,
+            neighborhood: 'Jardim do Lago', // Hardcoded for this condo? Or generic.
+            city: 'Atibaia/SP'
+          },
+          payment: {
+            method: formData.payment_method === 'pix' ? 'PIX' : formData.payment_method === 'cartao' ? 'Cartão' : 'Dinheiro',
+            change: formData.change_for ? formatPrice(formData.change_for) : null
+          },
+          toEmail: 'guidjvb@gmail.com'
         }),
       }).catch(console.error);
 
