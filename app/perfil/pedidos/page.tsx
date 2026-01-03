@@ -7,6 +7,7 @@ import { formatPrice } from '@/lib/delivery/cart';
 import { ORDER_STATUS_MAP, OrderStatus } from '@/lib/delivery/types';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { OrderCard } from '@/components/delivery/OrderCard';
+import { OrdersRealtimeProvider } from '@/components/delivery/OrdersRealtimeProvider';
 import * as motion from 'framer-motion/client';
 
 export const metadata = {
@@ -130,42 +131,42 @@ export default async function PedidosPage({ searchParams }: PageProps) {
         {/* Filtros */}
         <LiquidGlass className="p-4 mb-8" intensity={0.2}>
           <div className="flex flex-wrap gap-3">
-          <Link
-            href="/perfil/pedidos"
-            className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${!statusFilter
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 scale-[1.02]'
-              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
-              }`}
-          >
-            Todos ({allCount || 0})
-          </Link>
-          <Link
-            href="/perfil/pedidos?status=active"
-            className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${statusFilter === 'active'
-              ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20 scale-[1.02]'
-              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
-              }`}
-          >
-            Ativos ({activeCount || 0})
-          </Link>
-          <Link
-            href="/perfil/pedidos?status=completed"
-            className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${statusFilter === 'completed'
-              ? 'bg-green-600 text-white shadow-lg shadow-green-600/20 scale-[1.02]'
-              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
-              }`}
-          >
-            Entregues ({completedCount || 0})
-          </Link>
-          <Link
-            href="/perfil/pedidos?status=cancelled"
-            className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${statusFilter === 'cancelled'
-              ? 'bg-red-600 text-white shadow-lg shadow-red-600/20 scale-[1.02]'
-              : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
-              }`}
-          >
-            Cancelados ({cancelledCount || 0})
-          </Link>
+            <Link
+              href="/perfil/pedidos"
+              className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${!statusFilter
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20 scale-[1.02]'
+                : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+                }`}
+            >
+              Todos ({allCount || 0})
+            </Link>
+            <Link
+              href="/perfil/pedidos?status=active"
+              className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${statusFilter === 'active'
+                ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20 scale-[1.02]'
+                : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+                }`}
+            >
+              Ativos ({activeCount || 0})
+            </Link>
+            <Link
+              href="/perfil/pedidos?status=completed"
+              className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${statusFilter === 'completed'
+                ? 'bg-green-600 text-white shadow-lg shadow-green-600/20 scale-[1.02]'
+                : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+                }`}
+            >
+              Entregues ({completedCount || 0})
+            </Link>
+            <Link
+              href="/perfil/pedidos?status=cancelled"
+              className={`flex-shrink-0 px-6 py-3 rounded-xl font-baloo2 font-bold text-center whitespace-nowrap transition-all ${statusFilter === 'cancelled'
+                ? 'bg-red-600 text-white shadow-lg shadow-red-600/20 scale-[1.02]'
+                : 'hover:bg-white/50 dark:hover:bg-gray-800/50 text-gray-600 dark:text-gray-300'
+                }`}
+            >
+              Cancelados ({cancelledCount || 0})
+            </Link>
           </div>
         </LiquidGlass>
 
@@ -189,30 +190,11 @@ export default async function PedidosPage({ searchParams }: PageProps) {
             </Link>
           </LiquidGlass>
         ) : (
-          <div className="space-y-8">
-            {Object.entries(
-              orders.reduce((groups: Record<string, typeof orders>, order) => {
-                const date = new Date(order.created_at);
-                const dateKey = date.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
-                if (!groups[dateKey]) {
-                  groups[dateKey] = [];
-                }
-                groups[dateKey].push(order);
-                return groups;
-              }, {})
-            ).map(([date, groupOrders]) => (
-              <div key={date}>
-                <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 pl-1">
-                  {date}
-                </h3>
-                <div className="space-y-4">
-                  {groupOrders.map((order) => (
-                    <OrderCard key={order.id} order={order} />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <OrdersRealtimeProvider
+            initialOrders={orders}
+            userId={user.id}
+            userPhone={user.user_metadata?.phone}
+          />
         )}
       </div>
     </div>
