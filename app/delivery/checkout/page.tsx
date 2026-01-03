@@ -278,17 +278,18 @@ export default function CheckoutPage() {
 
 
 
-      // ← NOVO: Atualizar perfil com dados novos (Silent Update)
+      // ← NOVO: Atualizar perfil com dados novos (Silent Update via API)
       if (user) {
-        supabase.from('profiles').update({
-          whatsapp: formData.whatsapp,
-          address_condominium: formData.condominium,
-          address_block: formData.block,
-          address_apartment: formData.apartment,
-          updated_at: new Date().toISOString(),
-        }).eq('id', user.id).then(({ error }) => {
-          if (error) console.error('Erro ao atualizar perfil:', error);
-        });
+        fetch('/api/profile/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            whatsapp: formData.whatsapp,
+            address_condominium: formData.condominium,
+            address_block: formData.block,
+            address_apartment: formData.apartment,
+          }),
+        }).catch(err => console.error('Erro ao atualizar perfil (silent):', err));
       }
 
       // ← NOVO: Marcar cupom como usado (se foi aplicado)

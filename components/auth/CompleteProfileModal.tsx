@@ -39,18 +39,21 @@ export function CompleteProfileModal({ isOpen, onClose, onSuccess }: CompletePro
         setIsLoading(true);
 
         try {
-            const { error } = await supabase
-                .from('profiles')
-                .upsert({
-                    id: user.id,
+            const response = await fetch('/api/profile/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     whatsapp: formData.whatsapp,
                     address_condominium: formData.condominium,
                     address_block: formData.block,
                     address_apartment: formData.apartment,
-                    updated_at: new Date().toISOString(),
-                });
+                }),
+            });
 
-            if (error) throw error;
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || 'Falha ao atualizar');
+            }
 
             toast.success('Perfil atualizado com sucesso!');
 
