@@ -74,6 +74,18 @@ export default function ImportarProdutosPage() {
                         continue;
                     }
 
+                    // Check for duplicates
+                    const existingProduct = await supabase
+                        .from('delivery_products')
+                        .select('id')
+                        .ilike('name', row.nome.trim())
+                        .single();
+
+                    if (existingProduct.data) {
+                        errors.push(`Linha ${rowNum}: Produto "${row.nome}" já existe.`);
+                        continue;
+                    }
+
                     // Fix price parsing: "13,99" should be 13.99, not 1399
                     let priceStr = row.preco.replace('R$', '').trim();
                     // If it has a comma (Brazilian format), remove thousand separators and replace comma with dot

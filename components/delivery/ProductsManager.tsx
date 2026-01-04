@@ -10,26 +10,7 @@ import { ProductFilters } from './products/ProductFilters';
 import { ProductAdminTable } from './products/ProductAdminTable';
 
 // Types
-type Category = {
-  id: string;
-  name: string;
-  slug: string;
-  order_index: number;
-};
-
-type DeliveryProduct = {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  promotional_price?: number;
-  image_url?: string;
-  category_id: string;
-  is_active: boolean;
-  is_featured: boolean;
-  stock: number;
-  category?: { name: string };
-};
+import { DeliveryProduct, Category } from '@/types/delivery';
 
 type ProductFormData = {
   name: string;

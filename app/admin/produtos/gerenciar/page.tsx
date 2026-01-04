@@ -10,19 +10,10 @@ import toast from 'react-hot-toast';
 import { formatPrice } from '@/lib/delivery/cart';
 import Image from 'next/image';
 
-interface Product {
-    id: string;
-    name: string;
-    price: number;
-    promotional_price?: number;
-    is_active: boolean;
-    stock?: number;
-    category?: { name: string };
-    image_url?: string;
-}
+import { DeliveryProduct } from '@/types/delivery';
 
 export default function GerenciarProdutosPage() {
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<DeliveryProduct[]>([]);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -37,7 +28,7 @@ export default function GerenciarProdutosPage() {
         setIsLoading(true);
         const { data, error } = await supabase
             .from('delivery_products')
-            .select('id, name, price, promotional_price, is_active, stock, image_url, category:delivery_categories(name)')
+            .select('*, category:delivery_categories(name)')
             .order('name');
 
         if (!error && data) {
@@ -322,8 +313,8 @@ export default function GerenciarProdutosPage() {
                                         <td className="px-4 py-3 text-sm">{product.stock ?? '-'}</td>
                                         <td className="px-4 py-3">
                                             <span className={`px-2 py-1 rounded-full text-xs font-bold border ${product.is_active
-                                                    ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
-                                                    : 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+                                                ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+                                                : 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
                                                 }`}>
                                                 {product.is_active ? 'Ativo' : 'Inativo'}
                                             </span>

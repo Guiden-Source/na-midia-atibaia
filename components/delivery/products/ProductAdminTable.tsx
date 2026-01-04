@@ -3,27 +3,15 @@
 import { Edit, Trash2, Star, Eye, EyeOff, Copy, Package, DollarSign, Archive, Tag } from 'lucide-react';
 import { formatPrice } from '@/lib/delivery/cart';
 
-interface Product {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    promotional_price?: number;
-    image_url?: string;
-    category_id: string;
-    is_active: boolean;
-    is_featured: boolean;
-    stock: number;
-    category?: { name: string };
-}
+import { DeliveryProduct } from '@/types/delivery';
 
 interface ProductAdminTableProps {
-    products: Product[];
-    onEdit: (product: Product) => void;
-    onDuplicate: (product: Product) => void;
+    products: DeliveryProduct[];
+    onEdit: (product: DeliveryProduct) => void;
+    onDuplicate: (product: DeliveryProduct) => void;
     onDelete: (id: string) => void;
-    onToggleActive: (product: Product) => void;
-    onToggleFeatured: (product: Product) => void;
+    onToggleActive: (product: DeliveryProduct) => void;
+    onToggleFeatured: (product: DeliveryProduct) => void;
 }
 
 export function ProductAdminTable({
@@ -120,8 +108,8 @@ export function ProductAdminTable({
                                 {/* Stock */}
                                 <td className="p-4 text-center">
                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${(product.stock || 0) > 0
-                                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-                                            : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                                        : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
                                         }`}>
                                         {product.stock || 0}
                                     </span>
@@ -132,8 +120,8 @@ export function ProductAdminTable({
                                     <button
                                         onClick={() => onToggleActive(product)}
                                         className={`p-1.5 rounded-lg transition-colors ${product.is_active
-                                                ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400'
-                                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-500'
+                                            ? 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400'
+                                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-500'
                                             }`}
                                         title={product.is_active ? 'Desativar' : 'Ativar'}
                                     >
@@ -146,8 +134,8 @@ export function ProductAdminTable({
                                     <button
                                         onClick={() => onToggleFeatured(product)}
                                         className={`p-1.5 rounded-lg transition-colors ${product.is_featured
-                                                ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-300 dark:text-gray-600'
+                                            ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                            : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-300 dark:text-gray-600'
                                             }`}
                                         title={product.is_featured ? 'Remover Destaque' : 'Destacar'}
                                     >
