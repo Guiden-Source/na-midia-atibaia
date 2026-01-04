@@ -48,27 +48,43 @@ export default function GerenciarProdutosPage() {
             return;
         }
 
-        // CSV Header
-        const headers = ["nome,descricao,preco,promocao,categoria,ativo,estoque,imagem"];
+        // UTF-8 BOM for Excel compatibility (Windows)
+        const BOM = '\uFEFF';
+
+        // CSV Header with destaque field
+        const headers = ["nome,descricao,preco,promocao,categoria,ativo,estoque,destaque,imagem"];
+
+        // Helper function to properly escape CSV fields
+        const escapeCSV = (value: string | null | undefined): string => {
+            if (!value) return '""';
+            // Escape double quotes and wrap in quotes
+            return `"${value.replace(/"/g, '""')}"`;
+        };
 
         // CSV Rows
         const rows = filteredProducts.map(p => {
-            // Escape special characters and handle nulls
-            const name = `"${p.name.replace(/"/g, '""')}"`;
-            const description = p.description ? `"${p.description.replace(/"/g, '""')}"` : '';
             // Format price: 10.90 -> 10,90 (Brazilian format for Excel)
             const price = p.price.toString().replace('.', ',');
             const promo = p.promotional_price ? p.promotional_price.toString().replace('.', ',') : '';
-            const category = p.category?.name || '';
             const active = p.is_active ? 'sim' : 'não';
-            const stock = p.stock || '';
-            const image = p.image_url || '';
+            const featured = p.is_featured ? 'sim' : 'não';
+            const stock = p.stock?.toString() || '';
 
-            return [name, description, price, promo, category, active, stock, image].join(',');
+            return [
+                escapeCSV(p.name),
+                escapeCSV(p.description || ''),
+                price,
+                promo,
+                escapeCSV(p.category?.name || ''),
+                active,
+                stock,
+                featured,
+                escapeCSV(p.image_url || '')
+            ].join(',');
         });
 
-        // Create Blob and Download
-        const csvContent = [headers, ...rows].join('\n');
+        // Create Blob with BOM and Download
+        const csvContent = BOM + [headers, ...rows].join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -77,6 +93,8 @@ export default function GerenciarProdutosPage() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        toast.success(`${filteredProducts.length} produtos exportados!`);
     };
 
     const toggleSelect = (id: string) => {

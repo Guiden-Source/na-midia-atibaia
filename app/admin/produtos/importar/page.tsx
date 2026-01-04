@@ -17,12 +17,14 @@ interface CSVRow {
     categoria: string;
     ativo?: string;
     estoque?: string;
+    destaque?: string;
     imagem?: string;
 }
 
 export default function ImportarProdutosPage() {
     const [isDragging, setIsDragging] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [updateMode, setUpdateMode] = useState(false);
     const [summary, setSummary] = useState<{ total: number; success: number; errors: string[] } | null>(null);
     const supabase = createClient();
 
@@ -75,14 +77,15 @@ export default function ImportarProdutosPage() {
                     }
 
                     // Check for duplicates
-                    const existingProduct = await supabase
+                    const { data: existingProduct } = await supabase
                         .from('delivery_products')
                         .select('id')
                         .ilike('name', row.nome.trim())
                         .single();
 
-                    if (existingProduct.data) {
-                        errors.push(`Linha ${rowNum}: Produto "${row.nome}" já existe.`);
+                    // If product exists and not in update mode, skip
+                    if (existingProduct && !updateMode) {
+                        errors.push(`Linha ${rowNum}: Produto "${row.nome}" já existe. Ative "Modo Atualizar" para modificá-lo.`);
                         continue;
                     }
 
@@ -108,7 +111,7 @@ export default function ImportarProdutosPage() {
                         continue;
                     }
 
-                    const { error } = await supabase.from('delivery_products').insert({
+                    const productData = {
                         name: row.nome.trim(),
                         description: row.descricao?.trim() || null,
                         price,
@@ -116,13 +119,32 @@ export default function ImportarProdutosPage() {
                         category_id: categoryId,
                         is_active: row.ativo ? row.ativo.toLowerCase() === 'sim' : true,
                         stock: row.estoque ? parseInt(row.estoque) : null,
+                        is_featured: row.destaque ? row.destaque.toLowerCase() === 'sim' : false,
                         image_url: row.imagem?.trim() || null
-                    });
+                    };
 
-                    if (error) {
-                        errors.push(`Linha ${rowNum}: ${error.message}`);
+                    // Update or Insert
+                    if (existingProduct && updateMode) {
+                        const { error } = await supabase
+                            .from('delivery_products')
+                            .update(productData)
+                            .eq('id', existingProduct.id);
+
+                        if (error) {
+                            errors.push(`Linha ${rowNum}: ${error.message}`);
+                        } else {
+                            successCount++;
+                        }
                     } else {
-                        successCount++;
+                        const { error } = await supabase
+                            .from('delivery_products')
+                            .insert(productData);
+
+                        if (error) {
+                            errors.push(`Linha ${rowNum}: ${error.message}`);
+                        } else {
+                            successCount++;
+                        }
                     }
                 }
 
@@ -156,7 +178,7 @@ export default function ImportarProdutosPage() {
     };
 
     const downloadTemplate = () => {
-        const csv = "nome,descricao,preco,promocao,categoria,ativo,estoque,imagem\nCoca Cola 2L,Refrigerante gelado,12.00,,Bebidas,sim,50,https://exemplo.com/coca.jpg\nX-Burger,Hamburguer com queijo,25.90,19.90,Lanches,sim,100,";
+        const csv = "nome,descricao,preco,promocao,categoria,ativo,estoque,destaque,imagem\nCoca Cola 2L,Refrigerante gelado,12.00,,Bebidas,sim,50,não,https://exemplo.com/coca.jpg\nX-Burger,Hamburguer com queijo,25.90,19.90,Lanches,sim,100,sim,";
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -235,21 +257,41 @@ export default function ImportarProdutosPage() {
                             )}
                         </div>
 
-                        <div className="mt-8 flex justify-center gap-4">
-                            <button
-                                onClick={downloadTemplate}
-                                className="flex items-center gap-2 px-6 py-3 border-2 border-orange-500 text-orange-600 font-bold rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-all"
-                            >
-                                <Download size={20} />
-                                Baixar Modelo CSV
-                            </button>
+                        <div className="mt-8 flex flex-col items-center gap-4">
+                            {/* Update Mode Toggle */}
+                            <label className="flex items-center gap-3 px-6 py-3 bg-orange-50 dark:bg-orange-900/10 border-2 border-orange-200 dark:border-orange-800 rounded-xl cursor-pointer hover:bg-orange-100 dark:hover:bg-orange-900/20 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    checked={updateMode}
+                                    onChange={(e) => setUpdateMode(e.target.checked)}
+                                    className="w-5 h-5 rounded border-orange-300 text-orange-600 focus:ring-orange-500"
+                                />
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-orange-900 dark:text-orange-100">
+                                        🔄 Modo Atualizar
+                                    </span>
+                                    <span className="text-xs text-orange-700 dark:text-orange-300">
+                                        Permite reimportar e atualizar produtos existentes
+                                    </span>
+                                </div>
+                            </label>
 
-                            <Link
-                                href="/admin/produtos"
-                                className="flex items-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-                            >
-                                Voltar para Produtos
-                            </Link>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={downloadTemplate}
+                                    className="flex items-center gap-2 px-6 py-3 border-2 border-orange-500 text-orange-600 font-bold rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-all"
+                                >
+                                    <Download size={20} />
+                                    Baixar Modelo CSV
+                                </button>
+
+                                <Link
+                                    href="/admin/produtos"
+                                    className="flex items-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                                >
+                                    Voltar para Produtos
+                                </Link>
+                            </div>
                         </div>
                     </>
                 ) : (
@@ -321,10 +363,10 @@ export default function ImportarProdutosPage() {
                 </LiquidGlass>
 
                 <LiquidGlass className="p-4">
-                    <div className="text-3xl mb-2">🖼️</div>
-                    <h4 className="font-bold mb-1">Imagens</h4>
+                    <div className="text-3xl mb-2">⭐</div>
+                    <h4 className="font-bold mb-1">Destaque</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Cole URLs públicas de imagens. Deixe vazio se não tiver
+                        Use "sim" ou "não" para produtos em destaque
                     </p>
                 </LiquidGlass>
             </div>
