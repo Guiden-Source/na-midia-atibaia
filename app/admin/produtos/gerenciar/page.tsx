@@ -19,16 +19,6 @@ interface Product {
     category?: { name: string };
 }
 
-interface CSVRow {
-    nome: string;
-    descricao?: string;
-    preco: string;
-    promocao?: string;
-    categoria: string;
-    ativo?: string;
-    estoque?: string;
-}
-
 export default function GerenciarProdutosPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -140,106 +130,11 @@ export default function GerenciarProdutosPage() {
         setIsProcessing(false);
     };
 
-    const handleImport = async (file: File) => {
-        setIsProcessing(true);
-        const errors: string[] = [];
-        let successCount = 0;
-
-        Papa.parse<CSVRow>(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: async (results) => {
-                const rows = results.data;
-
-                // Carregar e criar categorias únicas
-                const { data: categories } = await supabase.from('delivery_categories').select('id, name');
-                const categoryMap = new Map(categories?.map(c => [c.name.toLowerCase().trim(), c.id]));
-
-                const uniqueCategories = new Set(rows.map(r => r.categoria?.toLowerCase().trim()).filter(Boolean));
-
-                for (const catName of uniqueCategories) {
-                    if (!categoryMap.has(catName)) {
-                        const { data: newCat } = await supabase
-                            .from('delivery_categories')
-                            .insert({
-                                name: catName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-                                slug: catName.replace(/ /g, '-').replace(/[^\w-]+/g, ''),
-                                order_index: 99
-                            })
-                            .select()
-                            .single();
-
-                        if (newCat) categoryMap.set(catName, newCat.id);
-                    }
-                }
-
-                // Inserir produtos
-                for (const [index, row] of rows.entries()) {
-                    const rowNum = index + 2;
-
-                    if (!row.nome || !row.preco || !row.categoria) {
-                        errors.push(`Linha ${rowNum}: Nome, Preço e Categoria são obrigatórios.`);
-                        continue;
-                    }
-
-                    const categoryId = categoryMap.get(row.categoria.toLowerCase().trim());
-                    if (!categoryId) {
-                        errors.push(`Linha ${rowNum}: Categoria não encontrada`);
-                        continue;
-                    }
-
-                    const price = parseFloat(row.preco.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
-                    const promoPrice = row.promocao ? parseFloat(row.promocao.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) : null;
-
-                    if (isNaN(price)) {
-                        errors.push(`Linha ${rowNum}: Preço inválido`);
-                        continue;
-                    }
-
-                    const { error } = await supabase.from('delivery_products').insert({
-                        name: row.nome.trim(),
-                        description: row.descricao?.trim() || null,
-                        price,
-                        promotional_price: promoPrice,
-                        category_id: categoryId,
-                        is_active: row.ativo ? row.ativo.toLowerCase() === 'sim' : true,
-                        stock: row.estoque ? parseInt(row.estoque) : null,
-                    });
-
-                    if (error) {
-                        errors.push(`Linha ${rowNum}: ${error.message}`);
-                    } else {
-                        successCount++;
-                    }
-                }
-
-                if (successCount > 0) toast.success(`${successCount} produtos importados!`);
-                if (errors.length > 0) {
-                    console.error('Erros:', errors);
-                    toast.error(`${errors.length} erro(s) na importação`);
-                }
-
-                loadProducts();
-                setIsProcessing(false);
-            },
-        });
-    };
-
-    const downloadTemplate = () => {
-        const csv = "nome,descricao,preco,promocao,categoria,ativo,estoque\nCoca Cola 2L,Refrigerante gelado,12.00,,Bebidas,sim,50";
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'modelo_produtos.csv';
-        link.click();
-    };
-
     return (
         <div className="p-6 space-y-6">
             <AdminHeader
                 title="Gerenciar Produtos em Massa"
-                description="Importe, ative/desative ou remova múltiplos produtos de uma vez"
+                description="Ative, desative ou remova múltiplos produtos de uma vez"
             />
 
             {/* Bulk Actions */}
@@ -259,24 +154,13 @@ export default function GerenciarProdutosPage() {
                     </div>
 
                     <div className="flex gap-2">
-                        <label className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer">
+                        <Link
+                            href="/admin/produtos/importar"
+                            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                        >
                             <Upload size={20} />
                             Importar CSV
-                            <input
-                                type="file"
-                                accept=".csv"
-                                className="hidden"
-                                onChange={(e) => e.target.files?.[0] && handleImport(e.target.files[0])}
-                            />
-                        </label>
-
-                        <button
-                            onClick={downloadTemplate}
-                            className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50"
-                        >
-                            <Download size={20} />
-                            Modelo
-                        </button>
+                        </Link>
 
                         <button
                             onClick={handleBulkActivate}
@@ -352,8 +236,8 @@ export default function GerenciarProdutosPage() {
                                     <td className="px-4 py-3">{product.stock ?? '-'}</td>
                                     <td className="px-4 py-3">
                                         <span className={`px-2 py-1 rounded-full text-xs font-bold ${product.is_active
-                                            ? 'bg-green-100 text-green-700'
-                                            : 'bg-gray-100 text-gray-600'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-gray-100 text-gray-600'
                                             }`}>
                                             {product.is_active ? 'Ativo' : 'Inativo'}
                                         </span>
