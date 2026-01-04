@@ -17,6 +17,7 @@ interface CSVRow {
     categoria: string;
     ativo?: string;
     estoque?: string;
+    imagem?: string;
 }
 
 export default function ImportarProdutosPage() {
@@ -103,6 +104,7 @@ export default function ImportarProdutosPage() {
                         category_id: categoryId,
                         is_active: row.ativo ? row.ativo.toLowerCase() === 'sim' : true,
                         stock: row.estoque ? parseInt(row.estoque) : null,
+                        image_url: row.imagem?.trim() || null
                     });
 
                     if (error) {
@@ -142,7 +144,7 @@ export default function ImportarProdutosPage() {
     };
 
     const downloadTemplate = () => {
-        const csv = "nome,descricao,preco,promocao,categoria,ativo,estoque\nCoca Cola 2L,Refrigerante gelado,12.00,,Bebidas,sim,50\nX-Burger,Hamburguer com queijo,25.90,19.90,Lanches,sim,100";
+        const csv = "nome,descricao,preco,promocao,categoria,ativo,estoque,imagem\nCoca Cola 2L,Refrigerante gelado,12.00,,Bebidas,sim,50,https://exemplo.com/coca.jpg\nX-Burger,Hamburguer com queijo,25.90,19.90,Lanches,sim,100,";
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -307,10 +309,10 @@ export default function ImportarProdutosPage() {
                 </LiquidGlass>
 
                 <LiquidGlass className="p-4">
-                    <div className="text-3xl mb-2">📦</div>
-                    <h4 className="font-bold mb-1">Estoque</h4>
+                    <div className="text-3xl mb-2">🖼️</div>
+                    <h4 className="font-bold mb-1">Imagens</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Campo opcional. Deixe vazio se não controla estoque
+                        Cole URLs públicas de imagens. Deixe vazio se não tiver
                     </p>
                 </LiquidGlass>
             </div>
