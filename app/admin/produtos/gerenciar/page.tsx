@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Upload, Trash2, PowerOff, Power, CheckSquare, Square, Search, Loader2 } from 'lucide-react';
+import { Upload, Trash2, PowerOff, Power, CheckSquare, Square, Search, Loader2, Download } from 'lucide-react';
 import Link from 'next/link';
 import { LiquidGlass } from '@/components/ui/liquid-glass';
 import { AdminHeader } from '@/components/admin/AdminHeader';
@@ -42,7 +42,45 @@ export default function GerenciarProdutosPage() {
         product.category?.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleExport = () => {
+        if (filteredProducts.length === 0) {
+            toast.error('Nenhum produto para exportar');
+            return;
+        }
+
+        // CSV Header
+        const headers = ["nome,descricao,preco,promocao,categoria,ativo,estoque,imagem"];
+
+        // CSV Rows
+        const rows = filteredProducts.map(p => {
+            // Escape special characters and handle nulls
+            const name = `"${p.name.replace(/"/g, '""')}"`;
+            const description = p.description ? `"${p.description.replace(/"/g, '""')}"` : '';
+            // Format price: 10.90 -> 10,90 (Brazilian format for Excel)
+            const price = p.price.toString().replace('.', ',');
+            const promo = p.promotional_price ? p.promotional_price.toString().replace('.', ',') : '';
+            const category = p.category?.name || '';
+            const active = p.is_active ? 'sim' : 'não';
+            const stock = p.stock || '';
+            const image = p.image_url || '';
+
+            return [name, description, price, promo, category, active, stock, image].join(',');
+        });
+
+        // Create Blob and Download
+        const csvContent = [headers, ...rows].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `produtos_export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const toggleSelect = (id: string) => {
+
         const newSet = new Set(selectedIds);
         if (newSet.has(id)) {
             newSet.delete(id);
@@ -174,6 +212,15 @@ export default function GerenciarProdutosPage() {
                             <Upload size={20} />
                             Importar
                         </Link>
+
+                        <button
+                            onClick={handleExport}
+                            className="flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 whitespace-nowrap"
+                            title="Exportar lista filtrada"
+                        >
+                            <Download size={20} />
+                            Exportar
+                        </button>
 
                         <div className="h-full w-px bg-gray-300 dark:bg-gray-700 mx-2 hidden md:block"></div>
 
