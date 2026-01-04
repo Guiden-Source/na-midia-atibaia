@@ -1,67 +1,70 @@
 import { formatPrice } from './cart';
 
 interface OrderConfirmationEmailData {
-    orderNumber: string;
-    customerName: string;
-    customerEmail: string;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
 
-    // Localização
-    condominium: string;
-    tower: string;
-    apartment: string;
+  // Localização
+  condominium: string;
+  tower: string;
+  apartment: string;
 
-    // Valores
-    subtotal: number;
-    deliveryFee: number;
-    total: number;
+  // Valores
+  subtotal: number;
+  deliveryFee: number;
+  total: number;
 
-    // Cupom (se usado)
-    couponApplied?: {
-        code: string;
-        discount: number;
-        discountAmount: number;
-    };
+  // Cupom (se usado)
+  couponApplied?: {
+    code: string;
+    discount: number;
+    discountAmount: number;
+  };
 
-    // Novo cupom gerado
-    newCoupon?: {
-        code: string;
-        discount: number;
-        expiresAt: string;
-    };
+  // Novo cupom gerado
+  newCoupon?: {
+    code: string;
+    discount: number;
+    expiresAt: string;
+  };
 
-    // Pagamento
-    paymentMethod: string;
-    changeFor?: number;
+  // Pagamento
+  paymentMethod: string;
+  changeFor?: number;
 
-    // Items
-    items: Array<{
-        name: string;
-        quantity: number;
-        price: number;
-    }>;
+  // Items
+  items: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+
+  // Observações do pedido
+  notes?: string;
 }
 
 /**
  * Gera HTML do email de confirmação
  */
 export function generateOrderConfirmationEmail(data: OrderConfirmationEmailData): string {
-    const {
-        orderNumber,
-        customerName,
-        condominium,
-        tower,
-        apartment,
-        subtotal,
-        deliveryFee,
-        total,
-        couponApplied,
-        newCoupon,
-        paymentMethod,
-        changeFor,
-        items,
-    } = data;
+  const {
+    orderNumber,
+    customerName,
+    condominium,
+    tower,
+    apartment,
+    subtotal,
+    deliveryFee,
+    total,
+    couponApplied,
+    newCoupon,
+    paymentMethod,
+    changeFor,
+    items,
+  } = data;
 
-    return `
+  return `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -183,6 +186,18 @@ export function generateOrderConfirmationEmail(data: OrderConfirmationEmailData)
                 </p>
               </div>
 
+              ${data.notes ? `
+              <!-- Observações do Pedido -->
+              <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px 20px; margin-bottom: 25px; border-radius: 8px;">
+                <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; color: #92400e;">
+                  📝 OBSERVAÇÕES DO PEDIDO
+                </p>
+                <p style="margin: 0; font-size: 15px; color: #78350f; line-height: 1.5;">
+                  ${data.notes}
+                </p>
+              </div>
+              ` : ''}
+
               <!-- Tempo de Entrega -->
               <div style="background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 15px 20px; margin-bottom: 25px; border-radius: 8px;">
                 <p style="margin: 0; font-size: 15px; color: #1e40af;">
@@ -245,21 +260,21 @@ export function generateOrderConfirmationEmail(data: OrderConfirmationEmailData)
  * Gera texto plain do email (fallback)
  */
 export function generateOrderConfirmationText(data: OrderConfirmationEmailData): string {
-    const {
-        orderNumber,
-        customerName,
-        condominium,
-        tower,
-        apartment,
-        subtotal,
-        total,
-        couponApplied,
-        newCoupon,
-        paymentMethod,
-        items,
-    } = data;
+  const {
+    orderNumber,
+    customerName,
+    condominium,
+    tower,
+    apartment,
+    subtotal,
+    total,
+    couponApplied,
+    newCoupon,
+    paymentMethod,
+    items,
+  } = data;
 
-    let text = `
+  let text = `
 ✅ PEDIDO CONFIRMADO!
 Pedido #${orderNumber}
 
@@ -278,29 +293,35 @@ Subtotal: ${formatPrice(subtotal)}
 Taxa de entrega: GRÁTIS
 `;
 
-    if (couponApplied) {
-        text += `Cupom ${couponApplied.code} (${couponApplied.discount}% OFF): -${formatPrice(couponApplied.discountAmount)}\n`;
-    }
+  if (couponApplied) {
+    text += `Cupom ${couponApplied.code} (${couponApplied.discount}% OFF): -${formatPrice(couponApplied.discountAmount)}\n`;
+  }
 
-    text += `\nTOTAL: ${formatPrice(total)}
+  text += `\nTOTAL: ${formatPrice(total)}
 
 💵 FORMA DE PAGAMENTO: ${paymentMethod.toUpperCase()}
-⏰ PREVISÃO DE ENTREGA: 20 minutos
 `;
 
-    if (newCoupon) {
-        text += `\n🎁 GANHOU UM CUPOM!
+  if (data.notes) {
+    text += `\n📝 OBSERVAÇÕES: ${data.notes}\n`;
+  }
+
+  text += `\n⏰ PREVISÃO DE ENTREGA: 20 minutos
+`;
+
+  if (newCoupon) {
+    text += `\n🎁 GANHOU UM CUPOM!
 Use no próximo pedido: ${newCoupon.code}
 Desconto: ${newCoupon.discount}% OFF
 Válido até: ${new Date(newCoupon.expiresAt).toLocaleDateString('pt-BR')}
 `;
-    }
+  }
 
-    text += `\nObrigado por comprar com a gente!
+  text += `\nObrigado por comprar com a gente!
 Na Mídia Delivery
 
 Dúvidas? Instagram: @namidia.atibaia
   `;
 
-    return text;
+  return text;
 }

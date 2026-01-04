@@ -145,11 +145,21 @@ export default function CatalogoPage() {
                         style={{ width: '1200px', margin: '0 auto' }}
                     >
                         <div className="text-center mb-8">
-                            <h2 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500 mb-2 font-baloo2">
-                                🛒 NA MÍDIA DELIVERY
-                            </h2>
-                            <div className="inline-block bg-gradient-to-r from-orange-500 to-pink-500 text-white px-8 py-3 rounded-full text-2xl font-bold">
+                            {/* Logo */}
+                            <img
+                                src="/logotiponamidiavetorizado.svg"
+                                alt="Na Mídia Delivery"
+                                className="h-20 mx-auto mb-4"
+                                style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }}
+                            />
+
+                            <div className="inline-block bg-gradient-to-r from-orange-500 to-pink-500 text-white px-8 py-3 rounded-full text-2xl font-bold shadow-xl">
                                 🔥 OFERTAS DO DIA
+                            </div>
+
+                            {/* Urgência */}
+                            <div className="mt-3 inline-block bg-yellow-400 text-gray-900 px-6 py-2 rounded-full text-sm font-bold animate-pulse">
+                                ⏰ VÁLIDO SÓ HOJE! Aproveite enquanto dura
                             </div>
                         </div>
 
@@ -196,15 +206,42 @@ export default function CatalogoPage() {
                             ))}
                         </div>
 
-                        <div className="bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-2xl p-6 text-center">
-                            <div className="text-3xl font-black mb-2">
-                                📲 Faça o seu pedido!
+                        <div className="bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-2xl overflow-hidden">
+                            <div className="grid grid-cols-2 gap-0">
+                                {/* WhatsApp CTA */}
+                                <div className="p-6 border-r-2 border-white/30">
+                                    <div className="text-4xl mb-2">💬</div>
+                                    <div className="text-2xl font-black mb-2">
+                                        WhatsApp
+                                    </div>
+                                    <div className="text-lg font-bold bg-white/20 px-4 py-2 rounded-lg">
+                                        (11) 94761-4823
+                                    </div>
+                                    <div className="text-xs mt-2 opacity-80">
+                                        Clique para pedir
+                                    </div>
+                                </div>
+
+                                {/* Site CTA */}
+                                <div className="p-6">
+                                    <div className="text-4xl mb-2">🌐</div>
+                                    <div className="text-2xl font-black mb-2">
+                                        Pelo Site
+                                    </div>
+                                    <div className="text-sm font-bold bg-white/20 px-4 py-2 rounded-lg">
+                                        namidia.com.br
+                                    </div>
+                                    <div className="text-xs mt-2 opacity-80">
+                                        Acesse agora
+                                    </div>
+                                </div>
                             </div>
-                            <div className="text-xl font-bold">
-                                Pelo nosso site ou via WhatsApp
-                            </div>
-                            <div className="text-lg mt-2 opacity-90">
-                                Entrega Grátis • Jerônimo de Camargo 1 e 2
+
+                            {/* Rodapé */}
+                            <div className="bg-black/20 py-3 text-center">
+                                <div className="text-sm font-bold">
+                                    ✅ Entrega GRÁTIS • Jerônimo de Camargo 1 e 2
+                                </div>
                             </div>
                         </div>
                     </div>
