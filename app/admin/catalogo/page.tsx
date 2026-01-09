@@ -171,38 +171,38 @@ export default function CatalogoPage() {
                         <div className="relative z-10 flex flex-col min-h-[1920px]">
 
                             {/* Header */}
-                            <div className="pt-16 pb-12 px-12 text-center text-white">
+                            <div className="pt-16 pb-12 px-12 text-center text-white relative z-20">
                                 <img
                                     src="/logotiponamidiavetorizado.svg"
                                     alt="Na Mídia Delivery"
-                                    className="h-28 mx-auto mb-8 drop-shadow-[0_0_25px_rgba(255,165,0,0.5)] bg-white/10 p-4 rounded-3xl backdrop-blur-md"
+                                    className="h-28 mx-auto mb-8 bg-white/10 p-4 rounded-3xl"
                                 />
 
-                                <div className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500 to-pink-600 px-10 py-4 rounded-full shadow-2xl mb-6 transform -rotate-1 border border-white/20">
+                                <div className="inline-flex items-center gap-3 bg-[#e8590c] text-white px-10 py-4 rounded-full shadow-2xl mb-6 border border-white/20">
                                     <span className="text-4xl">🔥</span>
                                     <span className="text-4xl font-black tracking-wider uppercase">Ofertas do Dia</span>
                                 </div>
 
-                                <div className="flex justify-center gap-4 text-orange-200 font-medium text-xl">
-                                    <span className="bg-black/30 px-6 py-2 rounded-full backdrop-blur-sm border border-white/10">
+                                <div className="flex justify-center gap-4 text-orange-100 font-bold text-xl">
+                                    <span className="bg-black/40 px-6 py-2 rounded-full border border-white/10">
                                         📅 Válido para hoje
                                     </span>
-                                    <span className="bg-black/30 px-6 py-2 rounded-full backdrop-blur-sm border border-white/10">
+                                    <span className="bg-black/40 px-6 py-2 rounded-full border border-white/10">
                                         ⚡ Entrega em 30min
                                     </span>
                                 </div>
                             </div>
 
                             {/* Products List - Vertical Layout */}
-                            <div className="flex-1 px-12 py-4 space-y-6">
+                            <div className="flex-1 px-12 py-4 space-y-6 relative z-20">
                                 {products.slice(0, 8).map((product, index) => (
                                     <div
                                         key={product.id}
-                                        className="flex bg-white/95 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl border border-white/50 transform transition-transform hover:scale-[1.01]"
+                                        className="flex bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-100"
                                         style={{ height: '200px' }}
                                     >
                                         {/* Product Image - Left Side */}
-                                        <div className="w-[200px] min-w-[200px] h-full bg-white p-4 flex items-center justify-center relative overflow-hidden">
+                                        <div className="w-[200px] min-w-[200px] h-full bg-gray-50 p-4 flex items-center justify-center relative">
                                             {product.image_url ? (
                                                 <img
                                                     src={normalizeImgurUrl(product.image_url)}
@@ -221,19 +221,16 @@ export default function CatalogoPage() {
                                         </div>
 
                                         {/* Product Info - Right Side */}
-                                        <div className="flex-1 p-6 flex flex-col justify-center relative overflow-hidden">
-                                            {/* decorative blob */}
-                                            <div className="absolute right-0 top-0 w-32 h-32 bg-orange-100 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-
-                                            <h3 className="text-2xl font-bold text-gray-900 mb-2 leading-tight relative z-10 line-clamp-2">
+                                        <div className="flex-1 p-6 flex flex-col justify-center bg-white relative">
+                                            <h3 className="text-3xl font-bold text-gray-900 mb-2 leading-tight line-clamp-2" style={{ color: '#1a1a1a' }}>
                                                 {product.name}
                                             </h3>
 
-                                            <div className="flex items-end gap-4 mt-auto relative z-10">
+                                            <div className="flex items-end gap-4 mt-auto">
                                                 <div className="text-gray-400 text-xl font-medium line-through mb-1">
                                                     {formatPrice(product.price)}
                                                 </div>
-                                                <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-orange-600 to-pink-600 tracking-tight">
+                                                <div className="text-5xl font-black text-[#e8590c] tracking-tight" style={{ color: '#e8590c' }}>
                                                     {formatPrice(product.promotional_price!)}
                                                 </div>
                                             </div>
