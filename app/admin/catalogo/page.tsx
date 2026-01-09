@@ -9,6 +9,24 @@ import { LiquidGlass } from '@/components/ui/liquid-glass';
 import toast from 'react-hot-toast';
 import html2canvas from 'html2canvas';
 
+// Helper function to normalize Imgur URLs
+function normalizeImgurUrl(url: string): string {
+    if (!url) return url;
+
+    // Convert Imgur page URL to direct image URL
+    // https://imgur.com/ABC123 -> https://i.imgur.com/ABC123.png
+    const imgurPagePattern = /^https?:\/\/imgur\.com\/([a-zA-Z0-9]+)$/;
+    const match = url.match(imgurPagePattern);
+
+    if (match) {
+        const imageId = match[1];
+        // Try .png first (most common), will fallback if needed
+        return `https://i.imgur.com/${imageId}.png`;
+    }
+
+    return url;
+}
+
 export default function CatalogoPage() {
     const [products, setProducts] = useState<DeliveryProduct[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -172,9 +190,10 @@ export default function CatalogoPage() {
                                     {product.image_url ? (
                                         <div className="relative h-48 bg-gray-100 overflow-hidden">
                                             <img
-                                                src={product.image_url}
+                                                src={normalizeImgurUrl(product.image_url)}
                                                 alt={product.name}
                                                 className="w-full h-full object-contain"
+                                                crossOrigin="anonymous"
                                             />
                                         </div>
                                     ) : (
